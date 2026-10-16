@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — vidéo promo 1 minute (TikTok / Shorts)</title>
+<script src="../naogroup-logos.js"></script>
+<script src="../naogroup-cloud.js"></script>
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --bord:rgba(255,255,255,.16); --lilas:#C9B7F5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#120E26;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6}
+.page{max-width:1180px;margin:0 auto;padding:24px 22px 80px}
+h1{margin:0 0 6px;font-size:28px;color:#fff}
+h1 span{color:var(--lilas)}
+h2{margin:36px 0 12px;font-size:21px;color:#fff}
+p.lead{margin:0 0 20px;color:var(--ink-2);max-width:78ch;font-size:15px}
+.zone{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+.commandes{flex:1;min-width:280px;font-family:var(--ui);font-style:normal}
+.btn{font:600 13px var(--ui);color:#fff;background:rgba(255,255,255,.09);border:1px solid var(--bord);border-radius:999px;padding:11px 18px;cursor:pointer;margin:0 8px 8px 0}
+.btn.plein{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#EBDFFD);border-color:transparent}
+.btn:hover{filter:brightness(1.12)}
+.aide{font:13px/1.6 var(--ui);color:var(--ink-2);margin:10px 0}
+.aide b{color:#fff}
+.horloge{font:700 26px var(--ui);color:#fff;margin:6px 0 2px}
+.barre{height:6px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin-bottom:14px}
+.barre i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8E7BD4,#C39BF3);transition:width .4s linear}
+
+/* ---------- la scène 9:16 ---------- */
+.cadre{flex:none}
+.stage{position:relative;height:min(86vh,760px);aspect-ratio:9/16;border-radius:26px;overflow:hidden;--u:5px;
+  background:radial-gradient(120% 70% at 50% 30%,#7564C2 0%,#43358A 45%,#1C1636 100%);box-shadow:0 30px 80px -30px #000}
+.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.16) 1px,transparent 1.7px);background-size:calc(var(--u)*5) calc(var(--u)*5);
+  -webkit-mask-image:radial-gradient(circle at 50% 35%,#000 0 30%,transparent 75%);mask-image:radial-gradient(circle at 50% 35%,#000 0 30%,transparent 75%)}
+.halo{position:absolute;border-radius:50%;filter:blur(calc(var(--u)*11));animation:dr 9s ease-in-out infinite alternate}
+.halo.a{width:calc(var(--u)*70);height:calc(var(--u)*70);background:#B9A8F0;left:-10%;top:5%;opacity:.5}
+.halo.b{width:calc(var(--u)*60);height:calc(var(--u)*60);background:#60ccc1;right:-15%;bottom:8%;opacity:.3;animation-duration:12s}
+.halo.c{width:calc(var(--u)*50);height:calc(var(--u)*50);background:#ed7483;right:10%;top:-8%;opacity:.26;animation-duration:15s}
+@keyframes dr{to{transform:translate(calc(var(--u)*6),calc(var(--u)*-8)) scale(1.15)}}
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:calc(var(--u)*8)}
+.scene.on{opacity:1;visibility:visible}
+.titre{font:italic 700 calc(var(--u)*10.5)/1.05 var(--sans);color:#fff;letter-spacing:-.02em;text-shadow:0 calc(var(--u)*1) calc(var(--u)*5) rgba(0,0,0,.4)}
+.titre em{color:var(--lilas)}
+.sous{font:600 calc(var(--u)*3.6)/1.35 var(--ui);font-style:normal;color:var(--ink-2);margin-top:calc(var(--u)*4)}
+.jeton-g{width:calc(var(--u)*34);height:calc(var(--u)*34);border-radius:calc(var(--u)*10.5);box-shadow:0 calc(var(--u)*6) calc(var(--u)*14) rgba(0,0,0,.5)}
+.on .pop{animation:pop .8s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.4) rotate(-14deg)}to{opacity:1;transform:none}}
+.on .monte{animation:mt .7s ease both}
+.on .monte.d1{animation-delay:.25s}.on .monte.d2{animation-delay:.5s}.on .monte.d3{animation-delay:.8s}
+@keyframes mt{from{opacity:0;transform:translateY(calc(var(--u)*4))}to{opacity:1;transform:none}}
+.on .secoue{animation:sec .55s ease-in-out infinite alternate}
+@keyframes sec{from{transform:rotate(-2deg)}to{transform:rotate(2deg) translateY(calc(var(--u)*-1))}}
+
+/* problème : le désordre */
+.chaos{position:absolute;inset:0}
+.chip{position:absolute;font:600 calc(var(--u)*3.4) var(--ui);font-style:normal;color:#1C1636;background:#EBDFFD;border-radius:calc(var(--u)*2);padding:calc(var(--u)*1.6) calc(var(--u)*3);
+  box-shadow:0 calc(var(--u)*1.5) calc(var(--u)*4) rgba(0,0,0,.35);animation:vol 3.2s ease-in-out infinite alternate}
+@keyframes vol{from{transform:translate(0,0) rotate(var(--r))}to{transform:translate(calc(var(--u)*3),calc(var(--u)*-3)) rotate(calc(var(--r)*-1))}}
+.scene.aspire .chip{animation:asp 1.4s ease-in both}
+@keyframes asp{to{left:50%;top:44%;transform:scale(.1) rotate(200deg);opacity:0}}
+
+/* solution : les points s'allument */
+.points{display:flex;gap:calc(var(--u)*3);margin-top:calc(var(--u)*6)}
+.points i{width:calc(var(--u)*3.2);height:calc(var(--u)*3.2);border-radius:50%;background:#fff;opacity:.15;animation:al .5s ease both}
+.on .points i:nth-child(1){animation-delay:.6s}.on .points i:nth-child(2){animation-delay:1.1s}.on .points i:nth-child(3){animation-delay:1.6s}.on .points i:nth-child(4){animation-delay:2.1s}
+@keyframes al{to{opacity:.9;transform:scale(1.25)}}
+
+/* outils : une carte à la fois */
+.carte-outil{display:flex;flex-direction:column;align-items:center;animation:pop .6s cubic-bezier(.2,1.4,.4,1) both}
+.carte-outil svg{width:calc(var(--u)*38);height:calc(var(--u)*38);border-radius:calc(var(--u)*12);box-shadow:0 calc(var(--u)*7) calc(var(--u)*16) rgba(0,0,0,.5)}
+.carte-outil h3{margin:calc(var(--u)*6) 0 0;font:italic 700 calc(var(--u)*11)/1 var(--sans);color:#fff}
+.carte-outil h3 span{color:var(--lilas)}
+.carte-outil .r{font:800 calc(var(--u)*3)/1.3 var(--ui);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:calc(var(--u)*2)}
+.carte-outil p{font:600 calc(var(--u)*3.8)/1.4 var(--ui);font-style:normal;color:var(--ink-2);margin:calc(var(--u)*4) 0 0;max-width:calc(var(--u)*70)}
+.rail{position:absolute;bottom:calc(var(--u)*26);left:0;right:0;display:flex;justify-content:center;gap:calc(var(--u)*2)}
+.rail i{width:calc(var(--u)*2.4);height:calc(var(--u)*2.4);border-radius:50%;background:rgba(255,255,255,.25);transition:.3s}
+.rail i.ici{background:#fff;transform:scale(1.5)}
+
+/* profil : ouvert / fermé */
+.grille-p{display:grid;grid-template-columns:repeat(5,1fr);gap:calc(var(--u)*3);margin-top:calc(var(--u)*7);width:100%;max-width:calc(var(--u)*84)}
+.grille-p .o{position:relative;aspect-ratio:1;animation:pop .6s both}
+.grille-p svg{width:100%;height:100%;border-radius:22%}
+.grille-p .o.ferme svg{filter:grayscale(1);opacity:.3}
+.grille-p .o.ferme::after{content:'🔒';position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--u)*4.4)}
+
+/* sous-titres */
+.legende{position:absolute;left:0;right:0;bottom:calc(var(--u)*11);padding:0 calc(var(--u)*6);text-align:center;z-index:5}
+.legende span{display:inline;font:800 calc(var(--u)*4.7)/1.35 var(--ui);font-style:normal;color:#fff;background:rgba(20,14,44,.62);
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;padding:calc(var(--u)*.6) calc(var(--u)*2);border-radius:calc(var(--u)*1.6)}
+.marque{position:absolute;top:calc(var(--u)*5);left:calc(var(--u)*6);display:flex;align-items:center;gap:calc(var(--u)*2);z-index:5;font:700 calc(var(--u)*4) var(--sans);font-style:italic;color:#fff}
+.marque svg{width:calc(var(--u)*8);height:calc(var(--u)*8);border-radius:calc(var(--u)*2.6)}
+.marque b{color:var(--lilas)}
+
+/* ---------- la version avec présentatrice ---------- */
+table{width:100%;border-collapse:collapse;font:13px/1.55 var(--ui);font-style:normal}
+th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:0 10px 8px;border-bottom:1px solid var(--bord)}
+td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top;color:var(--ink-2)}
+td b{color:#fff}
+td.t{white-space:nowrap;color:var(--lilas);font-weight:700}
+.bloc{background:rgba(255,255,255,.06);border:1px solid var(--bord);border-radius:18px;padding:18px 20px;margin-bottom:14px;font:14px/1.65 var(--ui);font-style:normal;color:var(--ink-2)}
+.bloc h3{margin:0 0 8px;font:italic 700 17px var(--sans);color:#fff}
+.bloc code{display:block;white-space:pre-wrap;background:rgba(0,0,0,.3);border-radius:12px;padding:12px 14px;font:12.5px/1.6 ui-monospace,Consolas,monospace;color:#E7DFFB;margin:8px 0}
+.bloc ul{margin:6px 0 0;padding-left:20px}
+.bloc li{margin:4px 0}
+.att{border-left:3px solid #E3B872;background:rgba(196,144,63,.1);border-radius:0 14px 14px 0;padding:12px 16px;font:13.5px/1.6 var(--ui);font-style:normal;color:var(--ink-2)}
+.att b{color:#E3B872}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>NaoGroup — <span>vidéo promo d'environ 1 minute</span></h1>
+  <p class="lead">Format vertical 9:16, pour TikTok, Instagram Reels et YouTube Shorts. À gauche, la vidéo animée avec sa voix off : <b style="color:#fff">chaque scène attend la fin de la phrase</b>,
+    la voix n'est donc jamais coupée. En bas, le scénario pour la présentatrice, sans aucune main à l'image.</p>
+
+  <div class="zone">
+    <div class="cadre">
+      <div class="stage" id="stage">
+        <div class="halo a"></div><div class="halo b"></div><div class="halo c"></div>
+        <div class="marque"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg><span>Nao<b>Group</b></span></div>
+        <div id="scenes"></div>
+        <div class="legende"><span id="legende"></span></div>
+      </div>
+    </div>
+
+    <div class="commandes">
+      <div class="horloge" id="horloge">0:00</div>
+      <div class="barre"><i id="progres"></i></div>
+      <button class="btn plein" id="jouer">▶ Lancer avec la voix off</button>
+      <button class="btn" id="muet">▶ Sans voix</button>
+      <button class="btn" id="stop">■ Arrêter</button>
+      <button class="btn" id="plein">Plein écran</button>
+      <p class="aide" id="duree"></p>
+      <p class="aide"><b>Pour en faire un fichier vidéo :</b> ouvrez cette page dans Chrome, lancez la vidéo en plein écran, et enregistrez l'écran avec la barre de jeu Windows
+        (<b>Windows + G</b>, puis « Capturer »). Rognez ensuite en 9:16 dans votre appli de montage (CapCut, par exemple).</p>
+      <p class="aide"><b>La voix :</b> c'est la voix française de votre ordinateur (Microsoft Hortense), correcte mais un peu robotique. Pour un rendu plus humain,
+        enregistrez votre propre voix sur les mêmes phrases (elles s'affichent en sous-titres), ou utilisez un service de voix par IA, puis remplacez la piste dans votre montage.</p>
+    </div>
+  </div>
+
+  <h2>Version avec présentatrice — scénario minuté</h2>
+  <p class="lead">Une jeune femme à l'écran, en plans serrés et lumière naturelle. <b style="color:#fff">Pas de main visible, pas de téléphone dans les mains, pas de geste</b> : les mains sont ce que les IA vidéo réussissent le moins.
+    Sa voix est posée par-dessus en voix off (aucune synchro des lèvres à réussir), et la vidéo animée ci-dessus fait les inserts.</p>
+  <div class="bloc"><table>
+    <thead><tr><th>Temps</th><th>Plan sur elle</th><th>Voix off</th><th>Texte à l'écran</th></tr></thead>
+    <tbody>
+      <tr><td class="t">0–4 s</td><td><b>Accroche.</b> Plan poitrine, elle regarde l'objectif, sourire en coin, épaules détendues. Mains hors champ, sous le cadre.</td><td>« Ton budget. Tes rendez-vous. Tes papiers. »</td><td>Ta vie, en désordre ?</td></tr>
+      <tr><td class="t">4–12 s</td><td><b>Le problème.</b> Même cadrage, elle souffle avec un petit sourire fatigué. Insert : les pastilles qui volent (vidéo animée).</td><td>« Des carnets, des tableurs, dix applis différentes… Et tu perds plus de temps à chercher qu'à vivre. »</td><td>Notes · Tableurs · Mails</td></tr>
+      <tr><td class="t">12–20 s</td><td><b>La solution.</b> Elle sourit, la tête se redresse, cadrage un peu plus large. Insert : le logo NaoGroup.</td><td>« Voici NaoGroup : une maison numérique pour tous tes outils. »</td><td>Des outils pour la vie de tous les jours</td></tr>
+      <tr><td class="t">20–40 s</td><td><b>Les outils.</b> Aucun plan d'elle : uniquement la vidéo animée, un outil à la fois (voix off seule).</td><td>Le nom et le rôle de chaque outil, un par un.</td><td>Un outil par plan</td></tr>
+      <tr><td class="t">40–50 s</td><td><b>Ton profil.</b> Retour sur elle, plan poitrine, elle hoche doucement la tête. Insert : outils ouverts en couleur, les autres grisés.</td><td>« Chaque profil a ses outils, vierges. Tes données ne sont qu'à toi. Tu vois tout ce qui existe, tu ouvres ce que tu choisis. »</td><td>Tes outils. Vierges. À toi.</td></tr>
+      <tr><td class="t">50–60 s</td><td><b>Appel à l'action.</b> Face caméra, grand sourire, un petit clin d'œil. Toujours sans mains.</td><td>« Rejoins NaoGroup. Souscris depuis la page contact. Lien en bio. »</td><td>NaoGroup · lien en bio</td></tr>
+    </tbody></table></div>
+
+  <div class="bloc"><h3>Pour que ça ne se voie pas que c'est de l'IA : les mains</h3>
+    <ul>
+      <li><b>Cadrez plus haut.</b> Plan poitrine ou gros plan : les mains sortent du cadre et l'IA n'a rien à inventer.</li>
+      <li><b>Dites-le dans la demande</b> : « hands out of frame » et, en exclusion, « no hands, no fingers, no phone, no objects ». Ne demandez jamais de tenir un téléphone, de pointer ou de faire un geste.</li>
+      <li><b>Clips courts</b> de 4 à 6 secondes : les défauts apparaissent surtout sur les plans longs.</li>
+      <li><b>Partez d'une image fixe réussie</b> (mode « image vers vidéo ») plutôt que d'un texte seul : le visage et le cadrage restent identiques d'un plan à l'autre.</li>
+      <li>Si un plan a une main ratée, <b>recouvrez-le</b> avec un insert de la vidéo animée ou recadrez plus serré au montage.</li>
+    </ul></div>
+
+  <div class="bloc"><h3>Demandes à copier dans l'IA vidéo (Veo, Sora, Kling, Runway…)</h3>
+    Générez chaque plan à part, puis assemblez avec la voix off. À adapter, en anglais :
+    <code>Vertical 9:16, natural daylight, medium close-up (chest-up) of a woman in her mid-twenties of mixed heritage, warm brown skin, soft curly hair, warm genuine smile, looking straight into the camera, bright modern apartment, shallow depth of field. Both hands out of frame below the camera, arms relaxed. Authentic social-media look. No hands visible, no fingers, no phone, no objects, no text, no watermark.</code>
+    Plan « problème » : <code>Same woman, same framing, hands out of frame. She lets out a small tired-but-amused sigh, slight head tilt. 5 seconds.</code>
+    Plan « solution » : <code>Same woman, same framing, slightly wider shot, hands out of frame. Her expression lights up into a relieved bright smile. 5 seconds.</code>
+    Plan final : <code>Same woman, same framing, hands out of frame. Big smile to camera, one playful wink, then a soft smile. 5 seconds.</code>
+    Gardez la même description de la femme dans chaque demande, mot pour mot, pour qu'elle garde le même visage.</div>
+
+  <div class="bloc"><h3>Légende et mots-clés</h3>
+    Ton quotidien mérite mieux qu'un tableur perdu dans un dossier. 🗂️✨ NaoGroup réunit tes outils du quotidien au même endroit — budget, agenda, plans, langues, factures et bien plus. Lien en bio.
+    <code>#NaoGroup #organisation #budget #productivité #vieorganisée #astuces #quotidien #tiktokfrance #entrepreneuse</code></div>
+
+  <div class="att"><b>À savoir avant de publier.</b> TikTok, Instagram et YouTube demandent d'indiquer qu'une personne réaliste est <b>générée par IA</b> (case « contenu généré par IA »). N'utilisez jamais le visage
+    d'une vraie personne sans son accord écrit. Et dites la vérité sur l'offre : NaoGroup s'obtient <b>sur souscription</b>, avec des formules payantes — pas « gratuit ».</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+
+var TOUS = (window.Nao && Nao.outils) || [];
+/* Le montage montre 8 outils phares ; si le catalogue en compte moins, on prend ce qui existe. */
+var PRIORITE = ['naobudget', 'naoagenda', 'naofi', 'naoplan', 'naoastro', 'naolang', 'naofactu', 'naotrip'];
+var OUTILS = PRIORITE.map(function(id){ return TOUS.filter(function(o){ return o.id === id; })[0]; }).filter(Boolean);
+TOUS.forEach(function(o){ if (OUTILS.length < 8 && OUTILS.indexOf(o) < 0) OUTILS.push(o); });
+
+/* ---------- les scènes ---------- */
+var scenes = {
+  hook: '<div class="titre secoue">Ta vie,<br><em>en désordre ?</em></div><div class="sous monte d2">Budget · rendez-vous · papiers</div>',
+  probleme: '<div class="chaos" id="chaos"></div><div class="titre monte">Trop d’endroits.<br><em>Trop de bazar.</em></div>',
+  solution: '<svg class="jeton-g pop" viewBox="0 0 40 40"><use href="#l-gr"/></svg><div class="titre monte d1" style="margin-top:calc(var(--u)*6)">Nao<em>Group</em></div><div class="sous monte d2">Des outils pour<br>la vie de tous les jours</div><div class="points"><i></i><i></i><i></i><i></i></div>',
+  outils: '<div id="carte"></div><div class="rail" id="rail"></div>',
+  profil: '<div class="titre monte">Tes outils.<br><em>Vierges. À toi.</em></div><div class="grille-p" id="grilleP"></div><div class="sous monte d3">Tu vois tout ce qui existe.<br>Tu ouvres ce que tu choisis.</div>',
+  cta: '<svg class="jeton-g pop" viewBox="0 0 40 40"><use href="#l-gr"/></svg><div class="titre monte d1" style="margin-top:calc(var(--u)*6)">Rejoins<br>Nao<em>Group</em></div><div class="sous monte d2">Souscris depuis la page Contact<br><b style="color:#fff">Lien en bio</b></div>'
+};
+var elScene = {};
+Object.keys(scenes).forEach(function(id){ var d = document.createElement('div'); d.className = 'scene'; d.innerHTML = scenes[id]; $('scenes').appendChild(d); elScene[id] = d; });
+
+var mots = ['Notes', 'Tableur.xlsx', 'Mails', 'Carnet', 'Captures', 'Factures', 'Post-it', 'Agenda papier', 'Rappels', 'Dossier (2)'];
+$('chaos').innerHTML = mots.map(function(m, i){
+  return '<div class="chip" style="left:' + (6 + (i * 37) % 70) + '%;top:' + (8 + (i * 23) % 74) + '%;--r:' + ((i % 2 ? 1 : -1) * (4 + i)) + 'deg;animation-delay:-' + (i * .4) + 's">' + esc(m) + '</div>';
+}).join('');
+$('grilleP').innerHTML = TOUS.slice(0, 10).map(function(o, i){
+  return '<div class="o' + (i % 3 === 0 || i === 1 ? '' : ' ferme') + '" style="animation-delay:' + (.2 + i * .12) + 's"><svg viewBox="0 0 40 40"><use href="#' + o.symbole + '"/></svg></div>';
+}).join('');
+$('rail').innerHTML = OUTILS.map(function(){ return '<i></i>'; }).join('');
+
+/* ---------- le déroulé : une phrase = un temps fort ----------
+   Chaque temps fort attend la fin de la phrase dite avant de laisser place au suivant :
+   la voix n'est jamais coupée. `min` est la durée minimale à l'écran (et la durée totale sans voix). */
+var temps = [];
+function t(scene, texte, min, extra){ temps.push(Object.assign({ scene: scene, texte: texte, min: min }, extra || {})); }
+t('hook', 'Ton budget. Tes rendez-vous. Tes papiers.', 3.4);
+t('probleme', 'Des carnets, des tableurs, dix applis différentes…', 3.6);
+t('probleme', 'Et tu perds plus de temps à chercher qu’à vivre.', 3.4, { aspire: true });
+t('solution', 'Voici NaoGroup : une maison numérique pour tous tes outils.', 4.4);
+OUTILS.forEach(function(o){ t('outils', o.nom + '. ' + o.role + '.', 2.6, { outil: o }); });
+t('profil', 'Chaque profil a ses outils, vierges.', 3);
+t('profil', 'Tes données ne sont qu’à toi.', 2.6);
+t('profil', 'Tu vois tout ce qui existe. Tu ouvres ce que tu choisis.', 4.4);
+t('cta', 'Rejoins NaoGroup.', 2.2);
+t('cta', 'Souscris depuis la page contact. Lien en bio.', 3.6);
+t('cta', 'NaoGroup. Des outils pour la vie de tous les jours.', 4);
+var TOTAL_MIN = temps.reduce(function(s, x){ return s + x.min + 0.2; }, 0);
+function fmt(s){ s = Math.max(0, s); return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); }
+$('duree').innerHTML = '<b>Durée :</b> environ ' + fmt(TOTAL_MIN) + ' sans voix ; avec la voix off, elle s’ajuste à la lecture de chaque phrase (autour d’1:00).';
+
+/* ---------- l'échelle ---------- */
+function echelle(){ var st = $('stage'); st.style.setProperty('--u', (st.clientWidth / 100) + 'px'); }
+window.addEventListener('resize', echelle); echelle();
+
+/* ---------- la voix ---------- */
+function choisirVoix(){
+  var l = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  return l.filter(function(v){ return /^fr/i.test(v.lang) && /hortense|denise|julie|female|femme/i.test(v.name); })[0] || l.filter(function(v){ return /^fr/i.test(v.lang); })[0] || null;
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = function(){};
+
+/* ---------- la lecture ---------- */
+var course = 0, actif = false, debutTotal = 0, minuteur = null, horloge = null;
+function montrerScene(id, t){
+  Object.keys(elScene).forEach(function(k){ elScene[k].classList.toggle('on', k === id); });
+  elScene.probleme.classList.toggle('aspire', !!(id === 'probleme' && t.aspire));
+  if (id === 'outils' && t.outil) {
+    var o = t.outil, i = OUTILS.indexOf(o);
+    $('carte').innerHTML = '<div class="carte-outil"><svg viewBox="0 0 40 40"><use href="#' + o.symbole + '"/></svg><h3>Nao<span>' + esc(o.nom.slice(3)) + '</span></h3><div class="r">' + esc(o.role) + '</div><p>' + esc(o.desc || '') + '</p></div>';
+    [].forEach.call($('rail').children, function(p, k){ p.classList.toggle('ici', k === i); });
+  }
+}
+function jouerTemps(i, mon, avecVoix){
+  if (!actif || mon !== course) return;
+  if (i >= temps.length) { arreter(true); return; }
+  var t = temps[i], debut = performance.now(), fini = false;
+  var scene = elScene[t.scene], memeScene = scene.classList.contains('on');
+  if (!memeScene || t.scene === 'outils') montrerScene(t.scene, t); else elScene.probleme.classList.toggle('aspire', !!t.aspire);
+  $('legende').textContent = t.texte;
+  $('progres').style.width = (i / temps.length * 100) + '%';
+  function suite(){
+    if (fini || mon !== course) return; fini = true; clearTimeout(minuteur);
+    var reste = Math.max(0, t.min * 1000 - (performance.now() - debut));      /* jamais moins que la durée minimale à l'écran */
+    minuteur = setTimeout(function(){ jouerTemps(i + 1, mon, avecVoix); }, reste + 200);
+  }
+  if (avecVoix && window.speechSynthesis) {
+    var u = new SpeechSynthesisUtterance(t.texte); u.lang = 'fr-FR'; var v = choisirVoix(); if (v) u.voice = v; u.rate = 1.0; u.pitch = 1.05;
+    u.onend = suite; u.onerror = suite;
+    minuteur = setTimeout(suite, (t.min + 8) * 1000);                        /* filet : si le navigateur ne signale pas la fin */
+    speechSynthesis.speak(u);
+  } else {
+    minuteur = setTimeout(suite, t.min * 1000);
+  }
+}
+function lancer(avecVoix){
+  arreter(); actif = true; course++; debutTotal = performance.now();
+  $('legende').textContent = '';
+  clearInterval(horloge); horloge = setInterval(function(){ $('horloge').textContent = fmt((performance.now() - debutTotal) / 1000); }, 250);
+  jouerTemps(0, course, avecVoix);
+}
+function arreter(fini){
+  actif = false; course++; clearTimeout(minuteur); clearInterval(horloge);
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  if (fini) { $('progres').style.width = '100%'; $('horloge').textContent = fmt((performance.now() - debutTotal) / 1000) + ' — terminé'; }
+  else { Object.keys(elScene).forEach(function(k){ elScene[k].classList.remove('on'); }); elScene.hook.classList.add('on'); $('legende').textContent = ''; $('horloge').textContent = '0:00'; $('progres').style.width = '0'; }
+}
+$('jouer').addEventListener('click', function(){ lancer(true); });
+$('muet').addEventListener('click', function(){ lancer(false); });
+$('stop').addEventListener('click', function(){ arreter(); });
+$('plein').addEventListener('click', function(){ var s = $('stage'); (s.requestFullscreen || s.webkitRequestFullscreen).call(s); });
+document.addEventListener('fullscreenchange', function(){ setTimeout(echelle, 60); });
+elScene.hook.classList.add('on');
+})();
+</script>
+</body>
+</html>

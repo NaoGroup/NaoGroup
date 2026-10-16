@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naosante"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naosante"></script>
+<title>NaoSanté — Prenez soin de votre rythme</title>
+<meta name="description" content="NaoSanté, l'outil bien-être de NaoGroup : hydratation, sommeil, activité, habitudes, rendez-vous et rappels de santé. Un outil d'organisation personnelle, jamais un avis médical.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%234B36C6'/><stop offset='.55' stop-color='%239A84EE'/><stop offset='1' stop-color='%23A9D6F6'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M7.6 10.6H11.6L13.4 7L15.9 14.4L17.8 10.6H20.2' fill='none' stroke='%23fff' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round' opacity='.55'/><path d='M27.4 14.8C23.9 12.5 22.6 10.7 22.6 8.9A2.4 2.4 0 0 1 27.4 7.7A2.4 2.4 0 0 1 32.2 8.9C32.2 10.7 30.9 12.5 27.4 14.8Z' fill='%23fff'/><path d='M12 31.5V19L28 31.5V19' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { var r = document.documentElement; r.dataset.theme = localStorage.getItem('naosante.theme') || 'dark'; if (localStorage.getItem('naosante.calme') === '1') r.classList.add('calme'); if (localStorage.getItem('naosante.grand') === '1') r.classList.add('grand'); } catch (e) {}</script>
+<link rel="stylesheet" href="naosante.css">
+</head>
+<body class="entree">
+
+<!-- Le décor : halos, ciel étoilé, gélules, gouttes d'eau, cœurs et lignes de pulsation qui passent doucement. -->
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<svg class="motifs" id="motifs" aria-hidden="true"></svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- NaoGroup -->
+  <linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient>
+  <symbol id="l-gr" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#ggr)"/>
+    <path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g>
+  </symbol>
+  <!-- NaoSanté : au-dessus du N, une ligne de pulsation qui court vers un petit cœur, avec une lueur douce.
+       Le dégradé part du violet profond, passe par la lavande et finit sur une touche de bleu clair. -->
+  <linearGradient id="gsa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4B36C6"/><stop offset=".55" stop-color="#9A84EE"/><stop offset="1" stop-color="#A9D6F6"/></linearGradient>
+  <radialGradient id="gsa-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-sa" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gsa)"/>
+    <circle cx="27.4" cy="10.4" r="7.2" fill="url(#gsa-lueur)" opacity=".55"/>
+    <path d="M7.6 10.6H11.6L13.4 7L15.9 14.4L17.8 10.6H20.2" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+    <path d="M27.4 14.8C23.9 12.5 22.6 10.7 22.6 8.9A2.4 2.4 0 0 1 27.4 7.7A2.4 2.4 0 0 1 32.2 8.9C32.2 10.7 30.9 12.5 27.4 14.8Z" fill="#fff"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <linearGradient id="gradProgres" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8E7BD4"/><stop offset="1" stop-color="#A9D6F6"/></linearGradient>
+  <linearGradient id="gradEau" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B7E1FA"/><stop offset="1" stop-color="#8E7BD4"/></linearGradient>
+</defs></svg>
+
+<!-- l'entrée dans l'outil : une pulsation traverse l'écran et réveille le cœur du jeton -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="scene">
+    <div class="jeton-intro"><span class="onde"></span><span class="onde o2"></span><span class="onde o3"></span>
+      <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-sa"/></svg></div>
+    <svg class="pouls-intro" viewBox="0 0 520 90" aria-hidden="true">
+      <path class="trace" pathLength="1" d="M0 45H140L156 26L176 74L196 10L214 62L226 45H286L298 36L310 45H360L376 26L396 74L416 10L434 62L446 45H520"/>
+    </svg>
+    <div class="gouttes-intro" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="titre-intro">Nao<span>Santé</span></div>
+    <div class="phrase">Prenez soin de <span>votre rythme</span>.</div>
+    <div class="passer">cliquer pour entrer</div>
+  </div>
+</div>
+
+<div class="page">
+  <header class="bar">
+    <a class="mark" href="../NaoGroup.html" title="Revenir à NaoGroup" aria-label="NaoSanté — revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoSanté"><use href="#l-sa"/></svg>
+      <div><h1 class="nom-outil">Nao<span>Santé</span></h1><div class="sub">Prenez soin de votre rythme</div></div>
+    </a>
+    <div class="outils-haut">
+      <a class="pastille" href="../NaoGroup.html" title="Revenir à NaoGroup"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg> NaoGroup</a>
+      <button class="pastille icone" type="button" data-act="sauvegarder" title="Sauvegarder mon suivi dans un fichier">💾</button>
+      <button class="pastille icone" type="button" data-act="recharger" title="Recharger une sauvegarde">📂</button>
+      <button class="pastille icone" type="button" data-act="reglages" title="Mes réglages (objectifs, verre, sommeil)">⚙️</button>
+      <button class="pastille icone" type="button" data-act="reinitialiser" title="Réinitialiser l'outil (repartir de zéro)" aria-label="Réinitialiser l'outil">♻️</button>
+      <button class="pastille icone" type="button" data-act="grand" id="btnGrand" title="Agrandir le texte">A+</button>
+      <button class="pastille icone" type="button" data-act="calme" id="btnCalme" title="Mettre les animations en pause">🕊️</button>
+      <button class="theme" type="button" data-act="theme" id="btnTheme" aria-label="Basculer thème clair / sombre" title="Thème clair / sombre"><span class="pouce"></span><span class="lune">☾</span><span class="soleil">☀</span></button>
+    </div>
+  </header>
+
+  <nav class="onglets" id="onglets" aria-label="Espaces de NaoSanté"></nav>
+
+  <main id="contenu" tabindex="-1"></main>
+
+  <footer class="pied">
+    <p class="avert"><b>NaoSanté est un outil d'organisation et de suivi personnel.</b> Il ne pose aucun diagnostic, ne propose aucun traitement
+      et ne remplace jamais l'avis d'un médecin, d'un pharmacien ou d'un professionnel de santé. En cas d'urgence : <b>15</b> (SAMU) ou <b>112</b>.</p>
+    <div class="signe"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-sa"/></svg>
+      <div>Un outil de la maison <a href="../NaoGroup.html">NaoGroup</a> · sans compte, sans abonnement : votre suivi reste sur cet ordinateur.</div></div>
+  </footer>
+</div>
+
+<div class="voile" id="modale" role="dialog" aria-modal="true" aria-labelledby="modaleTitre"><div class="fen" id="modaleFen"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="fichierSauvegarde" accept="application/json,.json,.naosante" hidden>
+
+<script src="ns-core.js"></script>
+<script src="ns-vues.js"></script>
+<script src="ns-sport.js"></script>
+<script src="ns-app.js"></script>
+</body>
+</html>

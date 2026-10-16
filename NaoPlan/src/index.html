@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="../naogroup-cloud.js" data-outil="naoplan"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naoplan"></script>
+<title>NaoPlan — Générateur de plans</title>
+<!-- Socle mobile : installation sur téléphone/tablette (voir naogroup-mobile.css) -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#7A4FD6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NaoPlan">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="../naogroup-mobile.css" data-partage="1">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<link rel="stylesheet" href="naoplan.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%237A4FD6'/><stop offset='1' stop-color='%23BE9AF4'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12.5 31V20.5L27.5 31V19.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><path d='M7.5 16.5L20 8.5L32.5 16.5' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round' opacity='.5'/></svg>">
+</head>
+<body class="entree">
+
+<!-- ================= Marque =================
+     NaoGroup partage un jeton carré-arrondi, un dégradé lilas et un N
+     blanc tracé d'un seul geste. Chaque outil se distingue par ce que fait
+     la dernière branche du N :
+       · NaoFi     — elle s'échappe en flèche ascendante (la progression),
+       · NaoBudget — elle se pose sur une ligne de base (l'axe d'un graphique),
+       · NaoPlan   — elle rentre sous un toit : le N est abrité.
+     Même famille, même lecture à 16 px, trois signes différents.        -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <linearGradient id="np-degrade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7A4FD6"/><stop offset="1" stop-color="#BE9AF4"/>
+    </linearGradient>
+    <symbol id="nao-logo" viewBox="0 0 40 40">
+      <rect x="0" y="0" width="40" height="40" rx="13" fill="url(#np-degrade)"/>
+      <path d="M12.5 31V20.5L27.5 31V19.5" fill="none" stroke="#fff" stroke-width="4.2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.5 16.5L20 8.5L32.5 16.5" fill="none" stroke="#fff" stroke-width="2.8"
+            stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+    </symbol>
+
+    <!-- Les motifs du fond : le vocabulaire du plan, en tout petit.
+         Tracés d'un seul trait, ils dérivent lentement derrière la page. -->
+    <symbol id="mo-maison" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.8V20h13V9.8"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="mo-plan" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 12h7V4M10 16v4M14 12h7"/></symbol>
+    <symbol id="mo-cote" viewBox="0 0 24 24"><path d="M4 6v12M20 6v12M4 12h16"/><path d="M7 9.5L4.2 12L7 14.5M17 9.5l2.8 2.5-2.8 2.5"/></symbol>
+    <symbol id="mo-escalier" viewBox="0 0 24 24"><path d="M3 20h4v-4h4v-4h4V8h5"/><path d="M3 20V16h4v-4h4V8h4V4"/></symbol>
+    <symbol id="mo-porte" viewBox="0 0 24 24"><path d="M6 20V5h9"/><path d="M6 20a14 14 0 0 0 14-14"/><path d="M20 6h-5"/></symbol>
+    <symbol id="mo-fenetre" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1"/><path d="M12 5v14M4 12h16"/></symbol>
+    <symbol id="mo-boussole" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 4.5l2.6 7.5L12 19.5 9.4 12z"/></symbol>
+    <symbol id="mo-cle" viewBox="0 0 24 24"><circle cx="7.5" cy="12" r="3.5"/><path d="M11 12h9M17 12v3.5M14.5 12v2.5"/></symbol>
+    <symbol id="mo-equerre" viewBox="0 0 24 24"><path d="M4 4v16h16z"/><path d="M8 20v-2.5M11 20v-3.5M14 20v-2.5"/></symbol>
+    <symbol id="mo-toise" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M7 9v3M11 9v4M15 9v3M19 9v4"/></symbol>
+  </defs>
+</svg>
+
+<!-- Le fond : trois halos, la trame d'un calque qui glisse, et des motifs
+     de plan qui dérivent — rien qui attrape le regard ni la souris. -->
+<div class="fond" aria-hidden="true">
+  <i></i><i></i><i></i>
+  <div class="calque-plan"></div>
+  <div class="motifs">
+    <span class="motif trace" style="--x:1.5%;--y:12%;--t:58px;--d:34s;--dx:22px;--dy:-26px;--r0:-5deg;--r1:4deg"><svg viewBox="0 0 24 24"><use href="#mo-maison"/></svg></span>
+    <span class="motif" style="--x:95%;--y:8%;--t:46px;--d:41s;--dx:-26px;--dy:20px;--r0:6deg;--r1:-4deg;--o:.1"><svg viewBox="0 0 24 24"><use href="#mo-plan"/></svg></span>
+    <span class="motif" style="--x:2%;--y:66%;--t:50px;--d:47s;--dx:18px;--dy:-18px;--r0:-3deg;--r1:6deg"><svg viewBox="0 0 24 24"><use href="#mo-cote"/></svg></span>
+    <span class="motif trace" style="--x:96%;--y:46%;--t:44px;--d:38s;--dx:-16px;--dy:-22px;--r0:4deg;--r1:-6deg"><svg viewBox="0 0 24 24"><use href="#mo-escalier"/></svg></span>
+    <span class="motif" style="--x:47%;--y:95%;--t:38px;--d:52s;--dx:24px;--dy:-14px;--r0:-6deg;--r1:3deg;--o:.09"><svg viewBox="0 0 24 24"><use href="#mo-porte"/></svg></span>
+    <span class="motif" style="--x:31%;--y:3%;--t:34px;--d:44s;--dx:-20px;--dy:22px;--r0:5deg;--r1:-5deg;--o:.08"><svg viewBox="0 0 24 24"><use href="#mo-fenetre"/></svg></span>
+    <span class="motif" style="--x:1%;--y:38%;--t:42px;--d:57s;--dx:16px;--dy:24px;--r0:-8deg;--r1:8deg;--o:.09"><svg viewBox="0 0 24 24"><use href="#mo-boussole"/></svg></span>
+    <span class="motif" style="--x:93%;--y:72%;--t:38px;--d:49s;--dx:-18px;--dy:16px;--r0:7deg;--r1:-3deg;--o:.09"><svg viewBox="0 0 24 24"><use href="#mo-cle"/></svg></span>
+    <span class="motif" style="--x:66%;--y:3%;--t:38px;--d:55s;--dx:-22px;--dy:-16px;--r0:3deg;--r1:-7deg;--o:.08"><svg viewBox="0 0 24 24"><use href="#mo-equerre"/></svg></span>
+    <span class="motif" style="--x:95%;--y:92%;--t:44px;--d:43s;--dx:20px;--dy:18px;--r0:-4deg;--r1:5deg;--o:.09"><svg viewBox="0 0 24 24"><use href="#mo-toise"/></svg></span>
+  </div>
+</div>
+
+<!-- ================= L'entrée =================
+     Comme NaoDoc ouvre son classeur, NaoPlan déroule sa feuille de calque :
+     un crayon court le long de l'emprise, les cloisons suivent, les pièces
+     se colorent et se nomment, deux meubles se posent, la cote s'écrit, le
+     nord se cale, et le cartouche se signe. Un clic passe ; sinon la feuille
+     se soulève toute seule au bout de trois secondes et demie.            -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="scene-intro">
+    <div class="feuille-calque">
+      <div class="rouleau"></div>
+      <div class="coin"></div>
+      <svg class="plan-intro" viewBox="0 0 240 182" aria-hidden="true">
+        <!-- les sols, qui se colorent une fois les murs tracés -->
+        <g class="sols">
+          <rect class="sol s1" x="8" y="8" width="128" height="96"/>
+          <rect class="sol s2" x="136" y="8" width="96" height="96"/>
+          <rect class="sol s3" x="8" y="104" width="128" height="58"/>
+          <rect class="sol s4" x="136" y="104" width="96" height="58"/>
+        </g>
+        <!-- l'emprise, puis les cloisons : chacune se trace d'un trait -->
+        <path class="trait mur-ext" d="M8 8H232V162H8Z"/>
+        <path class="trait cloison c1" d="M136 8V162"/>
+        <path class="trait cloison c2" d="M8 104H232"/>
+        <!-- le crayon, qui court le long de l'emprise pendant qu'elle se trace -->
+        <g class="crayon"><circle cx="0" cy="0" r="3.2"/></g>
+        <!-- une porte qui s'ouvre, et deux fenêtres en façade -->
+        <path class="trait porte" d="M136 60a26 26 0 0 0-26-26"/>
+        <path class="trait battant" d="M136 34V60"/>
+        <path class="trait fenetre" d="M48 8H88"/>
+        <path class="trait fenetre" d="M232 56V96"/>
+        <!-- le nom des pièces -->
+        <text class="etq-intro e1" x="72" y="60">SÉJOUR</text>
+        <text class="etq-intro e2" x="184" y="60">CHAMBRE</text>
+        <text class="etq-intro e3" x="72" y="137">SALLE D'EAU</text>
+        <text class="etq-intro e4" x="184" y="137">CELLIER</text>
+        <!-- deux meubles, posés à la fin : le lit et le canapé -->
+        <g class="meuble-intro m1"><rect x="152" y="20" width="44" height="32" rx="3"/><path d="M152 30h44"/></g>
+        <g class="meuble-intro m2"><rect x="38" y="74" width="46" height="18" rx="4"/><path d="M38 80h46"/></g>
+        <!-- la cote, sous le plan -->
+        <g class="cote">
+          <path class="trait" d="M8 174H232M8 170v8M232 170v8"/>
+          <path class="trait fleche" d="M18 169l-9 5 9 5M222 169l9 5-9 5"/>
+          <text class="val-cote" x="120" y="171">12,05 m</text>
+        </g>
+        <!-- le nord -->
+        <g class="nord"><circle class="trait" cx="216" cy="25" r="10"/><path class="plein" d="M216 16.5l3.2 9L216 34l-3.2-8.5z"/></g>
+      </svg>
+      <!-- le cartouche, comme en bas d'un vrai plan -->
+      <div class="cartouche">
+        <svg class="jeton" viewBox="0 0 40 40" aria-hidden="true"><use href="#nao-logo"/></svg>
+        <div><b>Nao<span>Plan</span></b><small>Plan de projet</small></div>
+        <span class="ech">Échelle 1:50 · Nord ↑</span>
+      </div>
+    </div>
+    <div class="titre-intro">
+      <span class="porte-jeton"><svg class="jeton" viewBox="0 0 40 40" aria-hidden="true"><use href="#nao-logo"/></svg><i class="onde"></i></span>
+      <div>
+        <h2>Nao<span>Plan</span></h2>
+        <p>Votre projet, <span>pièce par pièce</span>.</p>
+      </div>
+    </div>
+    <div class="passer-intro">Cliquez pour entrer</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="topbar">
+    <a class="brand" href="../NaoGroup.html" title="Ouvrir NaoGroup">
+      <svg class="logo" viewBox="0 0 40 40" role="img" aria-label="NaoPlan"><use href="#nao-logo"/></svg>
+      <div class="brand-txt">
+        <h1>Nao<span>Plan</span></h1>
+        <div class="brand-sub">Plans de projet immobilier</div>
+      </div>
+    </a>
+    <div class="spacer"></div>
+
+    <!-- La flèche retour : annuler la dernière modification (Ctrl+Z). -->
+    <div class="fleches" role="group" aria-label="Historique">
+      <button class="fleche" id="btn-annuler" type="button" title="Annuler la dernière modification (Ctrl+Z)" aria-label="Annuler" disabled>
+        <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button class="fleche" id="btn-retablir" type="button" title="Rétablir (Ctrl+Y)" aria-label="Rétablir" disabled>
+        <svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+    </div>
+
+    <!-- Les surfaces : cachées par défaut, affichées à la demande. -->
+    <span class="switch-lab">m²</span>
+    <button class="theme-switch m2-switch" id="m2-switch" type="button" role="switch" aria-checked="false"
+            aria-label="Afficher les surfaces" title="Afficher / cacher les m²"><span class="thumb" id="m2-icon">📐</span></button>
+
+    <button class="theme-switch" id="theme-switch" type="button" role="switch" aria-checked="false"
+            aria-label="Thème sombre" title="Basculer clair / sombre"><span class="thumb" id="theme-icon">☀️</span></button>
+
+    <button class="btn" id="btnExport" type="button" title="Enregistrer le projet en .json">💾 Enregistrer</button>
+    <button class="btn" id="btnImport" type="button" title="Recharger un projet .json">📂 Charger</button>
+    <button class="btn danger btn-raz" id="topbar-raz" type="button"
+            title="Réinitialiser l'outil : NaoPlan redevient vierge, comme pour une nouvelle personne"
+            aria-label="Réinitialiser l'outil">♻️</button>
+    <button class="btn primary" id="btnPrint" type="button" title="Imprimer ou enregistrer en PDF">📄 Télécharger le PDF</button>
+    <input type="file" id="fileIn" accept=".json" hidden>
+    <input type="file" id="fondIn" accept="image/*" multiple hidden>
+  </div>
+
+  <div class="plan-layout">
+
+    <!-- ---------- Le parcours : six étapes, comme dans NaoFi ---------- -->
+    <nav class="rail" id="rail" aria-label="Étapes du projet"></nav>
+
+    <main class="centre">
+      <div class="etape-banniere" id="etape-banniere"></div>
+
+      <!-- Étape 1 — le projet -->
+      <section class="etape" data-etapes="1" id="etape-projet"></section>
+
+      <!-- Étape 2 — les critères, en détail -->
+      <section class="etape" data-etapes="2"><div class="crit-grille" id="colg"></div></section>
+
+      <!-- Étapes 3, 4, 5 — le plan -->
+      <section class="etape" data-etapes="3 4 5">
+        <div class="kpis" id="kpis"></div>
+        <div id="avertissements"></div>
+        <div id="choix-plan"></div>
+        <div class="barre-plan" id="barre-plan"></div>
+
+        <div class="card scene-card">
+          <div class="scene" id="scene"></div>
+          <div id="barre-ouv"></div>
+          <div class="legende" id="legende"></div>
+        </div>
+      </section>
+
+      <section class="etape" data-etapes="4">
+        <div class="card pieces-card">
+          <div class="hd"><h2>🧩 Les pièces</h2>
+            <span class="hint">Renommez, changez le type, ajoutez, supprimez — seul ce que vous touchez bouge</span>
+          </div>
+          <div class="bd" id="liste-pieces"></div>
+        </div>
+      </section>
+
+      <section class="etape" data-etapes="3 4 5">
+        <div class="card pieces-card">
+          <div class="hd"><h2>📐 Les surfaces</h2>
+            <span class="hint">Mesurées d'axe en axe — ce n'est pas un mesurage Carrez</span>
+          </div>
+          <div class="bd" style="padding:0" id="surfaces"></div>
+        </div>
+      </section>
+
+      <!-- Étape 6 — les ambiances, pièce par pièce, et le récapitulatif -->
+      <section class="etape" data-etapes="6" id="etape-ambiances"></section>
+      <section class="etape" data-etapes="6" id="recap-projet"></section>
+    </main>
+
+    <!-- ---------- La gouttière : les plans gardés ---------- -->
+    <aside class="gouttiere card" id="gouttiere" aria-label="Plans gardés"></aside>
+
+  </div>
+
+  <!-- Fenêtres par-dessus la page : import d'images, comparaison. -->
+  <div class="modale-zone" id="modale"></div>
+
+  <!-- Ce qui part à l'impression : une feuille A4 paysage par niveau,
+       puis une feuille de surfaces et de critères. -->
+  <div class="feuilles" id="feuilles"></div>
+
+  <!-- Le dock : précédent, suivant, en toutes lettres. -->
+  <nav id="dock-etapes" aria-label="Changer d'étape">
+    <button class="dock-btn prec" id="dock-prec" type="button" aria-label="Étape précédente"><span class="dock-fleche" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span><span class="dock-txt"><small>Précédent</small><b id="dock-prec-nom">—</b></span></button>
+    <div class="dock-milieu" aria-hidden="true"><span class="dock-num" id="dock-num">1 / 6</span><span class="dock-piste"><i id="dock-jauge" style="width:0"></i></span></div>
+    <button class="dock-btn suiv" id="dock-suiv" type="button" aria-label="Étape suivante"><span class="dock-txt"><small>Suivant</small><b id="dock-suiv-nom">—</b></span><span class="dock-fleche" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+  </nav>
+
+  <div class="foot">
+    💜 NaoPlan — vos projets restent sur cet ordinateur (stockage local du navigateur).
+    Les plans produits sont indicatifs : la structure, les réseaux et les règles d'urbanisme
+    restent à valider par un professionnel.
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="bulle-mur" id="bulle-mur"></div>
+<div class="version-badge" title="NaoPlan — NaoGroup">v4.0</div>
+<script src="naoplan-moteur.js"></script>
+<script src="naoplan-3d.js"></script>
+<script src="naoplan-lecture.js"></script>
+<script src="naoplan-meubles.js"></script>
+<script src="naoplan.js"></script>
+</body>
+</html>

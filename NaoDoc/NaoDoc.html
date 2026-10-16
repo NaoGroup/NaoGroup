@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naodoc"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naodoc"></script>
+<title>NaoDoc — Vos documents, vos échéances, votre tranquillité</title>
+<meta name="description" content="NaoDoc, le classeur familial de NaoGroup : les documents de chaque membre de la famille, triés par personne et par thème, retrouvés en un instant.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%235F48D2'/><stop offset='.55' stop-color='%239580EC'/><stop offset='1' stop-color='%23CDB6F7'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><rect x='12.6' y='5.2' width='9.6' height='11.4' rx='1.5' fill='%23fff' opacity='.45' transform='rotate(-11 17.4 10.9)'/><path d='M18.9 3.6H24.2L27.6 7V14.3Q27.6 15.8 26.1 15.8H18.9Q17.4 15.8 17.4 14.3V5.1Q17.4 3.6 18.9 3.6Z' fill='%23fff'/><path d='M12 31.5V19L28 31.5V19' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('naodoc.theme') || 'dark'; if (localStorage.getItem('naodoc.calme') === '1') document.documentElement.classList.add('calme'); } catch (e) {}</script>
+<style>
+/* ============================================================
+   NaoDoc — le classeur administratif de la maison NaoGroup.
+   Même charte que les autres outils : fond violet étoilé, cartes de
+   verre, le N du jeton — avec des feuilles, des intercalaires et
+   des trombones qui flottent doucement.
+   ============================================================ */
+:root{
+  --serif:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --fond:radial-gradient(1200px 860px at 50% 28%, #7564C2 0%, #43358A 42%, #1C1636 100%);
+  --fond-uni:#1C1636;
+  --ink:#F3EFFB;
+  --ink-2:rgba(243,239,251,.76);
+  --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07);
+  --verre-2:rgba(255,255,255,.12);
+  --champ:rgba(0,0,0,.2);
+  --bord:rgba(255,255,255,.16);
+  --bord-2:rgba(255,255,255,.32);
+  --lilas:#C9B7F5;
+  --accent:#C9B7F5;
+  --ciel:#9FD4F7;
+  --or:#F4C67E;
+  --rose:#F5A8C8;
+  --ok:#8FE3B8;
+  --alerte:#FF9DAF;
+  --texte-bouton:#1C1636;
+  --degrade:linear-gradient(135deg,#8E7BD4,#C39BF3);
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+  --motif:#fff;
+  --halo-1:#B9A8F0; --halo-2:#60ccc1; --halo-3:#ed7483;
+  --t-s:74%; --t-l:80%;
+  --papier:#F6F2FF; --papier-2:#E9E1FB; --papier-ligne:rgba(106,79,201,.16);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --fond:radial-gradient(1200px 860px at 50% 22%, #FFFFFF 0%, #F3EEFF 46%, #E4DBFA 100%);
+  --fond-uni:#F3EEFF;
+  --ink:#2E2358;
+  --ink-2:rgba(46,35,88,.76);
+  --ink-3:rgba(46,35,88,.52);
+  --verre:rgba(255,255,255,.6);
+  --verre-2:rgba(255,255,255,.86);
+  --champ:rgba(255,255,255,.78);
+  --bord:rgba(96,74,170,.18);
+  --bord-2:rgba(96,74,170,.36);
+  --lilas:#6A4FC9;
+  --accent:#6A4FC9;
+  --ciel:#2D86C4;
+  --or:#AE7614;
+  --rose:#C9588A;
+  --ok:#23915F;
+  --alerte:#C9415F;
+  --texte-bouton:#fff;
+  --degrade:linear-gradient(135deg,#6F55D0,#A98BEF);
+  --ombre:0 24px 50px -30px rgba(70,50,140,.45);
+  --motif:#6A4FC9;
+  --halo-1:#D9CCFB; --halo-2:#C4ECE8; --halo-3:#F8CFDD;
+  --t-s:50%; --t-l:47%;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.55;
+  background:var(--fond);background-color:var(--fond-uni);background-attachment:fixed;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, color-mix(in srgb, var(--motif) 20%, transparent) 1px, transparent 1.7px);
+  background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 34%, #000 0 28%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 34%, #000 0 28%, transparent 72%);
+  animation:grille 1.8s ease both}
+@keyframes grille{from{opacity:0;transform:scale(1.14)}to{opacity:1;transform:none}}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+::selection{background:color-mix(in srgb, var(--accent) 45%, transparent)}
+[hidden]{display:none!important}
+.teinte{--c:hsl(var(--h,260) var(--t-s) var(--t-l));--c-fond:color-mix(in srgb, var(--c) 16%, transparent)}
+
+/* ---------- le décor : ciel étoilé et papiers qui flottent ---------- */
+.halos{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.halos i{position:absolute;border-radius:50%;filter:blur(64px);animation:flotte 16s ease-in-out infinite alternate}
+.halos i:nth-child(1){width:460px;height:460px;background:var(--halo-1);left:6%;top:8%;opacity:.45}
+.halos i:nth-child(2){width:400px;height:400px;background:var(--halo-2);right:6%;bottom:6%;opacity:.24;animation-duration:19s}
+.halos i:nth-child(3){width:340px;height:340px;background:var(--halo-3);right:30%;top:-10%;opacity:.2;animation-duration:23s}
+@keyframes flotte{from{transform:translate(0,0) scale(1)}to{transform:translate(46px,-34px) scale(1.18)}}
+
+.motifs{position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%}
+.motifs .m,.motifs .volante{fill:none;stroke:var(--motif);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.motifs .m{transform-box:fill-box;transform-origin:center;animation:derive linear infinite alternate;opacity:.2}
+:root[data-theme="light"] .motifs .m{opacity:.22}
+.motifs .etoile{fill:var(--motif);animation:scintille ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.motifs .volante{transform-box:fill-box;transform-origin:center;animation:vole linear infinite;opacity:0}
+@keyframes derive{0%{transform:translate(0,0) rotate(-5deg)}100%{transform:translate(24px,-30px) rotate(7deg)}}
+@keyframes scintille{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:.75;transform:scale(1.15)}}
+@keyframes vole{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.3}85%{opacity:.24}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
+:root.calme .motifs .m,:root.calme .motifs .etoile,:root.calme .halos i{animation-play-state:paused}
+:root.calme .motifs .volantes{display:none}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}.motifs .volantes{display:none}}
+
+/* ---------- l'entrée : le classeur s'ouvre comme un livre ----------
+   0,0 s  le classeur tombe doucement, un reflet glisse sur la couverture
+   0,9 s  la couverture s'ouvre, une lueur s'échappe des pages
+   1,4 s  trois pages se tournent, les intercalaires sortent
+   1,9 s  les documents s'envolent et vont se ranger
+   2,1 s  la phrase s'écrit mot à mot
+   3,0 s  on plonge dans le classeur : l'outil apparaît                     */
+.intro{position:fixed;inset:0;z-index:200;display:grid;place-items:center;overflow:hidden;background:var(--fond);background-color:var(--fond-uni);
+  cursor:pointer;animation:introSort .7s 3.25s cubic-bezier(.6,0,.3,1) forwards;--decal:115px}
+.intro::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle, color-mix(in srgb, var(--motif) 22%, transparent) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 45%, #000 0 26%, transparent 66%);mask-image:radial-gradient(circle at 50% 45%, #000 0 26%, transparent 66%);
+  animation:grille 1.6s ease both}
+.intro::after{content:'';position:absolute;left:50%;top:44%;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle, color-mix(in srgb, var(--halo-1) 55%, transparent), transparent 62%);opacity:0;
+  animation:auroreIntro 2.4s .8s ease-out forwards}
+@keyframes auroreIntro{0%{opacity:0;transform:scale(.4)}45%{opacity:.75}100%{opacity:.35;transform:scale(1.15)}}
+@keyframes introSort{to{opacity:0;visibility:hidden}}
+.intro .scene{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:40px;perspective:1800px}
+
+/* étincelles autour du livre */
+.intro .etincelles{position:absolute;inset:0;pointer-events:none;z-index:0}
+.intro .etincelles i{position:absolute;width:var(--t);height:var(--t);border-radius:50%;background:#fff;box-shadow:0 0 10px 2px color-mix(in srgb, var(--halo-1) 80%, transparent);
+  opacity:0;animation:etincelle 2.2s ease-in-out infinite;animation-delay:var(--d)}
+:root[data-theme="light"] .intro .etincelles i{background:#8E7BD4}
+@keyframes etincelle{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:.9;transform:scale(1)}}
+
+/* le livre */
+.livre{position:relative;width:230px;height:300px;transform-style:preserve-3d;transform:rotateX(10deg);
+  animation:livreArrive .9s cubic-bezier(.2,1.25,.35,1) both, livreCentre 1.4s .9s cubic-bezier(.6,.05,.25,1) forwards, plongee .75s 3s cubic-bezier(.55,0,.75,.3) forwards}
+@keyframes livreArrive{0%{opacity:0;transform:rotateX(38deg) translateY(-90px) scale(.7)}60%{opacity:1}100%{transform:rotateX(10deg)}}
+@keyframes livreCentre{from{transform:rotateX(10deg)}to{transform:translateX(var(--decal)) rotateX(6deg)}}
+@keyframes plongee{from{transform:translateX(var(--decal)) rotateX(6deg);opacity:1}to{transform:translateX(var(--decal)) rotateX(0) translateZ(700px);opacity:0}}
+.livre .ombre-sol{position:absolute;left:-40%;right:-10%;bottom:-38px;height:44px;border-radius:50%;background:rgba(0,0,0,.38);filter:blur(18px);transform:translateZ(-40px);
+  animation:ombreArrive .9s cubic-bezier(.2,1.25,.35,1) both}
+@keyframes ombreArrive{from{opacity:0;transform:translateZ(-40px) scale(.5)}}
+.livre .interieur{position:absolute;inset:0;border-radius:4px 16px 16px 4px;background:var(--papier);
+  background-image:repeating-linear-gradient(180deg, transparent 0 21px, var(--papier-ligne) 21px 22px);background-position:0 58px;
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.8), inset 12px 0 18px -12px rgba(60,40,140,.35);padding:26px 22px 22px 26px;overflow:visible}
+/* la tranche des pages, à droite : l'épaisseur du classeur */
+.livre .interieur::after{content:'';position:absolute;top:4px;bottom:4px;right:-7px;width:7px;border-radius:0 6px 6px 0;
+  background:repeating-linear-gradient(90deg, #EFE9FF 0 1px, #D8CEF6 1px 2px);box-shadow:3px 0 6px -2px rgba(0,0,0,.35)}
+.livre .interieur h4{margin:0 0 4px;font-family:var(--serif);font-style:italic;font-size:22px;color:#3A2C78;opacity:0;animation:monte .6s 1.75s ease both}
+.livre .interieur h4 span{color:#7A5FE0}
+.livre .interieur p{margin:0;font-family:var(--ui);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8A7CB8;opacity:0;animation:monte .6s 1.85s ease both}
+.livre .lignes-txt{margin-top:22px;display:flex;flex-direction:column;gap:11px}
+.livre .lignes-txt i{display:block;height:5px;border-radius:3px;background:color-mix(in srgb, #7A5FE0 22%, transparent);width:var(--w);
+  transform-origin:left;transform:scaleX(0);animation:ecrit .5s ease forwards;animation-delay:calc(1.95s + var(--i) * .08s)}
+@keyframes ecrit{to{transform:scaleX(1)}}
+.livre .intercal{position:absolute;right:-24px;top:30px;display:flex;flex-direction:column;gap:5px}
+.livre .intercal i{display:grid;place-items:center;width:24px;height:22px;border-radius:0 7px 7px 0;font-style:normal;font-size:11px;
+  background:hsl(var(--h) 62% 72%);box-shadow:2px 2px 6px -2px rgba(0,0,0,.35);
+  animation:onglet .45s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(2.05s + var(--i) * .06s)}
+@keyframes onglet{from{transform:translateX(-18px);opacity:0}}
+/* la lueur qui s'échappe quand le classeur s'ouvre */
+.livre .lueur{position:absolute;left:-30%;right:-30%;top:-20%;bottom:-20%;border-radius:50%;pointer-events:none;transform:translateZ(1px);
+  background:radial-gradient(closest-side, rgba(255,255,255,.95), color-mix(in srgb, var(--halo-1) 60%, transparent) 45%, transparent 75%);
+  opacity:0;mix-blend-mode:screen;animation:lueur 1.6s 1.05s ease-out forwards}
+@keyframes lueur{0%{opacity:0;transform:translateZ(1px) scale(.3)}35%{opacity:.9}100%{opacity:0;transform:translateZ(1px) scale(1.25)}}
+.livre .feuille{position:absolute;inset:3px 3px 3px 0;border-radius:3px 14px 14px 3px;transform-origin:left center;background:var(--papier);
+  background-image:repeating-linear-gradient(180deg, transparent 0 21px, var(--papier-ligne) 21px 22px);background-position:0 58px;
+  box-shadow:inset -10px 0 16px -12px rgba(60,40,140,.4);animation:feuillette .95s cubic-bezier(.45,.05,.3,1) forwards}
+.livre .f1{animation-delay:1.35s}.livre .f2{animation-delay:1.5s}.livre .f3{animation-delay:1.65s}
+@keyframes feuillette{0%{transform:rotateY(0)}55%{transform:rotateY(-110deg) skewY(-2deg)}100%{transform:rotateY(-170deg)}}
+.livre .couverture{position:absolute;inset:0;transform-origin:left center;transform-style:preserve-3d;
+  animation:ouvre 1.4s .9s cubic-bezier(.6,.05,.25,1) forwards}
+@keyframes ouvre{0%{transform:rotateY(0)}12%{transform:rotateY(8deg)}100%{transform:rotateY(-174deg)}}
+.livre .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:4px 16px 16px 4px}
+.livre .avant{background:linear-gradient(135deg,#5F48D2 0%,#9580EC 58%,#CDB6F7 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  box-shadow:0 30px 60px -26px rgba(0,0,0,.85), inset 0 0 0 1px rgba(255,255,255,.18), inset 14px 0 0 rgba(0,0,0,.08);overflow:hidden}
+.livre .avant::before{content:'';position:absolute;inset:0;background:radial-gradient(260px 200px at 80% 0%, rgba(255,255,255,.35), transparent 60%)}
+.livre .avant::after{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:rgba(255,255,255,.18)}
+/* le reflet qui glisse sur la couverture */
+.livre .avant .reflet{position:absolute;top:-20%;bottom:-20%;left:-60%;width:45%;transform:skewX(-18deg);pointer-events:none;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);animation:reflet 1s .35s ease-in-out both}
+@keyframes reflet{from{left:-60%}to{left:120%}}
+.livre .avant svg{position:relative;width:96px;height:96px;border-radius:30px;box-shadow:0 18px 36px -14px rgba(20,10,60,.7);
+  animation:jetonIntro .8s .15s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes jetonIntro{from{opacity:0;transform:scale(.6) rotate(-14deg)}}
+.livre .avant .titre{position:relative;font-family:var(--serif);font-style:italic;font-size:30px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.livre .avant .titre span{color:#EDE4FF;opacity:.85}
+.livre .avant .etiq{position:relative;font-family:var(--ui);font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.75);
+  border:1px solid rgba(255,255,255,.35);padding:5px 12px;border-radius:999px}
+.livre .arriere{transform:rotateY(180deg);background:var(--papier-2);box-shadow:inset -14px 0 20px -14px rgba(60,40,140,.45);
+  display:flex;flex-direction:column;justify-content:flex-end;padding:22px}
+.livre .arriere small{font-family:var(--ui);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8A7CB8}
+.livre .arriere b{font-family:var(--serif);font-style:italic;font-size:15px;color:#3A2C78;font-weight:600;line-height:1.35}
+/* les documents qui s'envolent du classeur */
+.livre .vols{position:absolute;left:50%;top:42%;width:0;height:0;transform:translateZ(60px);pointer-events:none}
+.livre .vols i{position:absolute;left:-17px;top:-21px;width:34px;height:42px;border-radius:4px 10px 4px 4px;display:grid;place-items:center;font-style:normal;font-size:15px;
+  background:linear-gradient(160deg,#fff,hsl(var(--h) 70% 92%));border-top:4px solid hsl(var(--h) 62% 68%);box-shadow:0 10px 20px -8px rgba(30,15,80,.55);
+  opacity:0;animation:envol 1.25s cubic-bezier(.2,.75,.3,1) forwards;animation-delay:calc(1.9s + var(--i) * .07s)}
+@keyframes envol{
+  0%{opacity:0;transform:translate(0,10px) scale(.3) rotate(0)}
+  18%{opacity:1}
+  55%{opacity:1;transform:translate(var(--x),var(--y)) scale(1) rotate(var(--r))}
+  100%{opacity:0;transform:translate(calc(var(--x) * .35 + 105px),calc(var(--y) * .2 - 40px)) scale(.45) rotate(0)}}
+/* la phrase, mot à mot */
+.intro .phrase{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--ink);text-align:center;max-width:90vw}
+.intro .phrase .mot{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(10px);animation:mot .6s ease forwards;animation-delay:calc(2.1s + var(--i) * .09s)}
+.intro .phrase .mot.accent{color:var(--accent)}
+@keyframes mot{to{opacity:1;filter:none;transform:none}}
+.intro .passer{position:absolute;left:0;right:0;bottom:22px;text-align:center;font-family:var(--ui);font-size:11px;color:var(--ink-3);letter-spacing:.1em;
+  opacity:0;animation:fondu .6s 1.2s ease forwards}
+@keyframes fondu{to{opacity:1}}
+@media (max-width:560px){
+  .intro{--decal:75px}
+  .livre{width:150px;height:200px}
+  .livre .avant svg{width:64px;height:64px;border-radius:20px}.livre .avant .titre{font-size:22px}.livre .interieur h4{font-size:17px}
+  .livre .intercal{right:-19px}.livre .intercal i{width:19px;height:15px;font-size:8px}
+  .livre .lignes-txt{gap:8px;margin-top:14px}
+  .livre .vols i{transform-origin:center;scale:.75}
+  .intro .phrase{font-size:16px}
+}
+
+/* ---------- la page ---------- */
+.page{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:18px 22px 60px}
+@keyframes monte{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes jeton{from{opacity:0;transform:scale(.5) rotate(-18deg)}to{opacity:1;transform:none}}
+body.entree .page{animation:emerge .9s 3.25s cubic-bezier(.2,.8,.2,1) both}
+@keyframes emerge{from{opacity:0;transform:translateY(22px) scale(.985)}}
+
+/* barre du haut */
+.bar{display:flex;align-items:center;gap:12px;padding:8px 0;flex-wrap:wrap}
+.bar .mark{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+.bar .mark svg{width:48px;height:48px;border-radius:15px;box-shadow:0 10px 24px -8px rgba(0,0,0,.6);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.bar .mark:hover svg{transform:rotate(-6deg) scale(1.06)}
+.bar h1{margin:0;font-size:24px;letter-spacing:-.01em;font-weight:700;line-height:1.1;font-style:italic}
+.nom-outil span{color:var(--accent)}
+.bar .sub{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink-2);margin-top:2px}
+.bar .outils-haut{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.pastille{display:inline-flex;align-items:center;gap:7px;font-family:var(--ui);font-size:12.5px;color:var(--ink-2);text-decoration:none;
+  padding:8px 13px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;transition:.2s;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);white-space:nowrap}
+.pastille:hover{border-color:var(--bord-2);color:var(--ink);transform:translateY(-1px)}
+.pastille svg{width:18px;height:18px;border-radius:6px}
+.pastille.icone{padding:8px 10px;font-size:14px}
+.theme{position:relative;width:62px;height:34px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;padding:0;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.theme .pouce{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:var(--degrade);transition:transform .35s cubic-bezier(.2,.8,.2,1);box-shadow:0 4px 12px -4px rgba(0,0,0,.5)}
+:root[data-theme="light"] .theme .pouce{transform:translateX(28px)}
+.theme .lune,.theme .soleil{position:absolute;top:50%;transform:translateY(-50%);font-size:13px;line-height:1;pointer-events:none}
+.theme .lune{left:10px;color:#fff}
+.theme .soleil{right:10px;color:var(--or)}
+:root[data-theme="light"] .theme .lune{color:var(--ink-3)}
+:root[data-theme="light"] .theme .soleil{color:#fff}
+:root.calme #btnCalme{background:var(--verre-2);border-color:var(--bord-2)}
+
+/* onglets */
+.onglets{display:flex;flex-wrap:wrap;gap:6px;padding:12px 2px 14px;margin:6px 0 8px}
+@media (max-width:700px){.onglets{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}}
+.onglets button{flex:none;display:inline-flex;align-items:center;gap:7px;font-family:var(--ui);font-size:13px;font-weight:600;color:var(--ink-2);
+  padding:9px 14px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;transition:.2s;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.onglets button:hover{color:var(--ink);border-color:var(--bord-2)}
+.onglets button.actif{background:var(--degrade);color:var(--texte-bouton);border-color:transparent;box-shadow:0 10px 24px -12px rgba(111,85,208,.9)}
+.onglets .n{font-size:10.5px;font-weight:800;min-width:18px;height:18px;padding:0 5px;border-radius:9px;display:inline-grid;place-items:center;
+  background:color-mix(in srgb, var(--alerte) 26%, transparent);color:var(--alerte)}
+.onglets button.actif .n{background:rgba(255,255,255,.3);color:inherit}
+
+/* briques */
+main{outline:none}
+.vue{animation:monte .55s ease both}
+.carte{position:relative;background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:22px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .6s ease both;min-width:0}
+.carte h3{margin:0 0 4px;font-size:20px;font-weight:700;letter-spacing:-.01em;font-style:italic;display:flex;align-items:center;gap:9px}
+.carte h3 .e{font-style:normal;font-size:19px}
+.carte .chapo{font-family:var(--ui);font-size:12.5px;color:var(--ink-3);margin:0 0 14px}
+.carte .coin{position:absolute;top:18px;right:18px;display:flex;gap:6px}
+.carte .pied-carte{margin-top:14px;display:flex;justify-content:flex-end}
+.titre-vue{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:8px 0 16px}
+.titre-vue h2{margin:0;font-size:30px;letter-spacing:-.02em;font-style:italic;line-height:1.15}
+.titre-vue h2 span{color:var(--accent)}
+.titre-vue p{margin:2px 0 0;font-family:var(--ui);font-size:13px;color:var(--ink-3)}
+.titre-vue .actions{margin-left:auto}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--ui);font-size:13px;font-weight:650;
+  padding:10px 16px;border-radius:14px;border:1px solid var(--bord);background:var(--verre);color:var(--ink);cursor:pointer;
+  transition:transform .2s, background .2s, border-color .2s, box-shadow .2s;text-decoration:none;white-space:nowrap}
+.btn:hover{transform:translateY(-2px);border-color:var(--bord-2);background:var(--verre-2)}
+.btn.plein{background:var(--degrade);color:var(--texte-bouton);border-color:transparent;box-shadow:0 12px 28px -14px rgba(111,85,208,.95)}
+.btn.plein:hover{box-shadow:0 16px 34px -14px rgba(111,85,208,1)}
+.btn.petit{padding:6px 11px;font-size:12px;border-radius:11px}
+.btn.danger{color:var(--alerte)}
+.btn .e{font-size:15px}
+.lien{background:none;border:0;padding:0;color:var(--accent);font-family:var(--ui);font-size:12.5px;font-weight:650;cursor:pointer;text-decoration:none}
+.lien:hover{text-decoration:underline}
+.vide{font-family:var(--ui);font-size:13px;color:var(--ink-3);text-align:center;padding:20px 12px;border:1px dashed var(--bord);border-radius:16px}
+.vide .e{display:block;font-size:26px;margin-bottom:6px}
+.vide .btn{margin-top:10px}
+.muet{color:var(--ink-3)}
+.ui{font-family:var(--ui);font-style:normal}
+.section-titre{display:flex;align-items:baseline;gap:12px;margin:30px 0 14px;flex-wrap:wrap}
+.section-titre h3{margin:0;font-size:24px;font-style:italic;letter-spacing:-.015em}
+.section-titre h3 span{color:var(--accent)}
+.section-titre p{margin:0;font-family:var(--ui);font-size:12.5px;color:var(--ink-3)}
+.section-titre .actions{margin-left:auto}
+
+/* étiquettes */
+.puce{display:inline-flex;align-items:center;gap:5px;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:650;line-height:1.2;
+  padding:3px 9px;border-radius:999px;background:var(--verre-2);border:1px solid var(--bord);color:var(--ink-2);white-space:nowrap}
+.puce.cat{color:var(--c);background:var(--c-fond);border-color:color-mix(in srgb, var(--c) 34%, transparent)}
+.st-or{--s:var(--or)}.st-ciel{--s:var(--ciel)}.st-ok{--s:var(--ok)}.st-lilas{--s:var(--lilas)}.st-alerte{--s:var(--alerte)}
+.puce.statut{color:var(--s);border-color:color-mix(in srgb, var(--s) 40%, transparent);background:color-mix(in srgb, var(--s) 10%, transparent)}
+.puce.ech-passe{color:var(--alerte);border-color:color-mix(in srgb, var(--alerte) 45%, transparent);background:color-mix(in srgb, var(--alerte) 12%, transparent)}
+.puce.ech-rappel{color:var(--or);border-color:color-mix(in srgb, var(--or) 45%, transparent);background:color-mix(in srgb, var(--or) 12%, transparent)}
+.puce.ech-ok{color:var(--ink-2)}
+
+/* ---------- accueil ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px 30px;align-items:center;padding:28px 30px;margin-bottom:16px;overflow:hidden}
+.hero .bonjour{font-family:var(--ui);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.hero h2{margin:6px 0 8px;font-size:36px;line-height:1.1;letter-spacing:-.025em;font-style:italic}
+.hero h2 span{color:var(--accent)}
+.hero .mission{margin:0;font-family:var(--ui);font-size:13.5px;color:var(--ink-2);max-width:62ch}
+.hero .chiffres{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.hero .chiffres div{flex:1;min-width:92px;padding:11px 13px;border-radius:16px;background:var(--champ);border:1px solid var(--bord)}
+.hero .chiffres b{display:block;font-size:26px;line-height:1;font-style:italic;background:var(--degrade);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .chiffres small{font-family:var(--ui);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.hero .droite{display:flex;flex-direction:column;gap:12px}
+.recherche{position:relative;display:flex;align-items:center;gap:10px;padding:4px 8px 4px 16px;border-radius:18px;background:var(--champ);border:1px solid var(--bord-2);
+  transition:border-color .2s, box-shadow .2s}
+.recherche:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent)}
+.recherche .e{font-size:17px;opacity:.8}
+.recherche input{flex:1;min-width:0;border:0;background:transparent;outline:none;font-family:var(--ui);font-size:15px;padding:12px 0}
+.recherche input::placeholder{color:var(--ink-3)}
+.recherche kbd{font-family:var(--mono);font-size:11px;color:var(--ink-3);border:1px solid var(--bord);border-radius:7px;padding:2px 7px}
+.recherche .effacer{border:0;background:var(--verre-2);border-radius:10px;width:30px;height:30px;cursor:pointer;color:var(--ink-2)}
+.grands-boutons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.grand{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:13px 14px;border-radius:18px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;
+  font-family:var(--ui);text-align:left;transition:transform .2s, border-color .2s, background .2s, box-shadow .2s}
+.grand:hover{transform:translateY(-3px);border-color:var(--bord-2);background:var(--verre-2)}
+.grand .e{font-size:20px}
+.grand b{font-size:13px;font-weight:700}
+.grand small{font-size:11px;color:var(--ink-3);line-height:1.3}
+.grand.plein{background:var(--degrade);color:var(--texte-bouton);border-color:transparent;box-shadow:0 14px 30px -16px rgba(111,85,208,1)}
+.grand.plein small{color:inherit;opacity:.8}
+@media (max-width:900px){.hero{grid-template-columns:1fr;padding:22px}.hero h2{font-size:29px}}
+@media (max-width:520px){.grands-boutons{grid-template-columns:1fr}.grand{flex-direction:row;align-items:center;gap:10px}.grand small{display:none}}
+
+/* intercalaires de l'accueil */
+.intercalaires-accueil{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:22px 14px;padding-top:12px}
+.inter{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:18px 16px 15px;border-radius:6px 18px 18px 18px;
+  border:1px solid var(--bord);background:var(--verre);cursor:pointer;text-align:left;font:inherit;color:inherit;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s, background .2s, box-shadow .3s;
+  animation:monte .55s ease both;animation-delay:calc(var(--i,0) * .04s)}
+.inter::before{content:attr(data-onglet);position:absolute;left:-1px;top:-21px;height:22px;max-width:75%;padding:3px 12px 0;border-radius:10px 10px 0 0;
+  background:var(--c-fond);border:1px solid color-mix(in srgb, var(--c) 36%, transparent);border-bottom:0;
+  font-family:var(--ui);font-size:10px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inter::after{content:'';position:absolute;left:0;right:0;top:0;height:3px;border-radius:6px 18px 0 0;background:var(--c);opacity:.7}
+.inter:hover{transform:translateY(-5px) rotate(-.6deg);border-color:color-mix(in srgb, var(--c) 45%, transparent);background:var(--verre-2);box-shadow:0 22px 40px -26px var(--c)}
+.inter .e{font-size:28px;line-height:1;margin-bottom:6px;transition:transform .3s}
+.inter:hover .e{transform:scale(1.12) rotate(-6deg)}
+.inter b{font-size:18px;font-style:italic;letter-spacing:-.01em}
+.inter small{font-family:var(--ui);font-size:11.5px;color:var(--ink-3);line-height:1.35}
+.inter .compte{position:absolute;top:14px;right:14px;min-width:26px;height:26px;padding:0 8px;border-radius:13px;display:grid;place-items:center;
+  font-family:var(--ui);font-size:12px;font-weight:800;background:var(--c-fond);color:var(--c)}
+.inter .prochaine{margin-top:6px;font-family:var(--ui);font-size:13px;color:var(--ink-2);letter-spacing:.1em}
+.inter.ajout{border-style:dashed;background:transparent;align-items:center;justify-content:center;text-align:center;min-height:130px}
+.inter.ajout::before{content:none}.inter.ajout::after{content:none}
+
+/* résultats de recherche */
+.resultats{margin-bottom:16px}
+.resultats h4{margin:14px 0 8px;font-family:var(--ui);font-size:11px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.resultats h4:first-of-type{margin-top:4px}
+.marque{background:color-mix(in srgb, var(--accent) 30%, transparent);color:inherit;border-radius:4px;padding:0 2px}
+
+/* lignes de document */
+.doc{display:flex;align-items:center;gap:13px;width:100%;padding:11px 12px;border-radius:15px;border:1px solid transparent;background:none;cursor:pointer;text-align:left;
+  transition:background .2s, border-color .2s, transform .2s;animation:monte .45s ease both;animation-delay:calc(var(--i,0) * .03s)}
+.doc:hover{background:var(--verre-2);border-color:var(--bord);transform:translateX(3px)}
+.doc .ico{flex:none;width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:19px;background:var(--c-fond);border:1px solid color-mix(in srgb, var(--c) 30%, transparent)}
+.doc .corps{flex:1;min-width:0}
+.doc .corps b{display:block;font-size:16px;font-style:italic;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc .corps small{display:block;font-family:var(--ui);font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc .droite{flex:none;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:52%}
+@media (max-width:620px){.doc{flex-wrap:wrap}.doc .droite{max-width:100%;width:100%;justify-content:flex-start;padding-left:53px}}
+
+/* ---------- le classeur ---------- */
+.classeur{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:0;align-items:start;perspective:2200px}
+.feuillet{position:relative;min-height:520px;padding:26px 28px 26px 64px;border-radius:22px 6px 6px 22px;background:var(--verre);border:1px solid var(--bord);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);transform-origin:left center;
+  background-image:repeating-linear-gradient(180deg, transparent 0 43px, color-mix(in srgb, var(--motif) 5%, transparent) 43px 44px);background-position:0 120px}
+.feuillet.tourne{animation:tournePage .75s cubic-bezier(.3,.7,.2,1) both}
+@keyframes tournePage{0%{transform:rotateY(-72deg);opacity:0;filter:brightness(1.3)}60%{opacity:1}100%{transform:none;filter:none}}
+.feuillet::before{content:'';position:absolute;left:44px;top:0;bottom:0;width:1px;background:color-mix(in srgb, var(--c) 45%, transparent)}
+.anneaux{position:absolute;left:12px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-around;padding:40px 0}
+.anneaux i{position:relative;width:18px;height:18px;border-radius:50%;background:var(--fond-uni);box-shadow:inset 0 2px 4px rgba(0,0,0,.45)}
+.anneaux i::after{content:'';position:absolute;left:-12px;top:3px;width:22px;height:12px;border-radius:7px;border:3px solid color-mix(in srgb, var(--lilas) 70%, #999);border-right-color:transparent;opacity:.8}
+.feuillet .tete{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.feuillet .tete .gros{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-size:28px;background:var(--c-fond);border:1px solid color-mix(in srgb, var(--c) 35%, transparent);flex:none}
+.feuillet .tete h2{margin:0;font-size:30px;font-style:italic;letter-spacing:-.02em;line-height:1.1}
+.feuillet .tete p{margin:4px 0 0;font-family:var(--ui);font-size:12.5px;color:var(--ink-3)}
+.feuillet .tete .actions{margin-left:auto}
+.filtres{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 12px;padding-bottom:12px;border-bottom:1px dashed var(--bord)}
+.filtres button{font-family:var(--ui);font-size:11.5px;font-weight:650;padding:5px 11px;border-radius:999px;border:1px solid var(--bord);background:transparent;color:var(--ink-2);cursor:pointer;transition:.2s}
+.filtres button:hover{border-color:var(--bord-2)}
+.filtres button.actif{background:var(--verre-2);border-color:var(--bord-2);color:var(--ink)}
+.filtres select{margin-left:auto;font-family:var(--ui);font-size:12px;padding:5px 10px;border-radius:10px;border:1px solid var(--bord);background:var(--champ)}
+.filtres select option{background:var(--fond-uni)}
+.onglets-classeur{display:flex;flex-direction:column;gap:4px;padding-top:22px;margin-left:-1px}
+.onglet-c{position:relative;display:flex;align-items:center;gap:9px;padding:9px 12px 9px 14px;border-radius:0 14px 14px 0;border:1px solid var(--bord);border-left:0;
+  background:color-mix(in srgb, var(--c) 10%, var(--verre));cursor:pointer;font-family:var(--ui);font-size:13px;font-weight:650;color:var(--ink-2);text-align:left;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1), background .2s, color .2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transform:translateX(calc(var(--d,0) * 1px))}
+.onglet-c::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:4px;border-radius:0 4px 4px 0;background:var(--c)}
+.onglet-c:hover{transform:translateX(6px);color:var(--ink)}
+.onglet-c.actif{background:var(--verre-2);color:var(--ink);transform:translateX(-2px);box-shadow:8px 10px 24px -18px rgba(0,0,0,.7)}
+.onglet-c .e{font-size:16px}
+.onglet-c .nom{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.onglet-c .n{font-size:11px;font-weight:800;color:var(--c)}
+.onglet-c .alerte-pt{width:7px;height:7px;border-radius:50%;background:var(--or)}
+.onglet-c.ajout{border-style:dashed;background:transparent;color:var(--ink-3)}
+.onglet-c.ajout::before{content:none}
+@media (max-width:860px){
+  .classeur{grid-template-columns:minmax(0,1fr)}
+  .onglets-classeur{order:-1;flex-direction:row;overflow-x:auto;padding:0 0 0 14px;gap:4px;scrollbar-width:none;margin:0}
+  .onglet-c{flex:none;border-radius:14px 14px 0 0;border:1px solid var(--bord);border-bottom:0;transform:none!important;padding:8px 12px}
+  .onglet-c::before{left:8px;right:8px;top:0;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
+  .feuillet{border-radius:22px;padding:22px 18px 22px 52px}
+  .feuillet::before{left:38px}
+  .anneaux{left:8px}
+}
+
+/* ---------- la famille : profils ---------- */
+.avatar{flex:none;width:52px;height:52px;border-radius:17px;display:grid;place-items:center;font-size:25px;line-height:1;
+  background:linear-gradient(135deg,hsl(var(--h) 62% 60%),hsl(calc(var(--h) + 28) 72% 80%));box-shadow:0 10px 22px -12px hsl(var(--h) 60% 30%);
+  border:1px solid rgba(255,255,255,.35)}
+.avatar.moyen{width:40px;height:40px;border-radius:13px;font-size:19px}
+.avatar.petit{width:22px;height:22px;border-radius:8px;font-size:12px;box-shadow:none}
+.membres{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:16px}
+.membre{display:flex;flex-direction:column;gap:10px;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s;
+  animation-delay:calc(var(--i,0) * .05s)}
+.membre:hover{transform:translateY(-5px);border-color:color-mix(in srgb, hsl(var(--h) 60% 70%) 55%, transparent)}
+.membre .haut{display:flex;align-items:center;gap:13px}
+.membre b{display:block;font-size:20px;font-style:italic;letter-spacing:-.01em}
+.membre small{font-family:var(--ui);font-size:11.5px;color:var(--ink-3)}
+.membre .mini{display:flex;flex-wrap:wrap;gap:4px}
+.membre .mini span{font-family:var(--ui);font-size:11px;padding:2px 8px;border-radius:999px;background:var(--c-fond);color:var(--c);border:1px solid color-mix(in srgb, var(--c) 30%, transparent)}
+.membre.ajout{border-style:dashed;background:transparent;align-items:center;justify-content:center;text-align:center;min-height:150px}
+.membre.ajout .avatar{background:var(--verre-2);box-shadow:none;border:1px dashed var(--bord-2)}
+
+.profils-barre{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 14px;scrollbar-width:none}
+.p-chip{flex:none;display:inline-flex;align-items:center;gap:9px;padding:5px 15px 5px 5px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;
+  font-family:var(--ui);font-size:13px;font-weight:650;color:var(--ink-2);transition:.2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.p-chip:hover{border-color:var(--bord-2);color:var(--ink);transform:translateY(-1px)}
+.p-chip .avatar{width:30px;height:30px;border-radius:50%;font-size:15px;box-shadow:none}
+.p-chip small{font-size:11px;font-weight:800;opacity:.7}
+.p-chip.actif{background:var(--degrade);color:var(--texte-bouton);border-color:transparent;box-shadow:0 10px 24px -12px rgba(111,85,208,.9)}
+.p-chip.ajout{padding:8px 14px;border-style:dashed;background:transparent}
+
+.fiche-membre{margin-bottom:16px}
+.fiche-membre .tete{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.fiche-membre .tete h3{margin:0;font-size:24px}
+.fiche-membre .tete p{margin:2px 0 0;font-family:var(--ui);font-size:12.5px;color:var(--ink-3)}
+.fiche-membre .tete .actions{margin-left:auto}
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.case-cat{position:relative;display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:14px;border:1px solid var(--bord);background:var(--champ);cursor:pointer;
+  font:inherit;color:inherit;text-align:left;transition:transform .2s, border-color .2s, background .2s}
+.case-cat::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--c)}
+.case-cat:hover{transform:translateY(-2px);border-color:color-mix(in srgb, var(--c) 45%, transparent);background:var(--c-fond)}
+.case-cat .e{font-size:19px}
+.case-cat .nom{flex:1;min-width:0;font-family:var(--ui);font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.case-cat .n{font-family:var(--ui);font-size:12px;font-weight:800;color:var(--c)}
+.case-cat.vide-cat{opacity:.5}
+.case-cat.vide-cat:hover{opacity:1}
+.puce.profil{padding:2px 9px 2px 2px;gap:6px}
+.puce.profil .avatar{width:18px;height:18px;border-radius:50%;font-size:10px;box-shadow:none;border:0}
+.choix .avatar{width:20px;height:20px;border-radius:50%;font-size:11px;box-shadow:none;border:0}
+
+/* ---------- import par lot ---------- */
+.depot{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:34px 18px;border-radius:22px;border:2px dashed var(--bord-2);
+  background:var(--champ);transition:border-color .2s, background .2s, transform .2s}
+.depot .e{font-size:40px;line-height:1}
+.depot b{font-size:19px;font-style:italic}
+.depot small{font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+body.glisse .depot{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 14%, var(--champ));transform:scale(1.01)}
+.imp-tous,.imp{display:grid;grid-template-columns:28px minmax(0,1.7fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+.imp-tous{padding:10px 12px;border-radius:14px;background:var(--champ);border:1px solid var(--bord);margin-bottom:10px}
+.imp-tous span{font-family:var(--ui);font-size:11px;font-weight:700;color:var(--ink-3);grid-column:1/3}
+.imp-liste{max-height:52vh;overflow-y:auto;padding-right:4px}
+.imp{padding:9px 10px;border-radius:14px;border:1px solid var(--bord);background:var(--verre)}
+.imp + .imp{margin-top:6px}
+.imp.a-voir{border-color:color-mix(in srgb, var(--or) 55%, transparent);background:color-mix(in srgb, var(--or) 7%, var(--verre))}
+.imp.ecarte{opacity:.45}
+.manque{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;margin-bottom:16px;border-radius:18px;font-family:var(--ui);font-size:13px;
+  border:1px solid color-mix(in srgb, var(--or) 55%, transparent);background:color-mix(in srgb, var(--or) 9%, var(--verre))}
+.manque .e{font-size:24px}
+.manque div{flex:1;min-width:220px}
+.manque small{display:block;color:var(--ink-3);margin-top:2px}
+.rel{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;padding:9px 12px;border-radius:14px;border:1px solid var(--bord);background:var(--verre)}
+.rel + .rel{margin-top:6px}
+.rel.a-voir{border-color:color-mix(in srgb, var(--or) 55%, transparent);background:color-mix(in srgb, var(--or) 7%, var(--verre))}
+.rel input{width:18px;height:18px;accent-color:#8E7BD4}
+.rel small{display:block;font-family:var(--ui);font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.rel-reste{margin-top:12px;font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.rel-reste summary{cursor:pointer;font-weight:700}
+.rel-reste ul{margin:6px 0 0;padding-left:18px;max-height:22vh;overflow-y:auto}
+.restaurer{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.imp input[type=checkbox]{width:18px;height:18px;accent-color:#8E7BD4}
+.imp input:not([type=checkbox]),.imp select,.imp-tous input,.imp-tous select{width:100%;min-width:0;font-family:var(--ui);font-size:12.5px;padding:8px 9px;border-radius:10px;
+  border:1px solid var(--bord);background:var(--champ);outline:none}
+.imp select option,.imp-tous select option{background:var(--fond-uni)}
+.imp input:focus,.imp select:focus{border-color:var(--accent)}
+.imp .nom small{display:block;margin-top:3px;font-family:var(--ui);font-size:10.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.imp .nom small b{color:var(--ok);font-weight:650}
+.imp.a-voir .nom small b{color:var(--or)}
+@media (max-width:700px){.imp,.imp-tous{grid-template-columns:24px minmax(0,1fr) minmax(0,1fr)}.imp .nom{grid-column:2/4}.imp-tous span{grid-column:1/4}}
+.indice{display:block;min-height:16px;margin:-8px 0 12px;font-family:var(--ui);font-size:11.5px;color:var(--ok)}
+
+/* ---------- aperçu du fichier ---------- */
+.apercu{margin:4px 0 14px;border-radius:16px;overflow:hidden;border:1px solid var(--bord);background:var(--champ);min-height:120px;display:grid;place-items:center}
+.apercu iframe{width:100%;height:62vh;border:0;background:#fff;display:block}
+.apercu img{display:block;max-width:100%;max-height:62vh;margin:0 auto;object-fit:contain;cursor:zoom-in}
+.apercu .attente{font-family:var(--ui);font-size:12.5px;color:var(--ink-3);padding:30px}
+
+/* ---------- fenêtres ---------- */
+.voile{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto;
+  background:rgba(14,10,34,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+:root[data-theme="light"] .voile{background:rgba(60,40,120,.22)}
+.voile.ouvert{display:flex;animation:fondu .25s ease}
+@keyframes fondu{from{opacity:0}}
+.fen{position:relative;width:min(640px,100%);border-radius:26px;padding:26px;border:1px solid var(--bord-2);box-shadow:0 40px 90px -30px rgba(0,0,0,.9);
+  background:#2A2158;background-image:linear-gradient(160deg,#3A2F78,#231B4C 60%);animation:fen .4s cubic-bezier(.2,.8,.2,1)}
+:root[data-theme="light"] .fen{background:#fff;background-image:linear-gradient(160deg,#F1EBFF,#fff 55%)}
+.fen.large{width:min(780px,100%)}
+@keyframes fen{from{opacity:0;transform:translateY(20px) scale(.97)}}
+.fen h3{margin:0 0 4px;font-size:24px;font-style:italic;letter-spacing:-.015em}
+.fen .chapo{margin:0 0 18px;font-family:var(--ui);font-size:13px;color:var(--ink-3)}
+.fen .x{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:12px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;color:var(--ink-2);font-size:16px}
+.champ{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
+.champ > span{font-family:var(--ui);font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--ink-2)}
+.champ input:not([type=checkbox]):not([type=radio]),.champ select,.champ textarea{width:100%;font-family:var(--ui);font-size:14px;padding:11px 13px;border-radius:13px;border:1px solid var(--bord);
+  background:var(--champ);outline:none;transition:border-color .2s, box-shadow .2s}
+.champ textarea{resize:vertical;min-height:84px;line-height:1.5}
+.champ select option{background:var(--fond-uni)}
+.champ input:focus,.champ select:focus,.champ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent)}
+.champ input[type=file]{padding:9px}
+.deux{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+@media (max-width:560px){.deux{grid-template-columns:minmax(0,1fr)}.fen{padding:22px 18px}}
+.choix{display:flex;gap:6px;flex-wrap:wrap}
+.choix label{position:relative;cursor:pointer}
+.choix input{position:absolute;opacity:0;pointer-events:none}
+.choix span{display:inline-flex;align-items:center;gap:6px;font-family:var(--ui);font-size:12.5px;font-weight:650;padding:7px 12px;border-radius:999px;border:1px solid var(--bord);
+  background:var(--champ);color:var(--ink-2);transition:.2s}
+.choix label:hover span{border-color:var(--bord-2)}
+.choix input:checked + span{background:var(--degrade);color:var(--texte-bouton);border-color:transparent}
+.choix input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+.choix.statuts input:checked + span{background:color-mix(in srgb, var(--s) 22%, transparent);color:var(--s);border-color:var(--s)}
+.modeles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-bottom:14px}
+.modeles label{position:relative;cursor:pointer}
+.modeles input{position:absolute;opacity:0;pointer-events:none}
+.modeles .m{display:flex;flex-direction:column;gap:3px;height:100%;padding:12px 13px;border-radius:16px;border:1px solid var(--bord);background:var(--champ);transition:.2s}
+.modeles .m .e{font-size:22px}
+.modeles .m b{font-family:var(--serif);font-style:italic;font-size:14.5px}
+.modeles .m small{font-family:var(--ui);font-size:11px;color:var(--ink-3);line-height:1.3}
+.modeles label:hover .m{border-color:var(--bord-2)}
+.modeles input:checked + .m{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 14%, var(--champ));box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
+.boutons{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px}
+.boutons .gauche{margin-right:auto}
+.note-secu{font-family:var(--ui);font-size:11.5px;color:var(--ink-3);margin:-4px 0 14px}
+.emojis{display:flex;gap:4px;flex-wrap:wrap}
+.emojis label{cursor:pointer}
+.emojis input{position:absolute;opacity:0;pointer-events:none}
+.emojis span{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;border:1px solid var(--bord);background:var(--champ);font-size:18px;transition:.2s}
+.emojis input:checked + span{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 20%, transparent);transform:scale(1.08)}
+
+/* fiche document */
+.fiche-tete{display:flex;gap:16px;align-items:center;margin-bottom:16px;padding-right:40px}
+.fiche-tete .gros{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;font-size:30px;background:var(--c-fond);border:1px solid color-mix(in srgb, var(--c) 35%, transparent);flex:none}
+.fiche-tete h3{margin:0}
+.fiche-tete .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.infos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.infos div{padding:11px 13px;border-radius:14px;background:var(--champ);border:1px solid var(--bord);min-width:0}
+.infos small{display:block;font-family:var(--ui);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.infos b{display:block;font-style:italic;font-weight:600;overflow-wrap:anywhere}
+.infos .pleine{grid-column:1/-1}
+.notes-doc{white-space:pre-wrap;font-size:15px;padding:13px 15px;border-radius:14px;background:var(--champ);border:1px solid var(--bord);border-left:3px solid var(--accent)}
+.fiche-sous{margin:16px 0 8px;font-family:var(--ui);font-size:11px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+@media (max-width:520px){.infos{grid-template-columns:minmax(0,1fr)}}
+
+/* notifications */
+.toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:150;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:92vw}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:12px;font-family:var(--ui);font-size:13.5px;padding:12px 18px;border-radius:16px;
+  background:#2E2560;color:#F3EFFB;border:1px solid rgba(255,255,255,.2);box-shadow:0 20px 40px -18px rgba(0,0,0,.8);animation:monte .35s ease both}
+:root[data-theme="light"] .toast{background:#fff;color:#2E2358;border-color:rgba(96,74,170,.25)}
+.toast.alerte{border-color:var(--alerte)}
+.toast button{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer;font-family:var(--ui)}
+
+.pied{display:flex;align-items:center;gap:12px;margin-top:40px;padding-top:18px;border-top:1px solid var(--bord);font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.pied svg{width:26px;height:26px;border-radius:8px}
+
+</style>
+</head>
+<body class="entree">
+
+<!-- ============================================================
+     Le logo de NaoDoc — le jeton de la famille et, au-dessus du N,
+     deux feuilles : l'une posée de biais, à demi transparente, l'autre
+     en blanc plein avec son coin corné et deux lignes de texte.
+     ============================================================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="gdo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5F48D2"/><stop offset=".55" stop-color="#9580EC"/><stop offset="1" stop-color="#CDB6F7"/></linearGradient>
+  <radialGradient id="gdo-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-do" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gdo)"/>
+    <circle cx="25" cy="8.6" r="7.4" fill="url(#gdo-lueur)" opacity=".5"/>
+    <rect x="12.6" y="5.2" width="9.6" height="11.4" rx="1.5" fill="#fff" opacity=".45" transform="rotate(-11 17.4 10.9)"/>
+    <path d="M18.9 3.6H24.2L27.6 7V14.3Q27.6 15.8 26.1 15.8H18.9Q17.4 15.8 17.4 14.3V5.1Q17.4 3.6 18.9 3.6Z" fill="#fff"/>
+    <path d="M24.2 3.6V5.9Q24.2 7 25.3 7H27.6Z" fill="#B9A6F4"/>
+    <path d="M19.9 10.2H25.1M19.9 12.9H23.3" fill="none" stroke="#7C66DD" stroke-width="1.1" stroke-linecap="round" opacity=".6"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient>
+  <symbol id="l-gr" viewBox="0 0 40 40"><rect width="40" height="40" rx="13" fill="url(#ggr)"/>
+    <path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g></symbol>
+
+  <!-- les motifs du décor -->
+  <symbol id="m-feuille" viewBox="-2 -2 34 42" overflow="visible"><path d="M0 2Q0 0 2 0H21L30 9V36Q30 38 28 38H2Q0 38 0 36Z"/><path d="M21 0V7Q21 9 23 9H30"/><path d="M6 17H24M6 23H24M6 29H17"/></symbol>
+  <symbol id="m-trombone" viewBox="-2 -2 18 42" overflow="visible"><path d="M11 12V30Q11 36 6.5 36Q2 36 2 30V7Q2 2 6.5 2Q11 2 11 7V27Q11 30 8.3 30Q5.8 30 5.8 27V11"/></symbol>
+  <symbol id="m-dossier" viewBox="-2 -2 42 36" overflow="visible"><path d="M0 5Q0 2 3 2H13L17 7H35Q38 7 38 10V29Q38 32 35 32H3Q0 32 0 29Z"/><path d="M0 13H38"/></symbol>
+  <symbol id="m-tampon" viewBox="-2 -2 36 36" overflow="visible"><circle cx="16" cy="16" r="15"/><circle cx="16" cy="16" r="11" stroke-dasharray="2 3"/><path d="M10.5 16.5L14.5 20.5L22 12"/></symbol>
+  <symbol id="m-carte" viewBox="-2 -2 40 28" overflow="visible"><rect x="0" y="0" width="36" height="24" rx="4"/><circle cx="10" cy="10" r="4"/><path d="M4 20Q10 14 16 20M21 8H31M21 13H31M21 18H27"/></symbol>
+  <symbol id="m-classeur" viewBox="-2 -2 32 42" overflow="visible"><rect x="0" y="0" width="28" height="38" rx="3"/><path d="M8 0V38"/><circle cx="4" cy="9" r="1.6"/><circle cx="4" cy="19" r="1.6"/><circle cx="4" cy="29" r="1.6"/><rect x="13" y="7" width="10" height="7" rx="1.5"/></symbol>
+  <symbol id="m-etiquette" viewBox="-2 -2 38 24" overflow="visible"><path d="M0 3Q0 0 3 0H26L34 10L26 20H3Q0 20 0 17Z"/><circle cx="25" cy="10" r="2"/></symbol>
+  <symbol id="m-coche" viewBox="-2 -2 30 30" overflow="visible"><rect x="0" y="0" width="26" height="26" rx="7"/><path d="M7 13.5L11.5 18L19.5 9"/></symbol>
+  <symbol id="m-plume" viewBox="-2 -2 36 36" overflow="visible"><path d="M31 1Q14 3 7 20L4 28"/><path d="M31 1Q27 16 12 22"/><path d="M4 28L2 32"/></symbol>
+  <symbol id="m-enveloppe" viewBox="-2 -2 40 30" overflow="visible"><rect x="0" y="0" width="36" height="26" rx="4"/><path d="M1 2L18 15L35 2"/></symbol>
+</defs></svg>
+
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<svg class="motifs" id="motifs" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g id="etoiles"></g>
+  <use class="m" href="#m-feuille"     x="90"   y="150" width="44" height="54" style="animation-duration:17s"/>
+  <use class="m" href="#m-trombone"    x="300"  y="70"  width="20" height="46" style="animation-duration:21s;animation-delay:-4s"/>
+  <use class="m" href="#m-dossier"     x="1250" y="140" width="56" height="46" style="animation-duration:19s;animation-delay:-7s"/>
+  <use class="m" href="#m-tampon"      x="1320" y="470" width="46" height="46" style="animation-duration:23s;animation-delay:-2s"/>
+  <use class="m" href="#m-carte"       x="60"   y="520" width="50" height="34" style="animation-duration:18s;animation-delay:-9s"/>
+  <use class="m" href="#m-classeur"    x="1130" y="740" width="40" height="54" style="animation-duration:22s;animation-delay:-5s"/>
+  <use class="m" href="#m-etiquette"   x="210"  y="780" width="50" height="32" style="animation-duration:20s;animation-delay:-11s"/>
+  <use class="m" href="#m-coche"       x="740"  y="60"  width="34" height="34" style="animation-duration:16s;animation-delay:-3s"/>
+  <use class="m" href="#m-plume"       x="1020" y="40"  width="44" height="44" style="animation-duration:24s;animation-delay:-8s"/>
+  <use class="m" href="#m-enveloppe"   x="560"  y="800" width="50" height="38" style="animation-duration:19s;animation-delay:-6s"/>
+  <use class="m" href="#m-feuille"     x="1380" y="780" width="34" height="42" style="animation-duration:21s;animation-delay:-12s"/>
+  <use class="m" href="#m-trombone"    x="880"  y="820" width="16" height="38" style="animation-duration:17s;animation-delay:-1s"/>
+  <use class="m" href="#m-dossier"     x="30"   y="330" width="40" height="34" style="animation-duration:25s;animation-delay:-14s"/>
+  <use class="m" href="#m-tampon"      x="470"  y="30"  width="32" height="32" style="animation-duration:18s;animation-delay:-10s"/>
+  <g class="volantes">
+    <use class="volante" href="#m-feuille"   x="-60" y="760" width="30" height="38" style="--dx:1600px;--dy:-700px;--r:340deg;animation-duration:46s"/>
+    <use class="volante" href="#m-enveloppe" x="-80" y="300" width="34" height="26" style="--dx:1650px;--dy:260px;--r:-160deg;animation-duration:58s;animation-delay:-20s"/>
+    <use class="volante" href="#m-feuille"   x="1500" y="120" width="26" height="32" style="--dx:-1650px;--dy:560px;--r:-280deg;animation-duration:52s;animation-delay:-34s"/>
+  </g>
+</svg>
+
+<!-- l'entrée dans l'outil : le classeur s'ouvre -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="etincelles" id="introEtincelles"></div>
+  <div class="scene">
+    <div class="livre">
+      <div class="ombre-sol"></div>
+      <div class="interieur">
+        <h4>Nao<span>Doc</span></h4>
+        <p>Le classeur de la famille</p>
+        <div class="lignes-txt"><i style="--w:88%;--i:0"></i><i style="--w:72%;--i:1"></i><i style="--w:80%;--i:2"></i><i style="--w:56%;--i:3"></i><i style="--w:66%;--i:4"></i></div>
+        <div class="intercal" id="introOnglets"></div>
+      </div>
+      <div class="lueur"></div>
+      <div class="feuille f3"></div><div class="feuille f2"></div><div class="feuille f1"></div>
+      <div class="couverture">
+        <div class="face avant">
+          <span class="reflet"></span>
+          <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-do"/></svg>
+          <div class="titre">Nao<span>Doc</span></div>
+          <div class="etiq">Classeur familial</div>
+        </div>
+        <div class="face arriere"><small>Ce classeur appartient à</small><b>toute la famille.</b></div>
+      </div>
+      <div class="vols" id="introVols"></div>
+    </div>
+    <div class="phrase" id="introPhrase">Vos documents, vos échéances, votre tranquillité.</div>
+  </div>
+  <div class="passer">Cliquer pour entrer</div>
+</div>
+
+<div class="page">
+  <header class="bar">
+    <a class="mark" href="../NaoGroup.html" title="Revenir à NaoGroup" aria-label="Revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoDoc"><use href="#l-do"/></svg>
+      <div><h1 class="nom-outil">Nao<span>Doc</span></h1><div class="sub">Vos documents, vos échéances, votre tranquillité.</div></div>
+    </a>
+    <div class="outils-haut">
+      <a class="pastille" href="../NaoGroup.html" title="Revenir à NaoGroup"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg> NaoGroup</a>
+      <button class="pastille icone" type="button" data-act="sauvegarder" title="Sauvegarder mon classeur dans un fichier">💾</button>
+      <button class="pastille icone" type="button" data-act="recharger" title="Recharger une sauvegarde">📂</button>
+      <button class="pastille icone" type="button" data-act="reinitialiser" title="Réinitialiser NaoDoc (classeur vierge)">🧹</button>
+      <button class="pastille icone" type="button" data-act="calme" id="btnCalme" title="Mettre les animations en pause">🕊️</button>
+      <button class="theme" type="button" data-act="theme" aria-label="Basculer thème clair / sombre" title="Thème clair / sombre"><span class="pouce"></span><span class="lune">☾</span><span class="soleil">☀</span></button>
+    </div>
+  </header>
+
+  <nav class="onglets" id="onglets" aria-label="Sections de NaoDoc"></nav>
+
+  <main id="contenu" tabindex="-1"></main>
+
+  <footer class="pied">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-do"/></svg>
+    <div>Un outil de la maison <a href="../NaoGroup.html">NaoGroup</a> · votre classeur reste sur cet ordinateur. NaoDoc vous aide à ranger ; il ne remplace pas les originaux.</div>
+  </footer>
+</div>
+
+<div class="voile" id="modale" role="dialog" aria-modal="true"><div class="fen" id="modaleFen"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="fichierSauvegarde" accept="application/json,.json" hidden>
+<input type="file" id="importFichiers" multiple hidden>
+<input type="file" id="importDossier" webkitdirectory directory multiple hidden>
+
+<script>
+'use strict';
+/* ============================================================
+   1. Les briques
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const CLE = 'naodoc.donnees';
+const ecrire = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const pluriel = (n, mot, pl) => `${n} ${n > 1 ? (pl || mot + 's') : mot}`;
+const auj = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const depuis = s => {
+  if (!s) return '';
+  const j = Math.round((Date.now() - new Date(s)) / 864e5);
+  return j < 1 ? "aujourd'hui" : j === 1 ? 'hier' : j < 30 ? `il y a ${j} jours` : new Date(s).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+};
+
+/* ============================================================
+   2. Le catalogue : catégories, rôles, avatars
+   ============================================================ */
+const CATS_BASE = [
+  { id: 'identite',  nom: 'Identité',  ico: '🪪', h: 265, desc: "Carte d'identité, passeport, permis, titre de séjour" },
+  { id: 'logement',  nom: 'Logement',  ico: '🏠', h: 212, desc: 'Bail, quittances, titre de propriété, factures d’énergie' },
+  { id: 'banque',    nom: 'Banque',    ico: '🏦', h: 243, desc: 'RIB, relevés, contrats de prêt, épargne' },
+  { id: 'assurance', nom: 'Assurance', ico: '🛡️', h: 226, desc: 'Habitation, auto, mutuelle, prévoyance' },
+  { id: 'sante',     nom: 'Santé',     ico: '🩺', h: 322, desc: 'Carte Vitale, ordonnances, vaccins, comptes rendus' },
+  { id: 'travail',   nom: 'Travail',   ico: '💼', h: 280, desc: 'Contrat, bulletins de salaire, attestations, diplômes' },
+  { id: 'impots',    nom: 'Impôts',    ico: '🧾', h: 296, desc: "Avis d'imposition, déclarations, taxe foncière" },
+  { id: 'vehicule',  nom: 'Véhicule',  ico: '🚗', h: 198, desc: 'Carte grise, contrôle technique, entretien' },
+  { id: 'famille',   nom: 'Famille',   ico: '👨‍👩‍👧', h: 338, desc: 'Actes de naissance, livret de famille, scolarité, CAF' },
+  { id: 'loisirs',   nom: 'Loisirs',   ico: '🎨', h: 308, desc: 'Abonnements, licences sportives, adhésions' }
+];
+const EMOJIS_CAT = ['📁', '🎓', '🐾', '⚖️', '🏛️', '🔧', '💡', '🎁', '✈️', '🌿', '📦', '⭐'];
+const ROLES = ['Moi', 'Conjoint·e', 'Enfant', 'Parent', 'Grand-parent', 'Autre'];
+const AVATARS = ['👩', '👨', '👧', '👦', '👶', '👵', '👴', '🧑', '🐾', '🏡'];
+const TEINTES = [265, 222, 318, 290, 200, 340, 245, 305];
+const SUGGESTIONS = ["Carte nationale d'identité", 'Passeport', 'Permis de conduire', 'Titre de séjour', 'Bail de location', 'Quittance de loyer',
+  'Attestation d’assurance habitation', 'RIB', 'Relevé de compte', 'Offre de prêt', 'Carte Vitale', 'Attestation de mutuelle', 'Carnet de vaccination',
+  'Carnet de santé', 'Contrat de travail', 'Bulletin de salaire', 'Diplôme', "Avis d'imposition", 'Taxe foncière', 'Carte grise', 'Contrôle technique',
+  'Assurance auto', 'Livret de famille', 'Acte de naissance', 'Certificat de scolarité', 'Licence sportive', 'Abonnement'];
+const FOYER = { id: 'foyer', nom: 'Foyer', role: 'Commun à toute la famille', ico: '🏡', h: 262, fixe: true };
+
+/* ============================================================
+   3. L'état : lu et écrit dans localStorage
+   ============================================================ */
+let S;
+const vierge = () => ({ v: 2, profils: [Object.assign({}, FOYER)], docs: [], cats: [], cachees: [] });
+function charger() {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(CLE) || 'null'); } catch (e) {}
+  S = d && d.v ? Object.assign(vierge(), d) : vierge();
+  /* anciennes versions : pas encore de profils → tout va dans le Foyer */
+  if (!Array.isArray(S.profils) || !S.profils.length) S.profils = [Object.assign({}, FOYER)];
+  if (!S.profils.some(p => p.id === 'foyer')) S.profils.unshift(Object.assign({}, FOYER));
+  S.docs.forEach(d => { if (!d.profil || !S.profils.some(p => p.id === d.profil)) d.profil = 'foyer'; });
+  S.v = 2;
+}
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ v: S.v, profils: S.profils, docs: S.docs, cats: S.cats, cachees: S.cachees })); return true; }
+  catch (e) { toast('Enregistrement impossible : la mémoire du navigateur est pleine.', { alerte: true }); return false; }
+}
+/* les thèmes de départ supprimés sont seulement mis de côté (S.cachees) : on peut les rétablir */
+const cats = () => CATS_BASE.filter(c => !(S.cachees || []).includes(c.id)).concat(S.cats);
+/* Chaque personne a sa liste de thèmes : un thème perso peut n'être qu'à certains (c.profils),
+   une personne peut retirer un thème de son classeur (p.cachees). « Tout » montre toujours tous les thèmes,
+   et un thème où la personne a des documents reste visible chez elle. */
+function catsDe(pid) {
+  if (!pid || pid === 'tous') return cats();
+  const p = S.profils.find(x => x.id === pid); if (!p) return cats();
+  return cats().filter(c => S.docs.some(d => d.profil === pid && d.cat === c.id) ||
+    ((!c.profils || c.profils.includes(pid)) && !(p.cachees || []).includes(c.id)));
+}
+const pourQui = () => V === 'classeur' ? selProfil : 'tous';
+const cat = id => cats().find(c => c.id === id) || { id: '', nom: 'Sans catégorie', ico: '📄', h: 260 };
+const profil = id => S.profils.find(p => p.id === id) || S.profils[0];
+const doc = id => S.docs.find(d => d.id === id);
+const docsDe = (p, c) => S.docs.filter(d => (!p || p === 'tous' || d.profil === p) && (!c || c === 'tous' || d.cat === c));
+
+/* Les fichiers joints vivent à part, dans IndexedDB (plus de place que localStorage). */
+const Fichiers = (() => {
+  let p = null;
+  const base = () => p || (p = new Promise((ok, ko) => {
+    const r = indexedDB.open('naodoc-fichiers', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('f');
+    r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+  }));
+  const tx = (mode, fn) => base().then(db => new Promise((ok, ko) => {
+    const t = db.transaction('f', mode), req = fn(t.objectStore('f'));
+    t.oncomplete = () => ok(req && req.result); t.onerror = () => ko(t.error);
+  }));
+  return {
+    mettre: (k, v) => tx('readwrite', s => s.put(v, k)),
+    lire: k => tx('readonly', s => s.get(k)),
+    oter: k => tx('readwrite', s => s.delete(k)),
+    tout: () => tx('readonly', s => s.getAll()),
+    cles: () => tx('readonly', s => s.getAllKeys())
+  };
+})();
+
+/* La liste suit le profil d'un ordinateur à l'autre, pas les fichiers : on repère ceux qui manquent ici. */
+let MANQUANTS = new Set();
+async function verifierFichiers() {
+  try { const ici = new Set(await Fichiers.cles()); MANQUANTS = new Set(S.docs.filter(d => d.fichier && !ici.has(d.id)).map(d => d.id)); }
+  catch (e) { MANQUANTS = new Set(); }
+}
+const docsManquants = () => S.docs.filter(d => d.fichier && MANQUANTS.has(d.id));
+
+/* ============================================================
+   4. Les composants
+   ============================================================ */
+const avatar = (p, taille) => `<span class="avatar${taille ? ' ' + taille : ''}" style="--h:${p.h}">${p.ico}</span>`;
+const puceCat = id => { const c = cat(id); return `<span class="puce cat teinte" style="--h:${c.h}">${c.ico} ${esc(c.nom)}</span>`; };
+const puceProfil = id => { const p = profil(id); return `<span class="puce profil">${avatar(p)}${esc(p.nom)}</span>`; };
+
+function ligneDoc(d, i, opt) {
+  opt = opt || {};
+  const c = cat(d.cat), q = opt.q;
+  const titre = q ? surligner(d.titre, q) : esc(d.titre);
+  const sous = [d.organisme, d.reference && 'Réf. ' + d.reference, d.emplacement && '📍 ' + d.emplacement].filter(Boolean).map(x => q ? surligner(x, q) : esc(x)).join(' · ') || esc(c.nom);
+  return `<button class="doc teinte" style="--h:${c.h};--i:${i || 0}" data-act="doc-voir" data-id="${d.id}">
+    <span class="ico">${c.ico}</span>
+    <span class="corps"><b>${titre}</b><small>${sous}</small></span>
+    <span class="droite">${opt.sansProfil ? '' : puceProfil(d.profil)}${opt.sansCat ? '' : puceCat(d.cat)}${d.fichier ? (MANQUANTS.has(d.id) ? '<span class="puce" title="Fichier à retrouver sur cet ordinateur">⚠︎ 📎</span>' : '<span class="puce" title="Fichier joint">📎</span>') : ''}</span>
+  </button>`;
+}
+
+function surligner(txt, q) {
+  const t = String(txt || ''), n = norm(t), mots = norm(q).split(/\s+/).filter(Boolean);
+  const marques = new Array(t.length).fill(false);
+  mots.forEach(m => { let i = n.indexOf(m); while (i > -1) { for (let k = i; k < i + m.length; k++) marques[k] = true; i = n.indexOf(m, i + 1); } });
+  let r = '', dans = false;
+  for (let i = 0; i < t.length; i++) {
+    if (marques[i] && !dans) { r += '<mark class="marque">'; dans = true; }
+    if (!marques[i] && dans) { r += '</mark>'; dans = false; }
+    r += esc(t[i]);
+  }
+  return r + (dans ? '</mark>' : '');
+}
+
+/* ============================================================
+   5. La navigation
+   ============================================================ */
+const VUES = [
+  { id: 'accueil',  nom: 'Accueil',      e: '🏠' },
+  { id: 'classeur', nom: 'Mon classeur', e: '📚' },
+  { id: 'famille',  nom: 'Ma famille',   e: '👨‍👩‍👧' }
+];
+let V = 'accueil';
+let selProfil = 'tous', selCat = 'tous';     // ce que montre le classeur
+let Q = '', tri = 'nom', derniereCle = null;
+
+function adresse() {
+  try { history.replaceState(null, '', '#' + V + (V === 'classeur' ? `/${selProfil}/${selCat}` : '')); } catch (e) {}
+}
+function aller(vue, p, c) {
+  V = vue;
+  if (vue === 'classeur') { if (p) selProfil = p; if (c) selCat = c; }
+  adresse(); rendre();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function lireAdresse() {
+  const [vue, p, c] = decodeURIComponent(location.hash.slice(1)).split('/');
+  if (!VUES.some(v => v.id === vue)) return;
+  V = vue;
+  if (p && (p === 'tous' || S.profils.some(x => x.id === p))) selProfil = p;
+  if (c && (c === 'tous' || cats().some(x => x.id === c))) selCat = c;
+}
+
+function rendre() {
+  $('#onglets').innerHTML = VUES.map(v => `<button type="button" class="${V === v.id ? 'actif' : ''}" data-act="vue" data-vue="${v.id}">
+    <span class="e">${v.e}</span>${v.nom}</button>`).join('');
+  const f = { accueil: vueAccueil, classeur: vueClasseur, famille: vueFamille }[V] || vueAccueil;
+  $('#contenu').innerHTML = `<div class="vue">${f()}</div>`;
+  if (V === 'accueil' && Q) majRecherche();
+}
+
+/* ============================================================
+   6. Les vues
+   ============================================================ */
+function carteMembre(p, i) {
+  const ds = docsDe(p.id);
+  const parCat = cats().map(c => [c, ds.filter(d => d.cat === c.id).length]).filter(([, n]) => n).sort((a, b) => b[1] - a[1]);
+  return `<button class="carte membre" style="--h:${p.h};--i:${i}" data-act="vue" data-vue="classeur" data-p="${p.id}" data-c="tous">
+    <span class="haut">${avatar(p)}<span><b>${esc(p.nom)}</b><small>${esc(p.role || '')} · ${pluriel(ds.length, 'document')}</small></span></span>
+    <span class="mini">${parCat.length ? parCat.slice(0, 6).map(([c, n]) => `<span class="teinte" style="--h:${c.h}">${c.ico} ${n}</span>`).join('') : '<small>Aucun document pour l’instant</small>'}</span>
+  </button>`;
+}
+
+function vueAccueil() {
+  const h = new Date().getHours();
+  const salut = h < 5 ? 'Bonne nuit' : h < 18 ? 'Bonjour' : 'Bonsoir';
+  const aujLong = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const recents = S.docs.slice().sort((a, b) => (b.ajoute || '').localeCompare(a.ajoute || '')).slice(0, 6);
+  const vide = !S.docs.length && S.profils.length < 2;
+  const catsUtilisees = new Set(S.docs.map(d => d.cat)).size;
+
+  return `
+  <section class="carte hero">
+    <div>
+      <div class="bonjour">${salut} · ${aujLong}</div>
+      <h2>Vos documents, <span>vos échéances</span>, votre tranquillité.</h2>
+      <p class="mission">Chaque papier trouve sa place : une personne, un thème. Vous gérez les documents de tout le foyer — les vôtres, ceux de votre conjoint, des enfants — et vous les retrouvez en un instant.</p>
+      <div class="chiffres">
+        <div><b>${S.docs.length}</b><small>documents</small></div>
+        <div><b>${S.profils.length}</b><small>profils</small></div>
+        <div><b>${catsUtilisees}</b><small>thèmes utilisés</small></div>
+      </div>
+    </div>
+    <div class="droite">
+      <label class="recherche"><span class="e">🔍</span>
+        <input id="q" type="search" autocomplete="off" placeholder="Rechercher un document, une personne, un thème…" value="${esc(Q)}" aria-label="Rechercher">
+        <kbd>/</kbd></label>
+      <div class="grands-boutons">
+        <button class="grand plein" data-act="doc-nouveau"><span class="e">📄</span><b>Ajouter un document</b><small>Pour qui, dans quel thème</small></button>
+        <button class="grand" data-act="profil-nouveau"><span class="e">👤</span><b>Ajouter un profil</b><small>Conjoint, enfant, parent…</small></button>
+        <button class="grand" data-act="importer"><span class="e">📥</span><b>Importer des documents</b><small>Fichiers ou dossiers, rangés tout seuls</small></button>
+        <button class="grand" data-act="vue" data-vue="classeur" data-p="tous" data-c="tous"><span class="e">📚</span><b>Ouvrir le classeur</b><small>Feuilleter par thème</small></button>
+      </div>
+    </div>
+  </section>
+
+  <div id="resultats" class="resultats"></div>
+
+  ${docsManquants().length ? `<div class="manque"><span class="e">🔗</span>
+    <div><b>${pluriel(docsManquants().length, 'fichier')} à retrouver sur cet ordinateur</b>
+      <small>La liste de vos documents a bien suivi votre compte, mais leurs fichiers sont restés sur l’ancien ordinateur. Montrez à NaoDoc le dossier où ils se trouvent : il les rattache tout seul.</small></div>
+    <button class="btn plein" data-act="retrouver">🔗 Retrouver mes fichiers</button></div>` : ''}
+
+  <div id="accueilCorps">
+    ${vide ? `<div class="carte vide" style="margin-bottom:16px"><span class="e">📖</span>Votre classeur familial est encore vierge.
+      Commencez par créer un profil pour chaque membre de la famille, puis ajoutez leurs documents.<br>
+      <button class="btn plein" data-act="profil-nouveau">👤 Ajouter un profil</button> <button class="btn" data-act="exemple">✨ Voir un exemple</button></div>` : ''}
+
+    <div class="section-titre"><h3>Ma <span>famille</span></h3><p>Un profil par personne, et dans chaque profil, tous les thèmes.</p>
+      <div class="actions"><button class="btn petit" data-act="vue" data-vue="famille">Gérer les profils</button></div></div>
+    <div class="membres">
+      ${S.profils.map(carteMembre).join('')}
+      <button class="carte membre ajout" data-act="profil-nouveau"><span class="avatar" style="--h:260">＋</span><b>Ajouter un profil</b><small>Conjoint·e, enfant, parent…</small></button>
+    </div>
+
+    <div class="section-titre"><h3>Trier par <span>thème</span></h3><p>Toute la famille réunie, thème par thème.</p></div>
+    <div class="intercalaires-accueil">
+      ${cats().map((c, i) => {
+        const ds = docsDe('tous', c.id);
+        const qui = [...new Set(ds.map(d => d.profil))].map(profil);
+        return `<button class="inter teinte" style="--h:${c.h};--i:${i}" data-onglet="${esc(c.nom)}" data-act="vue" data-vue="classeur" data-p="tous" data-c="${c.id}">
+          <span class="compte">${ds.length}</span>
+          <span class="e">${c.ico}</span><b>${esc(c.nom)}</b>
+          <small>${esc(c.desc || 'Catégorie personnelle')}</small>
+          ${qui.length ? `<span class="prochaine">${qui.slice(0, 5).map(p => p.ico).join(' ')} ${qui.length > 5 ? '…' : ''}</span>` : ''}
+        </button>`;
+      }).join('')}
+      <button class="inter ajout" data-act="cat-nouvelle"><span class="e">＋</span><b>Nouveau thème</b><small>Scolarité, animaux, associations…</small></button>
+    </div>
+
+    ${recents.length ? `<div class="section-titre"><h3>Ajoutés <span>récemment</span></h3></div>
+      <section class="carte">${recents.map((d, i) => ligneDoc(d, i)).join('')}</section>` : ''}
+  </div>`;
+}
+
+function majRecherche() {
+  const zone = $('#resultats'), corps = $('#accueilCorps');
+  if (!zone) return;
+  const q = Q.trim();
+  if (!q) { zone.innerHTML = ''; corps.hidden = false; return; }
+  corps.hidden = true;
+  const mots = norm(q).split(/\s+/).filter(Boolean);
+  const va = t => { const n = norm(t); return mots.every(m => n.includes(m)); };
+  const ps = S.profils.filter(p => va(p.nom + ' ' + (p.role || '')));
+  const cs = cats().filter(c => va(c.nom + ' ' + (c.desc || '')));
+  const ds = S.docs.filter(d => va([d.titre, profil(d.profil).nom, profil(d.profil).role, cat(d.cat).nom, d.organisme, d.reference, d.notes, d.emplacement].join(' ')));
+  const total = ps.length + cs.length + ds.length;
+  zone.innerHTML = `<section class="carte">
+    <h3><span class="e">🔍</span> ${total ? pluriel(total, 'résultat') : 'Aucun résultat'} pour « ${esc(q)} »</h3>
+    <p class="chapo">La recherche regarde les noms, les personnes, les thèmes, les organismes, les références, les notes et les emplacements.</p>
+    ${ps.length ? `<h4>Profils</h4><div class="actions">${ps.map(p => `<button class="p-chip" data-act="vue" data-vue="classeur" data-p="${p.id}" data-c="tous">${avatar(p)}${surligner(p.nom, q)} <small>${docsDe(p.id).length}</small></button>`).join('')}</div>` : ''}
+    ${cs.length ? `<h4>Thèmes</h4><div class="actions">${cs.map(c => `<button class="puce cat teinte" style="--h:${c.h};cursor:pointer;font-size:12.5px;padding:6px 12px" data-act="vue" data-vue="classeur" data-p="tous" data-c="${c.id}">${c.ico} ${surligner(c.nom, q)} · ${docsDe('tous', c.id).length}</button>`).join('')}</div>` : ''}
+    ${ds.length ? `<h4>Documents</h4>${ds.map((d, i) => ligneDoc(d, i, { q })).join('')}` : ''}
+    ${total ? '' : `<div class="vide"><span class="e">🗂️</span>Rien de ce nom dans votre classeur.<br><button class="btn petit" data-act="doc-nouveau" data-titre="${esc(q)}">＋ Ajouter « ${esc(q)} »</button></div>`}
+  </section>`;
+}
+
+function vueClasseur() {
+  if (selProfil !== 'tous' && !S.profils.some(p => p.id === selProfil)) selProfil = 'tous';
+  if (selCat !== 'tous' && !catsDe(selProfil).some(c => c.id === selCat)) selCat = 'tous';
+  const cle = selProfil + '/' + selCat, tourne = derniereCle !== cle; derniereCle = cle;
+  const p = selProfil === 'tous' ? null : profil(selProfil);
+  const c = selCat === 'tous' ? { id: 'tous', nom: 'Tous les thèmes', ico: '📚', h: 262, desc: 'Le classeur entier.' } : cat(selCat);
+  const ds = docsDe(selProfil, selCat);
+  const tris = {
+    nom: (a, b) => a.titre.localeCompare(b.titre, 'fr'),
+    recent: (a, b) => (b.ajoute || '').localeCompare(a.ajoute || ''),
+    personne: (a, b) => profil(a.profil).nom.localeCompare(profil(b.profil).nom, 'fr') || a.titre.localeCompare(b.titre, 'fr'),
+    theme: (a, b) => cat(a.cat).nom.localeCompare(cat(b.cat).nom, 'fr') || a.titre.localeCompare(b.titre, 'fr')
+  };
+  ds.sort(tris[tri] || tris.nom);
+  const onglets = [{ id: 'tous', nom: 'Tout', ico: '📚', h: 262 }].concat(catsDe(selProfil));
+  return `
+  <div class="profils-barre" role="tablist" aria-label="Personne">
+    <button class="p-chip${selProfil === 'tous' ? ' actif' : ''}" data-act="classeur-profil" data-p="tous"><span class="avatar" style="--h:262">👨‍👩‍👧</span>Toute la famille <small>${S.docs.length}</small></button>
+    ${S.profils.map(x => `<button class="p-chip${selProfil === x.id ? ' actif' : ''}" data-act="classeur-profil" data-p="${x.id}">${avatar(x)}${esc(x.nom)} <small>${docsDe(x.id).length}</small></button>`).join('')}
+    <button class="p-chip ajout" data-act="profil-nouveau">＋ Profil</button>
+  </div>
+  <div class="classeur">
+    <section class="feuillet teinte${tourne ? ' tourne' : ''}" style="--h:${c.h}">
+      <div class="anneaux" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="tete">
+        <div class="gros">${c.ico}</div>
+        <div><h2>${esc(c.nom)}</h2><p>${p ? `${p.ico} ${esc(p.nom)}` : 'Toute la famille'} · ${pluriel(ds.length, 'document')}</p></div>
+        <div class="actions">
+          ${c.perso ? `<button class="btn petit" data-act="cat-modifier" data-id="${c.id}" title="Renommer le thème">✎</button>` : ''}${c.id !== 'tous' ? `<button class="btn petit danger" data-act="cat-supprimer" data-id="${c.id}" title="Supprimer le thème">🗑</button>` : ''}
+          <button class="btn petit" data-act="importer" title="Importer plusieurs fichiers ou un dossier">📥 Importer</button>
+          <button class="btn plein petit" data-act="doc-nouveau" data-cat="${selCat === 'tous' ? '' : selCat}" data-profil="${p ? p.id : ''}">＋ Ajouter ici</button>
+        </div>
+      </div>
+      <div class="filtres">
+        <span class="ui muet" style="font-size:12px">${p ? `Le classeur de ${esc(p.nom)}` : 'Les documents de toute la famille'}${selCat === 'tous' ? '' : ` — thème ${esc(c.nom)}`}</span>
+        <select data-change="tri" aria-label="Trier">
+          <option value="nom"${tri === 'nom' ? ' selected' : ''}>Par nom</option>
+          <option value="recent"${tri === 'recent' ? ' selected' : ''}>Ajoutés récemment</option>
+          <option value="personne"${tri === 'personne' ? ' selected' : ''}>Par personne</option>
+          <option value="theme"${tri === 'theme' ? ' selected' : ''}>Par thème</option>
+        </select>
+      </div>
+      ${ds.length ? ds.map((d, i) => ligneDoc(d, i, { sansProfil: !!p, sansCat: selCat !== 'tous' })).join('') : `<div class="vide"><span class="e">${c.ico}</span>Cet intercalaire est encore vide${p ? ` pour ${esc(p.nom)}` : ''}.<br>
+        <button class="btn petit" data-act="doc-nouveau" data-cat="${selCat === 'tous' ? '' : selCat}" data-profil="${p ? p.id : ''}">＋ Ajouter un document</button></div>`}
+    </section>
+    <nav class="onglets-classeur" aria-label="Thèmes">
+      ${onglets.map((o, i) => `<button class="onglet-c teinte${o.id === selCat ? ' actif' : ''}" style="--h:${o.h};--d:${(i % 3) * 3}" data-act="classeur-cat" data-c="${o.id}">
+          <span class="e">${o.ico}</span><span class="nom">${esc(o.nom)}</span><span class="n">${docsDe(selProfil, o.id).length}</span></button>`).join('')}
+      <button class="onglet-c ajout" data-act="cat-nouvelle"><span class="e">＋</span><span class="nom">Thème</span></button>
+    </nav>
+  </div>`;
+}
+
+function vueFamille() {
+  return `<div class="titre-vue"><div><h2>Ma <span>famille</span></h2><p>Un profil par personne. Chaque profil a tous les thèmes du classeur : un clic sur un thème l’ouvre pour cette personne.</p></div>
+    <div class="actions"><button class="btn plein" data-act="profil-nouveau">👤 Ajouter un profil</button></div></div>
+  ${S.profils.map((p, i) => {
+    const ds = docsDe(p.id);
+    return `<section class="carte fiche-membre" style="--i:${i}">
+      <div class="tete">${avatar(p)}
+        <div><h3>${esc(p.nom)}</h3><p>${esc(p.role || '')} · ${pluriel(ds.length, 'document')}</p></div>
+        <div class="actions">
+          <button class="btn petit" data-act="profil-modifier" data-id="${p.id}">✎ Modifier</button>
+          ${p.fixe ? '' : `<button class="btn petit danger" data-act="profil-supprimer" data-id="${p.id}" title="Supprimer ce profil">🗑</button>`}
+          <button class="btn plein petit" data-act="doc-nouveau" data-profil="${p.id}">＋ Document pour ${esc(p.nom)}</button>
+        </div>
+      </div>
+      <div class="cases">
+        ${catsDe(p.id).map(c => { const n = ds.filter(d => d.cat === c.id).length;
+          return `<button class="case-cat teinte${n ? '' : ' vide-cat'}" style="--h:${c.h}" data-act="vue" data-vue="classeur" data-p="${p.id}" data-c="${c.id}">
+            <span class="e">${c.ico}</span><span class="nom">${esc(c.nom)}</span><span class="n">${n}</span></button>`; }).join('')}
+      </div>
+    </section>`;
+  }).join('')}`;
+}
+
+/* ============================================================
+   7. Les fenêtres et les formulaires
+   ============================================================ */
+let apresConfirmation = null;
+function ouvrir(html, large) {
+  const f = $('#modaleFen');
+  f.className = 'fen' + (large ? ' large' : '');
+  f.innerHTML = `<button class="x" type="button" data-act="fermer" aria-label="Fermer">✕</button>` + html;
+  $('#modale').classList.add('ouvert');
+  const champ = f.querySelector('input:not([type=radio]):not([type=checkbox]):not([type=file]):not([type=hidden]),textarea');
+  setTimeout(() => (champ || f.querySelector('.x')).focus(), 60);
+}
+function fermer() { $('#modale').classList.remove('ouvert'); apresConfirmation = null; RETROUVER = false; libererApercu(); }
+let urlApercu = null;
+function libererApercu() { if (urlApercu) { URL.revokeObjectURL(urlApercu); urlApercu = null; } }
+async function montrerApercu(d) {
+  const zone = $('#apercu'); if (!zone) return;
+  try {
+    const f = await Fichiers.lire(d.id);
+    if (!$('#apercu')) return;
+    if (!f) { zone.innerHTML = '<span class="attente">Le fichier est introuvable sur cet ordinateur. <button class="btn petit" data-act="retrouver">🔗 Retrouver mes fichiers</button></span>'; return; }
+    libererApercu(); urlApercu = URL.createObjectURL(f);
+    const type = f.type || d.fichier.type || '', nom = d.fichier.nom || '';
+    if (/pdf/.test(type) || /\.pdf$/i.test(nom)) zone.innerHTML = `<iframe src="${urlApercu}#view=FitH" title="Aperçu de ${esc(d.titre)}"></iframe>`;
+    else if (/^image\//.test(type) || /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(nom)) zone.innerHTML = `<img src="${urlApercu}" alt="Aperçu de ${esc(d.titre)}" data-act="fichier-ouvrir" data-id="${d.id}" title="Ouvrir en grand">`;
+    else zone.innerHTML = `<span class="attente">Pas d’aperçu pour ce type de fichier — <button class="lien" data-act="fichier-ouvrir" data-id="${d.id}">l’ouvrir</button>.</span>`;
+  } catch (e) { zone.innerHTML = '<span class="attente">Impossible d’afficher l’aperçu.</span>'; }
+}
+function confirmer(titre, texte, bouton, suite) {
+  ouvrir(`<h3>${titre}</h3><p class="chapo">${texte}</p>
+    <div class="boutons"><button class="btn" data-act="fermer">Annuler</button><button class="btn plein" data-act="confirmer-oui">${bouton}</button></div>`);
+  apresConfirmation = suite;
+}
+function toast(txt, opt) {
+  opt = opt || {};
+  const t = document.createElement('div');
+  t.className = 'toast' + (opt.alerte ? ' alerte' : '');
+  t.textContent = txt;
+  $('#toasts').appendChild(t);
+  setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 450); }, opt.duree || 3200);
+}
+
+function formDoc(d, preset) {
+  const nouveau = !d;
+  d = d || Object.assign({ cat: 'identite', profil: S.profils.length > 1 ? S.profils[1].id : 'foyer' }, preset || {});
+  return `<form data-form="doc" data-id="${d.id || ''}">
+    <h3>${nouveau ? '📄 Ajouter un document' : '✎ Modifier le document'}</h3>
+    <p class="chapo">Pour qui, dans quel thème : NaoDoc le range à sa place.</p>
+    <div class="champ"><span>Pour qui ?</span><div class="choix">${S.profils.map(p => `<label><input type="radio" name="profil" value="${p.id}"${d.profil === p.id ? ' checked' : ''}><span>${avatar(p)} ${esc(p.nom)}</span></label>`).join('')}</div></div>
+    <div class="champ"><span>Thème</span><div class="choix">${cats().map(c => `<label><input type="radio" name="cat" value="${c.id}"${d.cat === c.id ? ' checked' : ''}><span>${c.ico} ${esc(c.nom)}</span></label>`).join('')}</div></div>
+    <label class="champ"><span>Nom du document</span><input name="titre" required maxlength="120" value="${esc(d.titre || '')}" placeholder="Ex. Passeport, Carnet de santé, Bulletin de salaire…" list="suggestionsDocs">
+      <datalist id="suggestionsDocs">${[...new Set(S.docs.map(x => x.titre).concat(SUGGESTIONS))].map(s => `<option value="${esc(s)}">`).join('')}</datalist></label>
+    <span class="indice" id="indiceDoc"></span>
+    <div class="deux">
+      <label class="champ"><span>Organisme / émetteur</span><input name="organisme" maxlength="80" value="${esc(d.organisme || '')}" placeholder="Ex. Mairie, CPAM, employeur" list="organismesListe" autocomplete="off">
+        <datalist id="organismesListe">${organismesConnus().map(o => `<option value="${esc(o)}">`).join('')}</datalist></label>
+      <label class="champ"><span>Référence (facultatif)</span><input name="reference" maxlength="80" value="${esc(d.reference || '')}" placeholder="N° de contrat, de dossier…"></label>
+    </div>
+    <label class="champ"><span>Où se trouve l’original ?</span><input name="emplacement" maxlength="100" value="${esc(d.emplacement || '')}" placeholder="Ex. classeur bleu, pochette 3 · tiroir du bureau · espace en ligne"></label>
+    <label class="champ"><span>Fichier numérisé (facultatif)</span><input type="file" name="fichier" accept="image/*,application/pdf">
+      ${d.fichier ? `<small class="ui muet">Actuel : 📎 ${esc(d.fichier.nom)} — <label style="display:inline"><input type="checkbox" name="retirer"> le retirer</label></small>` : ''}</label>
+    <label class="champ"><span>Notes</span><textarea name="notes" rows="3" maxlength="2000" placeholder="Ce qu’il faut savoir sur ce document…">${esc(d.notes || '')}</textarea></label>
+    <p class="note-secu">🔒 N’inscrivez jamais de mot de passe, de code secret ni de numéro de carte bancaire.</p>
+    <div class="boutons">${nouveau ? '' : `<button type="button" class="btn danger gauche" data-act="doc-supprimer" data-id="${d.id}">🗑 Supprimer</button>`}
+      <button type="button" class="btn" data-act="fermer">Annuler</button>
+      ${nouveau ? `<button class="btn" type="submit" name="suite" value="1" title="Garde la personne, le thème, le nom et l’organisme pour le document suivant">＋ Enregistrer et ajouter le suivant</button>` : ''}
+      <button class="btn plein" type="submit">Enregistrer</button></div>
+  </form>`;
+}
+
+function ficheDoc(d) {
+  const c = cat(d.cat);
+  return `<div class="teinte" style="--h:${c.h}">
+    <div class="fiche-tete"><div class="gros">${c.ico}</div>
+      <div><h3>${esc(d.titre)}</h3><div class="meta">${puceProfil(d.profil)}${puceCat(d.cat)}</div></div></div>
+    <div class="infos">
+      <div><small>Organisme</small><b>${esc(d.organisme) || '—'}</b></div>
+      <div><small>Référence</small><b>${esc(d.reference) || '—'}</b></div>
+      <div class="pleine"><small>Original rangé</small><b>${esc(d.emplacement) || '—'}</b></div>
+      ${d.fichier ? `<div class="pleine"><small>Fichier numérisé</small><b><button class="lien" style="font-size:14px" data-act="fichier-ouvrir" data-id="${d.id}">📎 ${esc(d.fichier.nom)}</button> <span class="ui muet" style="font-size:11px">${Math.max(1, Math.round(d.fichier.taille / 1024))} Ko</span></b></div>` : ''}
+    </div>
+    ${d.fichier ? `<div class="fiche-sous">Aperçu</div><div class="apercu" id="apercu"><span class="attente">Ouverture du document…</span></div>` : ''}
+    ${d.notes ? `<div class="fiche-sous">Notes</div><div class="notes-doc">${esc(d.notes)}</div>` : ''}
+    <p class="ui muet" style="font-size:11.5px;margin:14px 0 0">Ajouté ${depuis(d.ajoute)}</p>
+    <div class="boutons" style="margin-top:14px">
+      <button class="btn danger gauche" data-act="doc-supprimer" data-id="${d.id}">🗑 Supprimer</button>
+      <button class="btn" data-act="doc-dupliquer" data-id="${d.id}" title="Le même document pour un autre membre de la famille">⧉ Dupliquer</button>
+      <button class="btn plein" data-act="doc-modifier" data-id="${d.id}">✎ Modifier</button>
+    </div>
+  </div>`;
+}
+
+function formProfil(p) {
+  const nouveau = !p;
+  p = p || { nom: '', role: S.profils.length === 1 ? 'Moi' : 'Conjoint·e', ico: S.profils.length === 1 ? '👩' : '👨', h: TEINTES[S.profils.length % TEINTES.length] };
+  return `<form data-form="profil" data-id="${p.id || ''}">
+    <h3>${nouveau ? '👤 Ajouter un profil' : '✎ Modifier le profil'}</h3>
+    <p class="chapo">Chaque profil a son propre classeur, avec tous les thèmes.</p>
+    <label class="champ"><span>Prénom</span><input name="nom" required maxlength="30" value="${esc(p.nom)}" placeholder="Ex. Sophie, Marc, Léa"></label>
+    ${p.fixe ? `<input type="hidden" name="role" value="${esc(p.role)}">` : `<div class="champ"><span>Qui est-ce ?</span><div class="choix">${ROLES.map(r => `<label><input type="radio" name="role" value="${r}"${p.role === r ? ' checked' : ''}><span>${r}</span></label>`).join('')}</div></div>`}
+    <div class="champ"><span>Avatar</span><div class="emojis">${AVATARS.map(e => `<label><input type="radio" name="ico" value="${e}"${p.ico === e ? ' checked' : ''}><span>${e}</span></label>`).join('')}</div></div>
+    <div class="champ"><span>Couleur</span><div class="emojis">${TEINTES.map(h => `<label><input type="radio" name="h" value="${h}"${p.h === h ? ' checked' : ''}><span style="background:linear-gradient(135deg,hsl(${h} 62% 60%),hsl(${h + 28} 72% 80%))"></span></label>`).join('')}</div></div>
+    <div class="boutons"><button type="button" class="btn" data-act="fermer">Annuler</button><button class="btn plein" type="submit">Enregistrer</button></div>
+  </form>`;
+}
+
+function formCat(c) {
+  const pid = pourQui(), pers = pid !== 'tous' ? profil(pid) : null;
+  c = c || { nom: '', ico: EMOJIS_CAT[0], h: 250 + Math.round(Math.random() * 70), profils: pers ? [pid] : null };
+  const pour = c.profils || S.profils.map(p => p.id);
+  const aAjouter = pers ? cats().filter(x => !catsDe(pid).some(y => y.id === x.id)) : [];
+  const aRetablir = CATS_BASE.filter(x => (S.cachees || []).includes(x.id));
+  return `<form data-form="cat" data-id="${c.id || ''}">
+    <h3>${c.id ? '✎ Modifier le thème' : '＋ Nouveau thème'}</h3>
+    <p class="chapo">Un intercalaire dans le classeur des personnes cochées. Il apparaît toujours dans « Tout ».</p>
+    ${!c.id && aAjouter.length ? `<div class="champ"><span>Ajouter à ${esc(pers.nom)} un thème qui existe déjà</span><div class="restaurer">${aAjouter
+      .map(x => `<button type="button" class="btn petit" data-act="cat-ajouter-a" data-id="${x.id}" data-p="${pid}">＋ ${x.ico} ${esc(x.nom)}</button>`).join('')}</div></div>` : ''}
+    <label class="champ"><span>Nom</span><input name="nom" required maxlength="30" value="${esc(c.nom)}" placeholder="Ex. Scolarité, Animaux, Associations"></label>
+    <label class="champ"><span>Description (facultatif)</span><input name="desc" maxlength="80" value="${esc(c.desc || '')}"></label>
+    <div class="champ"><span>Icône</span><div class="emojis">${EMOJIS_CAT.map(e => `<label><input type="radio" name="ico" value="${e}"${c.ico === e ? ' checked' : ''}><span>${e}</span></label>`).join('')}</div></div>
+    <div class="champ"><span>Pour qui ?</span><div class="choix">${S.profils.map(p => `<label><input type="checkbox" name="pour" value="${p.id}"${pour.includes(p.id) ? ' checked' : ''}><span>${avatar(p)} ${esc(p.nom)}</span></label>`).join('')}</div></div>
+    <input type="hidden" name="h" value="${c.h}">
+    ${!c.id && aRetablir.length ? `<div class="champ"><span>Ou rétablir un thème supprimé pour toute la famille</span><div class="restaurer">${aRetablir
+      .map(x => `<button type="button" class="btn petit" data-act="cat-retablir" data-id="${x.id}">↺ ${x.ico} ${esc(x.nom)}</button>`).join('')}</div></div>` : ''}
+    <div class="boutons"><button type="button" class="btn" data-act="fermer">Annuler</button><button class="btn plein" type="submit">Enregistrer</button></div>
+  </form>`;
+}
+
+/* ============================================================
+   Le tri automatique : deviner le thème, la personne, l'organisme
+   ============================================================ */
+const MOTS_CLES = {
+  identite: ['carte d identite', 'carte identite', 'cni', 'passeport', 'permis', 'titre de sejour', 'sejour', 'photo d identite', 'identite'],
+  logement: ['bail', 'quittance', 'loyer', 'etat des lieux', 'edf', 'engie', 'electricite', 'gaz', 'eau', 'energie', 'syndic', 'charges', 'taxe d habitation',
+    'titre de propriete', 'acte de vente', 'compromis', 'logement', 'internet', 'box'],
+  banque: ['rib', 'iban', 'releve', 'banque', 'bancaire', 'pret', 'credit', 'emprunt', 'amortissement', 'epargne', 'livret a', 'compte'],
+  assurance: ['assurance', 'assureur', 'prevoyance', 'sinistre', 'responsabilite civile'],
+  sante: ['vitale', 'ordonnance', 'vaccin', 'analyse', 'radio', 'medecin', 'medical', 'hopital', 'ameli', 'cpam', 'carnet de sante', 'dentiste', 'ophtalmo',
+    'mutuelle', 'sante', 'compte rendu'],
+  travail: ['bulletin', 'bs', 'salaire', 'paie', 'fiche de paie', 'contrat de travail', 'attestation employeur', 'diplome', 'cv', 'france travail',
+    'pole emploi', 'certificat de travail', 'solde de tout compte', 'travail', 'embauche'],
+  impots: ['impot', 'imposition', 'avis d imposition', 'declaration', 'taxe fonciere', 'dgfip', 'revenus', 'fiscal'],
+  vehicule: ['carte grise', 'immatriculation', 'controle technique', 'voiture', 'vehicule', 'moto', 'entretien', 'amende'],
+  famille: ['livret de famille', 'acte de naissance', 'naissance', 'mariage', 'pacs', 'divorce', 'caf', 'allocation', 'scolarite', 'ecole', 'college',
+    'lycee', 'cantine', 'creche', 'famille'],
+  loisirs: ['licence', 'abonnement', 'adhesion', 'club', 'sport', 'billet', 'inscription', 'loisir', 'musique']
+};
+const motif = s => ' ' + norm(s).replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+function devinerTheme(nom, dossiers) {
+  const t1 = motif(nom), t2 = motif(dossiers || '');
+  let best = null;
+  cats().forEach(c => {
+    const mots = (MOTS_CLES[c.id] || []).concat([motif(c.nom).trim()]);
+    let score = 0, mot = '';
+    mots.forEach(k => {
+      if (!k) return;
+      if (t1.includes(' ' + k)) { score += k.length * 2; mot = mot || k; }
+      else if (t2.includes(' ' + k)) { score += k.length; mot = mot || k; }
+    });
+    if (score && (!best || score > best.score)) best = { cat: c.id, score, mot };
+  });
+  return best;
+}
+function devinerProfil(texte) {
+  const t = motif(texte);
+  const trouves = S.profils.filter(p => p.id !== 'foyer' && motif(p.nom).trim().split(' ').some(m => m.length > 1 && t.includes(' ' + m + ' ')));
+  return trouves.length === 1 ? trouves[0].id : '';
+}
+/* la mémoire : le dernier document au titre voisin (« Bulletin de salaire mars » ≈ « Bulletin de salaire avril ») */
+const MOTS_VIDES = /\b(\d+|de|du|des|la|le|les|d|l|et|janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre|janv|fev|fevr|avr|juil|sept|oct|nov|dec)\b/g;
+/* les mots d'un titre qui comptent : sans dates, sans mois, sans prénoms de la famille */
+function motsTitre(s) {
+  const prenoms = new Set(S.profils.flatMap(p => motif(p.nom).trim().split(' ')));
+  return motif(s).replace(MOTS_VIDES, ' ').trim().split(/\s+/).filter(m => m && !prenoms.has(m));
+}
+function memoire(titre, profilId) {
+  const a = motsTitre(titre); if (!a.length) return null;
+  const inclus = (x, y) => x.every(m => y.includes(m));
+  const notes = S.docs.map(d => {
+    const b = motsTitre(d.titre); if (!b.length) return null;
+    const note = a.length === b.length && inclus(a, b) ? 2 : (inclus(a, b) || inclus(b, a)) ? 1 : 0;
+    return note ? { d, note: note * 2 + (d.profil === profilId ? 1 : 0) } : null;
+  }).filter(Boolean);
+  notes.sort((x, y) => y.note - x.note || (y.d.ajoute || '').localeCompare(x.d.ajoute || ''));
+  return notes.length ? notes[0].d : null;
+}
+function organismesConnus() {
+  const n = {}; S.docs.forEach(d => { if (d.organisme) n[d.organisme] = (n[d.organisme] || 0) + 1; });
+  return Object.keys(n).sort((a, b) => n[b] - n[a]);
+}
+function titreDepuisFichier(nom) {
+  const t = nom.replace(/\.[a-z0-9]{1,5}$/i, '').replace(/[_\-.]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : nom;
+}
+
+/* Dans le formulaire : dès qu'on tape le nom, NaoDoc reprend l'organisme et devine le thème */
+function aiderFormulaire(f) {
+  if (!f || f.dataset.id) return;
+  const titre = f.titre.value, prof = (f.querySelector('[name=profil]:checked') || {}).value;
+  const indice = $('#indiceDoc'), m = memoire(titre, prof);
+  const poser = (nom, val) => { const i = f[nom]; if (i && val && (!i.value || i.dataset.auto === '1')) { i.value = val; i.dataset.auto = '1'; } };
+  const choisirCat = c => { if (f.dataset.catTouche) return; const r = f.querySelector(`[name=cat][value="${c}"]`); if (r) r.checked = true; };
+  if (m) {
+    poser('organisme', m.organisme); poser('emplacement', m.emplacement); choisirCat(m.cat);
+    if (indice) indice.textContent = m.organisme ? `↺ Organisme repris du dernier « ${m.titre} » : ${m.organisme}` : `↺ Rangé comme « ${m.titre} » (${cat(m.cat).nom})`;
+    return;
+  }
+  const g = titre.length > 2 && devinerTheme(titre);
+  if (g) { choisirCat(g.cat); if (indice && !f.dataset.catTouche) indice.textContent = `💡 Thème deviné : ${cat(g.cat).ico} ${cat(g.cat).nom} (grâce à « ${g.mot} »)`; }
+  else if (indice) indice.textContent = '';
+}
+
+/* ---------- l'import par lot ---------- */
+let IMPORT = [];
+const ecranImport = () => `<h3>📥 Importer des documents</h3>
+  <p class="chapo">Choisissez des fichiers ou un dossier entier : NaoDoc lit leur nom — et celui des dossiers — pour deviner le thème et la personne. Vous vérifiez avant de ranger.</p>
+  <div class="depot" id="depot"><span class="e">📂</span><b>Déposez vos fichiers ou dossiers ici</b><small>ou</small>
+    <div class="actions"><button class="btn plein" data-act="import-fichiers">📄 Choisir des fichiers</button><button class="btn" data-act="import-dossier">📁 Choisir un dossier</button></div></div>
+  <p class="note-secu" style="margin-top:14px">💡 Astuce : des dossiers nommés comme vos thèmes ou vos profils (« Impôts », « Léa », « Salaires Marc »…) se rangent tout seuls.
+    Si un nom ressemble à un document déjà rangé, l’organisme est repris.</p>`;
+
+async function lireDepot(dt) {
+  const entrees = [...(dt.items || [])].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  if (!entrees.length) return [...dt.files].map(f => ({ f, chemin: '' }));
+  const out = [];
+  const parcourir = async (e, chemin) => {
+    if (e.isFile) { try { out.push({ f: await new Promise((ok, ko) => e.file(ok, ko)), chemin }); } catch (err) {} }
+    else if (e.isDirectory) {
+      const r = e.createReader(), ici = chemin ? chemin + '/' + e.name : e.name; let lot;
+      do { lot = await new Promise((ok, ko) => r.readEntries(ok, ko)); for (const x of lot) await parcourir(x, ici); } while (lot.length);
+    }
+  };
+  for (const e of entrees) await parcourir(e, '');
+  return out;
+}
+
+function analyser(liste) {
+  liste = liste.filter(x => !/^(\.|~\$)|^(thumbs\.db|desktop\.ini)$/i.test(x.f.name));
+  if (!liste.length) return toast('Aucun fichier à importer.', { alerte: true });
+  if (liste.length > 300) { toast('300 fichiers au maximum par import : les 300 premiers sont gardés.'); liste = liste.slice(0, 300); }
+  const defProfil = V === 'classeur' && selProfil !== 'tous' ? selProfil : '';
+  const defCat = V === 'classeur' && selCat !== 'tous' ? selCat : '';
+  IMPORT = liste.map(({ f, chemin }) => {
+    const titre = titreDepuisFichier(f.name), g = devinerTheme(f.name, chemin);
+    const pDevine = devinerProfil(chemin + ' ' + f.name), prof = pDevine || defProfil || 'foyer', m = memoire(titre, prof);
+    const lourd = f.size > 25 * 1024 * 1024;
+    return { f, chemin, titre, profil: prof, pDevine: !!pDevine, cat: g ? g.cat : (m ? m.cat : defCat), mot: g ? g.mot : (m ? 'déjà rangé' : ''),
+      organisme: m ? m.organisme || '' : '', garder: !lourd, lourd };
+  });
+  ouvrir(`<h3>📥 Vérifier avant de ranger</h3><p class="chapo" id="impResume"></p>
+    <div class="imp-tous"><span>Pour tous les fichiers cochés :</span>
+      <select data-imptous="profil"><option value="">Pour qui… (inchangé)</option>${S.profils.map(p => `<option value="${p.id}">${p.ico} ${esc(p.nom)}</option>`).join('')}</select>
+      <select data-imptous="cat"><option value="">Thème des non classés…</option>${cats().map(c => `<option value="${c.id}">${c.ico} ${esc(c.nom)}</option>`).join('')}</select>
+      <input data-imptous="organisme" placeholder="Organisme pour tous…" list="organismesListe">
+    </div>
+    <div class="imp-liste" id="impListe"></div>
+    <datalist id="organismesListe">${organismesConnus().map(o => `<option value="${esc(o)}">`).join('')}</datalist>
+    <div class="boutons"><button class="btn gauche" data-act="importer">← Choisir d’autres fichiers</button><button class="btn" data-act="fermer">Annuler</button>
+      <button class="btn plein" data-act="import-ranger" id="btnRanger">Ranger</button></div>`, true);
+  majImport();
+}
+function majImport() {
+  const zone = $('#impListe'); if (!zone) return;
+  const ko = n => n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + ' Ko' : (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
+  zone.innerHTML = IMPORT.map((r, i) => `<div class="imp${r.cat ? '' : ' a-voir'}${r.garder ? '' : ' ecarte'}" data-i="${i}">
+    <input type="checkbox" data-imp="garder"${r.garder ? ' checked' : ''}${r.lourd ? ' disabled title="Plus de 25 Mo : trop lourd"' : ''} aria-label="Importer ce fichier">
+    <div class="nom"><input data-imp="titre" value="${esc(r.titre)}" aria-label="Nom du document">
+      <small>${r.lourd ? '⚠︎ trop lourd (25 Mo max) · ' : ''}📎 ${esc(r.f.name)} · ${ko(r.f.size)}${r.chemin ? ' · 📁 ' + esc(r.chemin) : ''}
+        · ${r.cat ? `<b>✓ ${r.mot ? 'deviné grâce à « ' + esc(r.mot) + ' »' : 'thème choisi'}</b>` : '<b>à vérifier : thème inconnu</b>'}${r.pDevine ? ' · 👤 personne devinée' : ''}</small></div>
+    <select data-imp="profil" aria-label="Pour qui">${S.profils.map(p => `<option value="${p.id}"${r.profil === p.id ? ' selected' : ''}>${p.ico} ${esc(p.nom)}</option>`).join('')}</select>
+    <select data-imp="cat" aria-label="Thème"><option value="">— Thème ? —</option>${cats().map(c => `<option value="${c.id}"${r.cat === c.id ? ' selected' : ''}>${c.ico} ${esc(c.nom)}</option>`).join('')}</select>
+    <input data-imp="organisme" value="${esc(r.organisme)}" placeholder="Organisme" list="organismesListe" aria-label="Organisme">
+  </div>`).join('');
+  const g = IMPORT.filter(r => r.garder), sans = g.filter(r => !r.cat).length;
+  $('#impResume').textContent = `${pluriel(IMPORT.length, 'fichier')} · ${g.length - sans} classé${g.length - sans > 1 ? 's' : ''} automatiquement` +
+    (sans ? ` · ${sans} à vérifier (en orange)` : '') + '. Corrigez ce qui doit l’être, puis rangez.';
+  $('#btnRanger').textContent = `Ranger ${pluriel(g.length, 'document')}`;
+}
+async function rangerImport(btn) {
+  const lot = IMPORT.filter(r => r.garder && !r.lourd);
+  if (!lot.length) return toast('Aucun fichier coché.', { alerte: true });
+  const sans = lot.filter(r => !r.cat).length;
+  if (sans) return toast(`${pluriel(sans, 'fichier')} sans thème : choisissez-en un, ou décochez-le.`, { alerte: true });
+  btn.disabled = true;
+  let ok = 0, rate = 0;
+  for (const r of lot) {
+    btn.textContent = `Rangement… ${ok + rate + 1} / ${lot.length}`;
+    const d = { id: uid(), ajoute: new Date().toISOString(), titre: r.titre.trim() || titreDepuisFichier(r.f.name), profil: r.profil, cat: r.cat,
+      organisme: r.organisme.trim(), reference: '', emplacement: r.chemin ? 'Ordinateur : ' + r.chemin : '', notes: '' };
+    try { await Fichiers.mettre(d.id, r.f); d.fichier = { nom: r.f.name, type: r.f.type, taille: r.f.size }; S.docs.push(d); ok++; }
+    catch (e) { rate++; }
+  }
+  sauver(); IMPORT = []; fermer(); rendre();
+  toast(`${pluriel(ok, 'document rangé', 'documents rangés')} ✓` + (rate ? ` — ${rate} n’ont pas pu être enregistrés (mémoire pleine ?)` : ''), { alerte: !!rate, duree: 4500 });
+}
+
+/* ---------- retrouver les fichiers : rattacher à nouveau les originaux aux documents déjà rangés ---------- */
+let RETROUVER = false, RELIER = [], CAT_DEST = '';
+const tailleLisible = n => n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + ' Ko' : (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
+function ecranRetrouver() {
+  RETROUVER = true;
+  const n = docsManquants().length;
+  return `<h3>🔗 Retrouver mes fichiers</h3>
+  <p class="chapo">${n ? `${pluriel(n, 'document a', 'documents ont')} perdu ${n > 1 ? 'leur' : 'son'} fichier sur cet ordinateur.` : 'Tous vos fichiers sont en place sur cet ordinateur ✓'}
+    Montrez à NaoDoc le dossier où se trouvent vos originaux (le Bureau, Documents, une clé USB…) : il reconnaît chaque fichier à son nom et le rattache au bon document.
+    Rien n’est ajouté en double, rien n’est ressaisi.</p>
+  <div class="depot" id="depot"><span class="e">🔍</span><b>Déposez le dossier ici</b><small>ou</small>
+    <div class="actions"><button class="btn plein" data-act="import-dossier">📁 Choisir un dossier</button><button class="btn" data-act="import-fichiers">📄 Choisir des fichiers</button></div></div>
+  <p class="note-secu" style="margin-top:14px">💡 Vous pouvez choisir un grand dossier : NaoDoc ne garde que les fichiers qu’il reconnaît. Le navigateur demandera peut-être de confirmer.</p>`;
+}
+const normNom = s => String(s || '').normalize('NFC').toLowerCase().trim();
+function relier(liste) {
+  const manq = docsManquants();
+  if (!manq.length) return toast('Tous vos fichiers sont déjà en place ✓');
+  const parNom = new Map();
+  liste.forEach(x => { const k = normNom(x.f.name); if (!parNom.has(k)) parNom.set(k, []); parNom.get(k).push(x); });
+  /* même nom obligatoire ; même taille = c'est bien lui ; même dossier d'origine = départage les homonymes */
+  const paires = [];
+  manq.forEach(d => (parNom.get(normNom(d.fichier.nom)) || []).forEach(x => {
+    const lieu = normNom((d.emplacement || '').replace(/^Ordinateur\s*:\s*/i, '')), ch = normNom(x.chemin);
+    const s = (x.f.size === d.fichier.taille ? 2 : 0) + (lieu && ch && (ch.endsWith(lieu) || lieu.endsWith(ch)) ? 1 : 0);
+    paires.push({ d, x, s });
+  }));
+  paires.sort((a, b) => b.s - a.s);
+  const faits = new Set(), pris = new Set();
+  RELIER = [];
+  paires.forEach(({ d, x }) => {
+    if (faits.has(d.id) || pris.has(x)) return;
+    faits.add(d.id); pris.add(x);
+    RELIER.push({ d, f: x.f, chemin: x.chemin, sur: x.f.size === d.fichier.taille });
+  });
+  const reste = manq.filter(d => !faits.has(d.id));
+  if (!RELIER.length) return toast(`Aucun fichier reconnu dans ce dossier (${pluriel(liste.length, 'fichier')} parcouru${liste.length > 1 ? 's' : ''}). Essayez un autre dossier.`, { alerte: true, duree: 5000 });
+  const douteux = RELIER.filter(r => !r.sur).length;
+  ouvrir(`<h3>🔗 ${pluriel(RELIER.length, 'fichier retrouvé', 'fichiers retrouvés')}</h3>
+    <p class="chapo">Sur ${pluriel(manq.length, 'fichier manquant', 'fichiers manquants')}, ${RELIER.length} ${RELIER.length > 1 ? 'ont été reconnus' : 'a été reconnu'}.
+      ${douteux ? `${douteux} ${douteux > 1 ? 'portent' : 'porte'} le bon nom mais pas la même taille (en orange) : vérifiez ${douteux > 1 ? 'qu’ils sont' : 'qu’il est'} bien le bon.` : 'Ce sont exactement les mêmes fichiers.'}</p>
+    <div class="imp-liste" id="relListe">${RELIER.map((r, i) => `<label class="rel${r.sur ? '' : ' a-voir'}">
+      <input type="checkbox" data-rel="${i}" checked>
+      <span><b>${esc(r.d.titre)}</b> · ${esc(profil(r.d.profil).nom)} · ${cat(r.d.cat).ico} ${esc(cat(r.d.cat).nom)}
+        <small>📎 ${esc(r.f.name)} · ${tailleLisible(r.f.size)}${r.chemin ? ' · 📁 ' + esc(r.chemin) : ''} · ${r.sur ? '<b>✓ même fichier</b>' : `<b>à vérifier : ${tailleLisible(r.d.fichier.taille)} attendus</b>`}</small></span>
+    </label>`).join('')}</div>
+    ${reste.length ? `<details class="rel-reste"><summary>Encore ${pluriel(reste.length, 'fichier')} introuvable${reste.length > 1 ? 's' : ''} dans ce dossier</summary>
+      <ul>${reste.map(d => `<li>${esc(d.titre)} — 📎 ${esc(d.fichier.nom)}${d.emplacement ? ' · 📍 ' + esc(d.emplacement) : ''}</li>`).join('')}</ul></details>` : ''}
+    <div class="boutons"><button class="btn gauche" data-act="retrouver">← Chercher dans un autre dossier</button><button class="btn" data-act="fermer">Annuler</button>
+      <button class="btn plein" data-act="relier-valider">Rattacher les fichiers cochés</button></div>`, true);
+  RETROUVER = true;
+}
+async function validerRelier(btn) {
+  const lot = [...document.querySelectorAll('#relListe [data-rel]:checked')].map(c => RELIER[+c.dataset.rel]);
+  if (!lot.length) return toast('Aucun fichier coché.', { alerte: true });
+  btn.disabled = true;
+  let ok = 0, rate = 0;
+  for (const r of lot) {
+    btn.textContent = `Rattachement… ${ok + rate + 1} / ${lot.length}`;
+    try { await Fichiers.mettre(r.d.id, r.f); r.d.fichier = { nom: r.f.name, type: r.f.type || r.d.fichier.type, taille: r.f.size }; MANQUANTS.delete(r.d.id); ok++; }
+    catch (e) { rate++; }
+  }
+  sauver(); RELIER = []; fermer(); rendre();
+  const reste = docsManquants().length;
+  toast(`${pluriel(ok, 'fichier rattaché', 'fichiers rattachés')} ✓` + (rate ? ` — ${rate} n’ont pas pu être enregistrés (mémoire pleine ?)` : '') +
+    (reste ? ` · encore ${reste} à retrouver` : ' · tout est en place'), { alerte: !!rate, duree: 5000 });
+}
+
+const FORMS = {
+  async doc(f, bouton) {
+    const fd = new FormData(f), id = f.dataset.id;
+    const titre = String(fd.get('titre') || '').trim();
+    if (!titre) return;
+    const d = id ? doc(id) : { id: uid(), ajoute: new Date().toISOString() };
+    Object.assign(d, {
+      titre, profil: fd.get('profil') || 'foyer', cat: fd.get('cat') || 'identite',
+      organisme: String(fd.get('organisme') || '').trim(), reference: String(fd.get('reference') || '').trim(),
+      emplacement: String(fd.get('emplacement') || '').trim(), notes: String(fd.get('notes') || '').trim()
+    });
+    const fichier = fd.get('fichier');
+    try {
+      if (fd.get('retirer') && d.fichier) { await Fichiers.oter(d.id); delete d.fichier; }
+      if (fichier && fichier.size) {
+        if (fichier.size > 25 * 1024 * 1024) toast('Fichier trop lourd (25 Mo au maximum) : il n’a pas été joint.', { alerte: true });
+        else { await Fichiers.mettre(d.id, fichier); d.fichier = { nom: fichier.name, type: fichier.type, taille: fichier.size }; MANQUANTS.delete(d.id); }
+      }
+    } catch (e) { toast('Le fichier n’a pas pu être enregistré sur cet ordinateur.', { alerte: true }); }
+    if (!id) S.docs.push(d);
+    sauver(); fermer(); rendre();
+    const p = profil(d.profil), c = cat(d.cat);
+    toast(id ? 'Document mis à jour ✓' : `« ${d.titre} » est rangé chez ${p.nom} ${p.ico}, dans ${c.nom} ${c.ico}`);
+    if (!id && bouton && bouton.name === 'suite') {
+      ouvrir(formDoc(null, { profil: d.profil, cat: d.cat, titre: d.titre, organisme: d.organisme, emplacement: d.emplacement }), true);
+      const t = $('#modaleFen [name=titre]');
+      setTimeout(() => { t.focus(); t.select(); }, 80);
+      $('#indiceDoc').textContent = '↺ Même personne, même thème, même organisme : changez juste le nom (le mois, l’année…).';
+    }
+  },
+  profil(f) {
+    const fd = new FormData(f), id = f.dataset.id, nom = String(fd.get('nom') || '').trim();
+    if (!nom) return;
+    let p = id && S.profils.find(x => x.id === id);
+    if (!p) { p = { id: 'p-' + uid() }; S.profils.push(p); }
+    Object.assign(p, { nom, role: fd.get('role') || p.role || 'Autre', ico: fd.get('ico') || p.ico || '🧑', h: Number(fd.get('h')) || p.h || 265 });
+    sauver(); fermer(); rendre();
+    toast(id ? 'Profil mis à jour ✓' : `Profil de ${nom} créé ${p.ico} — tous les thèmes sont prêts.`);
+  },
+  cat(f) {
+    const fd = new FormData(f), id = f.dataset.id, nom = String(fd.get('nom') || '').trim();
+    if (!nom) return;
+    const pour = fd.getAll('pour').map(String);
+    if (!pour.length) return toast('Cochez au moins une personne.', { alerte: true });
+    let c = id && S.cats.find(c => c.id === id);
+    if (!c) { c = { id: 'c-' + uid(), perso: true, h: Number(fd.get('h')) || 280 }; S.cats.push(c); }
+    Object.assign(c, { nom, desc: String(fd.get('desc') || '').trim(), ico: fd.get('ico') || '📁' });
+    if (pour.length === S.profils.length) delete c.profils; else c.profils = pour;
+    S.profils.forEach(p => { if (pour.includes(p.id) && p.cachees) p.cachees = p.cachees.filter(x => x !== c.id); });
+    sauver(); fermer(); aller('classeur', null, c.id); toast(`Thème « ${nom} » ${id ? 'mis à jour' : 'ajouté'} ${c.ico}`);
+  }
+};
+
+/* ============================================================
+   8. Les actions
+   ============================================================ */
+const ACT = {
+  vue: el => { fermer(); aller(el.dataset.vue, el.dataset.p, el.dataset.c); },
+  'classeur-profil': el => { selProfil = el.dataset.p; adresse(); rendre(); },
+  'classeur-cat': el => { selCat = el.dataset.c; adresse(); rendre(); },
+  fermer,
+  'confirmer-oui': () => { const f = apresConfirmation; fermer(); if (f) f(); },
+  theme: () => { const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; document.documentElement.dataset.theme = t; ecrire('naodoc.theme', t); },
+  calme: () => { const on = document.documentElement.classList.toggle('calme'); ecrire('naodoc.calme', on ? '1' : '0'); toast(on ? 'Animations en pause 🕊️' : 'Les papiers se remettent à flotter 📄'); },
+
+  'doc-nouveau': el => ouvrir(formDoc(null, Object.assign({},
+    el.dataset.cat ? { cat: el.dataset.cat } : (V === 'classeur' && selCat !== 'tous' ? { cat: selCat } : {}),
+    el.dataset.profil ? { profil: el.dataset.profil } : (V === 'classeur' && selProfil !== 'tous' ? { profil: selProfil } : {}),
+    el.dataset.titre ? { titre: el.dataset.titre } : {})), true),
+  'doc-voir': el => { const d = doc(el.dataset.id); if (d) { ouvrir(ficheDoc(d), !!d.fichier); if (d.fichier) montrerApercu(d); } },
+  'doc-modifier': el => { const d = doc(el.dataset.id); if (d) ouvrir(formDoc(d), true); },
+  'doc-dupliquer': el => {
+    const d = doc(el.dataset.id); if (!d) return;
+    const autre = S.profils.find(p => p.id !== d.profil && p.id !== 'foyer') || profil(d.profil);
+    const c = Object.assign({}, d, { id: uid(), profil: autre.id, reference: '', ajoute: new Date().toISOString() });
+    delete c.fichier; S.docs.push(c); sauver(); rendre(); ouvrir(formDoc(c), true);
+    toast('Copie créée : choisissez pour qui elle est ✎');
+  },
+  'doc-supprimer': el => {
+    const d = doc(el.dataset.id); if (!d) return;
+    confirmer('Supprimer ce document ?', `« ${esc(d.titre)} » sera retiré du classeur de ${esc(profil(d.profil).nom)}. L’original papier, lui, reste où il est.`, 'Supprimer', () => {
+      S.docs = S.docs.filter(x => x.id !== d.id);
+      if (d.fichier) Fichiers.oter(d.id).catch(() => {});
+      sauver(); rendre(); toast('Document supprimé');
+    });
+  },
+  'fichier-ouvrir': async el => {
+    const d = doc(el.dataset.id);
+    try {
+      const f = await Fichiers.lire(d.id);
+      if (!f) return toast('Le fichier est introuvable sur cet ordinateur.', { alerte: true });
+      const url = URL.createObjectURL(f);
+      window.open(url, '_blank'); setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (e) { toast('Impossible d’ouvrir le fichier.', { alerte: true }); }
+  },
+
+  importer: () => { RETROUVER = false; ouvrir(ecranImport(), true); },
+  retrouver: () => ouvrir(ecranRetrouver(), true),
+  'relier-valider': el => validerRelier(el),
+  'import-fichiers': () => { const i = $('#importFichiers'); i.value = ''; i.click(); },
+  'import-dossier': () => { const i = $('#importDossier'); i.value = ''; i.click(); },
+  'import-ranger': el => rangerImport(el),
+  'profil-nouveau': () => ouvrir(formProfil()),
+  'profil-modifier': el => ouvrir(formProfil(S.profils.find(p => p.id === el.dataset.id))),
+  'profil-supprimer': el => {
+    const p = S.profils.find(x => x.id === el.dataset.id); if (!p || p.fixe) return;
+    const n = docsDe(p.id).length;
+    confirmer(`Supprimer le profil de ${esc(p.nom)} ?`, n ? `Ses ${pluriel(n, 'document')} ne seront pas perdus : ils iront dans le profil « Foyer ».` : 'Ce profil est vide ; il sera simplement retiré.', 'Supprimer', () => {
+      S.docs.forEach(d => { if (d.profil === p.id) d.profil = 'foyer'; });
+      S.profils = S.profils.filter(x => x.id !== p.id);
+      if (selProfil === p.id) selProfil = 'tous';
+      sauver(); rendre(); toast('Profil supprimé');
+    });
+  },
+
+  'cat-nouvelle': () => ouvrir(formCat()),
+  'cat-modifier': el => ouvrir(formCat(S.cats.find(c => c.id === el.dataset.id))),
+  'cat-supprimer': el => {
+    const c = cats().find(c => c.id === el.dataset.id); if (!c) return;
+    /* depuis le classeur d'une personne : le thème ne quitte que son classeur ; depuis « Toute la famille » : il part pour tous */
+    const pid = pourQui(), pers = pid !== 'tous' ? profil(pid) : null;
+    const ds = docsDe(pers ? pid : 'tous', c.id), autres = catsDe(pers ? pid : 'tous').filter(x => x.id !== c.id);
+    if (!autres.length) return toast('Il faut garder au moins un thème.', { alerte: true });
+    CAT_DEST = autres[0].id;
+    const choix = ds.length ? `<label class="champ" style="margin-top:12px"><span>${pers ? 'Les ' + pluriel(ds.length, 'document') + ' de ' + esc(pers.nom) : 'Ses ' + pluriel(ds.length, 'document')} iront dans le thème :</span>
+      <select onchange="CAT_DEST = this.value">${autres.map(x => `<option value="${x.id}">${x.ico} ${esc(x.nom)}</option>`).join('')}</select></label>` : '';
+    const portee = pers ? `sera retiré du classeur de ${esc(pers.nom)} seulement : les autres le gardent, et il reste dans « Tout ».` : 'sera retiré du classeur de toute la famille.';
+    confirmer('Supprimer ce thème ?', `L’intercalaire « ${esc(c.nom)} » ${portee}${ds.length ? ' Aucun document n’est perdu.' : ''}${choix}` +
+      (pers ? `<br><small class="ui muet">Vous pourrez le remettre depuis « ＋ Thème ».</small>` : c.perso ? '' : '<br><small class="ui muet">C’est un thème de départ : vous pourrez le rétablir depuis « ＋ Thème ».</small>'), 'Supprimer', () => {
+      ds.forEach(d => { d.cat = CAT_DEST; });
+      if (pers) {
+        if (c.profils) c.profils = c.profils.filter(x => x !== pid);
+        else pers.cachees = [...new Set((pers.cachees || []).concat(c.id))];
+        /* un thème perso qui n'est plus à personne et ne contient rien disparaît */
+        if (c.profils && !c.profils.length && !docsDe('tous', c.id).length) S.cats = S.cats.filter(x => x.id !== c.id);
+      }
+      else if (c.perso) S.cats = S.cats.filter(x => x.id !== c.id);
+      else S.cachees = [...new Set((S.cachees || []).concat(c.id))];
+      selCat = 'tous'; sauver(); aller('classeur');
+      toast(`Thème « ${c.nom} » supprimé` + (ds.length ? ` — ${pluriel(ds.length, 'document déplacé', 'documents déplacés')} dans ${cat(CAT_DEST).nom}` : ''));
+    });
+  },
+  'cat-ajouter-a': el => {
+    const c = cat(el.dataset.id), p = S.profils.find(x => x.id === el.dataset.p); if (!c.id || !p) return;
+    if (p.cachees) p.cachees = p.cachees.filter(x => x !== c.id);
+    if (c.profils && !c.profils.includes(p.id)) c.profils.push(p.id);
+    sauver(); fermer(); aller('classeur', p.id, c.id); toast(`Thème « ${c.nom} » ajouté au classeur de ${p.nom} ${c.ico}`);
+  },
+  'cat-retablir': el => {
+    S.cachees = (S.cachees || []).filter(id => id !== el.dataset.id);
+    if (pourQui() !== 'tous') { const p = profil(pourQui()); if (p.cachees) p.cachees = p.cachees.filter(x => x !== el.dataset.id); }
+    const c = cat(el.dataset.id); sauver(); fermer(); aller('classeur', null, c.id); toast(`Thème « ${c.nom} » rétabli ${c.ico}`);
+  },
+
+  reinitialiser: () => {
+    const n = S.docs.length, p = S.profils.length - 1;
+    ouvrir(`<h3>🧹 Réinitialiser NaoDoc ?</h3>
+      <p class="chapo">L’outil redevient vierge, comme pour un nouvel utilisateur : ${pluriel(n, 'document')}, ${pluriel(p, 'profil')} en plus du Foyer,
+        vos thèmes personnels et tous les fichiers joints seront <b>effacés définitivement</b> de cet ordinateur.</p>
+      <p class="note-secu">Conseil : téléchargez d’abord une sauvegarde 💾 — vous pourrez la recharger plus tard avec 📂.</p>
+      <label class="champ"><span>Pour confirmer, écrivez EFFACER</span><input id="motEffacer" autocomplete="off" placeholder="EFFACER"></label>
+      <div class="boutons">
+        <button class="btn gauche" data-act="sauvegarder">💾 Sauvegarder d’abord</button>
+        <button class="btn" data-act="fermer">Annuler</button>
+        <button class="btn plein" data-act="reinitialiser-oui" style="background:var(--alerte)">Tout effacer</button>
+      </div>`);
+  },
+  'reinitialiser-oui': async () => {
+    const mot = $('#motEffacer');
+    if (!mot || mot.value.trim().toUpperCase() !== 'EFFACER') { toast('Écrivez EFFACER pour confirmer.', { alerte: true }); if (mot) mot.focus(); return; }
+    try { const cles = await Fichiers.cles(); await Promise.all(cles.map(k => Fichiers.oter(k))); } catch (e) {}
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    S = vierge(); sauver();
+    Q = ''; selProfil = 'tous'; selCat = 'tous'; tri = 'nom';
+    fermer(); aller('accueil');
+    toast('NaoDoc est comme neuf ✨ — un classeur vierge vous attend.');
+  },
+  exemple: () => { exemple(); rendre(); toast('Voici une famille d’exemple — tout est modifiable ✨'); },
+  sauvegarder: async () => {
+    let fichiers = {};
+    try {
+      const cles = await Fichiers.cles(), tout = await Fichiers.tout();
+      await Promise.all(cles.map((k, i) => new Promise(ok => { const r = new FileReader(); r.onload = () => { fichiers[k] = r.result; ok(); }; r.onerror = ok; r.readAsDataURL(tout[i]); })));
+    } catch (e) { fichiers = {}; }
+    const blob = new Blob([JSON.stringify({ outil: 'NaoDoc', date: new Date().toISOString(), donnees: S, fichiers })], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `NaoDoc-sauvegarde-${auj()}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast('Sauvegarde téléchargée 💾 — gardez-la en lieu sûr : elle contient vos informations.');
+  },
+  recharger: () => { $('#fichierSauvegarde').value = ''; $('#fichierSauvegarde').click(); }
+};
+
+$('#fichierSauvegarde').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    let d;
+    try { d = JSON.parse(r.result); if (!d.donnees || !Array.isArray(d.donnees.docs)) throw 0; }
+    catch (err) { return toast('Ce fichier n’est pas une sauvegarde NaoDoc.', { alerte: true }); }
+    confirmer('Recharger cette sauvegarde ?', `${pluriel(d.donnees.docs.length, 'document')} — le classeur actuel sera remplacé.`, 'Recharger', async () => {
+      localStorage.setItem(CLE, JSON.stringify(d.donnees)); charger(); sauver();
+      for (const [k, url] of Object.entries(d.fichiers || {})) {
+        try { const b = await (await fetch(url)).blob(); await Fichiers.mettre(k, b); } catch (err) {}
+      }
+      aller('accueil'); toast('Sauvegarde rechargée 📂');
+    });
+  };
+  r.readAsText(f);
+});
+
+document.addEventListener('click', e => {
+  if (e.target.id === 'modale') return fermer();
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const f = ACT[el.dataset.act];
+  if (!f) return;
+  e.preventDefault();
+  f(el, e);
+});
+document.addEventListener('submit', e => {
+  const f = e.target.closest('form[data-form]');
+  if (!f) return;
+  e.preventDefault();
+  FORMS[f.dataset.form](f, e.submitter);
+});
+['importFichiers', 'importDossier'].forEach(id => $('#' + id).addEventListener('change', e => {
+  const fs = [...(e.target.files || [])];
+  if (fs.length) (RETROUVER ? relier : analyser)(fs.map(f => ({ f, chemin: (f.webkitRelativePath || '').split('/').slice(0, -1).join('/') })));
+}));
+/* glisser-déposer : n'importe où dans la page */
+const avecFichiers = e => [...((e.dataTransfer && e.dataTransfer.types) || [])].includes('Files');
+document.addEventListener('dragover', e => { if (!avecFichiers(e)) return; e.preventDefault(); document.body.classList.add('glisse'); });
+document.addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('glisse'); });
+document.addEventListener('drop', async e => {
+  if (!avecFichiers(e)) return;
+  e.preventDefault(); document.body.classList.remove('glisse');
+  const liste = await lireDepot(e.dataTransfer);
+  if (liste.length) (RETROUVER ? relier : analyser)(liste);
+});
+
+function champImport(el) {
+  const ligne = el.closest('.imp'); if (!ligne) return false;
+  const r = IMPORT[+ligne.dataset.i], k = el.dataset.imp;
+  r[k] = el.type === 'checkbox' ? el.checked : el.value;
+  if (k === 'cat') r.mot = '';
+  return k !== 'titre' && k !== 'organisme';
+}
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.change === 'tri') { tri = el.value; rendre(); }
+  if (el.dataset.imp && champImport(el)) majImport();
+  if (el.dataset.imptous) {
+    const k = el.dataset.imptous, v = el.value; if (!v) return;
+    IMPORT.forEach(r => { if (!r.garder) return; if (k === 'cat') { if (!r.cat) r.cat = v; } else r[k] = v; });
+    if (k !== 'organisme') el.value = '';
+    majImport();
+  }
+  const f = el.closest('form[data-form="doc"]');
+  if (f && el.name === 'cat') f.dataset.catTouche = '1';
+  if (f && el.name === 'profil') aiderFormulaire(f);
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.id === 'q') { Q = el.value; majRecherche(); }
+  if (el.dataset.imp === 'titre' || el.dataset.imp === 'organisme') champImport(el);
+  const f = el.closest('form[data-form="doc"]');
+  if (f && el.name === 'titre') aiderFormulaire(f);
+  if (f && (el.name === 'organisme' || el.name === 'emplacement')) delete el.dataset.auto;
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if ($('#modale').classList.contains('ouvert')) fermer(); else if (Q && e.target.id === 'q') { Q = ''; e.target.value = ''; majRecherche(); } }
+  if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !$('#modale').classList.contains('ouvert')) {
+    e.preventDefault();
+    if (V !== 'accueil') aller('accueil');
+    const q = $('#q'); if (q) q.focus();
+  }
+});
+window.addEventListener('storage', e => { if (e.key && e.key.indexOf(CLE) > -1) { charger(); rendre(); } });
+
+/* ============================================================
+   9. Une famille d'exemple, pour découvrir
+   ============================================================ */
+function exemple() {
+  const moi = { id: 'p-' + uid(), nom: 'Sophie', role: 'Moi', ico: '👩', h: 318 };
+  const lui = { id: 'p-' + uid(), nom: 'Marc', role: 'Conjoint·e', ico: '👨', h: 222 };
+  const lea = { id: 'p-' + uid(), nom: 'Léa', role: 'Enfant', ico: '👧', h: 290 };
+  S.profils.push(moi, lui, lea);
+  const d = (p, c, titre, o) => S.docs.push(Object.assign({ id: uid(), profil: p.id, cat: c, titre, organisme: '', reference: '', emplacement: '', notes: '', ajoute: new Date().toISOString() }, o || {}));
+  const f = profil('foyer');
+  d(f, 'logement', 'Bail de location', { organisme: 'Agence du Parc', emplacement: 'Classeur violet, pochette Logement' });
+  d(f, 'logement', 'Quittances de loyer', { notes: 'Téléchargeables chaque mois sur l’espace locataire.', emplacement: 'Espace en ligne' });
+  d(f, 'assurance', 'Assurance habitation', { organisme: 'Mutuelle du Foyer', emplacement: 'Classeur violet' });
+  d(f, 'impots', "Avis d'imposition 2026", { organisme: 'Impots.gouv', emplacement: 'Espace en ligne' });
+  d(f, 'famille', 'Livret de famille', { emplacement: 'Coffre, tiroir du haut' });
+  d(f, 'vehicule', 'Carte grise', { emplacement: 'Boîte à gants' });
+  d(moi, 'identite', 'Passeport', { organisme: 'Préfecture', emplacement: 'Coffre' });
+  d(moi, 'identite', "Carte nationale d'identité", { emplacement: 'Portefeuille' });
+  d(moi, 'travail', 'Contrat de travail', { emplacement: 'Classeur violet, pochette Travail' });
+  d(moi, 'travail', 'Bulletins de salaire', { notes: 'Coffre-fort numérique de l’employeur.' });
+  d(moi, 'sante', 'Carte Vitale', { emplacement: 'Portefeuille' });
+  d(moi, 'banque', 'RIB', { organisme: 'Banque' });
+  d(lui, 'identite', "Carte nationale d'identité", { emplacement: 'Portefeuille de Marc' });
+  d(lui, 'identite', 'Permis de conduire', { emplacement: 'Portefeuille de Marc' });
+  d(lui, 'travail', 'Attestation employeur', { organisme: 'Employeur' });
+  d(lui, 'sante', 'Attestation de mutuelle', { organisme: 'Mutuelle d’entreprise' });
+  d(lui, 'banque', 'RIB', { organisme: 'Banque' });
+  d(lea, 'identite', "Carte nationale d'identité", { emplacement: 'Coffre' });
+  d(lea, 'sante', 'Carnet de santé', { emplacement: 'Tiroir de l’entrée' });
+  d(lea, 'sante', 'Carnet de vaccination');
+  d(lea, 'famille', 'Certificat de scolarité', { organisme: 'École Jules-Ferry' });
+  d(lea, 'loisirs', 'Licence de natation', { organisme: 'Club nautique' });
+  sauver();
+}
+
+/* ============================================================
+   10. Le décor et l'entrée
+   ============================================================ */
+(function etoiles() {
+  const g = document.getElementById('etoiles'); let h = '';
+  for (let i = 0; i < 46; i++) {
+    const x = Math.random() * 1440, y = Math.random() * 900, r = Math.random() * 1.3 + .5;
+    h += `<circle class="etoile" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r.toFixed(1)}" style="animation-duration:${(3 + Math.random() * 5).toFixed(1)}s;animation-delay:-${(Math.random() * 6).toFixed(1)}s"/>`;
+  }
+  g.innerHTML = h;
+})();
+
+function entree() {
+  const intro = $('#intro');
+  $('#introOnglets').innerHTML = CATS_BASE.slice(0, 8).map((c, i) => `<i style="--h:${c.h};--i:${i}">${c.ico}</i>`).join('');
+  /* les documents qui s'envolent : en éventail au-dessus du classeur */
+  const n = 9;
+  $('#introVols').innerHTML = CATS_BASE.slice(0, n).map((c, i) => {
+    const ang = (-160 + i * (140 / (n - 1))) * Math.PI / 180, r = 150 + (i % 3) * 26;
+    return `<i style="--h:${c.h};--i:${i};--x:${Math.round(Math.cos(ang) * r)}px;--y:${Math.round(Math.sin(ang) * r * .9)}px;--r:${Math.round(-18 + Math.random() * 36)}deg">${c.ico}</i>`;
+  }).join('');
+  /* la phrase mot à mot, « vos échéances » en couleur */
+  const mots = $('#introPhrase').textContent.trim().split(/\s+/);
+  $('#introPhrase').innerHTML = mots.map((m, i) => `<span class="mot${i === 2 || i === 3 ? ' accent' : ''}" style="--i:${i}">${esc(m)}</span>`).join(' ');
+  /* quelques étincelles */
+  $('#introEtincelles').innerHTML = Array.from({ length: 22 }, () => {
+    const a = Math.random() * Math.PI * 2, d = 18 + Math.random() * 30;
+    return `<i style="left:${(50 + Math.cos(a) * d).toFixed(1)}%;top:${(45 + Math.sin(a) * d * .8).toFixed(1)}%;--t:${(2 + Math.random() * 3).toFixed(1)}px;--d:${(Math.random() * 2.4).toFixed(2)}s"></i>`;
+  }).join('');
+  const reduit = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finir = () => { if (intro.isConnected) intro.remove(); };
+  if (reduit) return finir();
+  intro.addEventListener('click', () => { intro.style.animation = 'introSort .4s ease forwards'; document.querySelector('.page').style.animation = 'emerge .6s ease both'; setTimeout(finir, 420); });
+  intro.addEventListener('animationend', e => { if (e.animationName === 'introSort') finir(); });
+  setTimeout(finir, 4600);
+}
+
+charger();
+lireAdresse();
+rendre();
+entree();
+verifierFichiers().then(() => { if (MANQUANTS.size) rendre(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# NaoFi a son propre dépôt (Naow972/analyse-credit)
+NaoFi/
+# réglages locaux des outils de développement
+**/.claude/
+# fichiers système
+Thumbs.db
+desktop.ini
+# jamais de secrets ni de relevés
+.env
+.env.*
+*.pem
+*.key
+NaoBanque/config.json
+NaoBanque/releves/*
+!NaoBanque/releves/.gitkeep
+_test/

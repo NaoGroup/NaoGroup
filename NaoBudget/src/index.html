@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naobudget"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naobudget"></script>
+<title>NaoBudget — Gestion de budget</title>
+<link rel="stylesheet" href="naobudget.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%237B5FD9'/><stop offset='1' stop-color='%23B48CF2'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 25.5V11L27 25V10.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><path d='M9.5 30.5H30.5' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' opacity='.5'/></svg>">
+</head>
+<body>
+
+<!-- ================= Marque =================
+     NaoGroup partage un jeton carré-arrondi, un dégradé lilas et un N
+     blanc tracé d'un seul geste. Chaque outil se distingue par ce que fait
+     la dernière branche du N :
+       · NaoFi     — elle s'échappe en flèche ascendante (la progression),
+       · NaoBudget — elle se pose sur une ligne de base (l'axe d'un graphique).
+     Même famille, même lecture à 16 px, deux signes différents.          -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <linearGradient id="nb-degrade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7B5FD9"/><stop offset="1" stop-color="#B48CF2"/>
+    </linearGradient>
+    <symbol id="nao-logo" viewBox="0 0 40 40">
+      <rect x="0" y="0" width="40" height="40" rx="13" fill="url(#nb-degrade)"/>
+      <path d="M12 25.5V11L27 25V10.5" fill="none" stroke="#fff" stroke-width="4.2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9.5 30.5H30.5" fill="none" stroke="#fff" stroke-width="2.8"
+            stroke-linecap="round" opacity=".5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Le fond : trois halos qui dérivent, et de petits motifs de comptabilité
+     qui flottent très discrètement derrière le tableau. -->
+<div class="fond" aria-hidden="true"><i></i><i></i><i></i>
+  <div class="motifs">
+    <i style="left:4%;top:12%;font-size:38px;--dx:40px;--dy:-70px;--rot:18deg;animation-duration:52s">€</i>
+    <i style="left:14%;top:68%;font-size:26px;--dx:-30px;--dy:-90px;--rot:-24deg;animation-duration:64s;animation-delay:-8s">%</i>
+    <i style="left:23%;top:28%;font-size:20px;--dx:55px;--dy:40px;--rot:30deg;animation-duration:58s;animation-delay:-22s">+</i>
+    <i style="left:31%;top:82%;font-size:44px;--dx:-46px;--dy:-60px;--rot:14deg;animation-duration:71s;animation-delay:-12s">€</i>
+    <i class="pic" style="left:40%;top:16%;--dx:34px;--dy:58px;--rot:-12deg;animation-duration:66s;animation-delay:-30s"></i>
+    <i style="left:48%;top:56%;font-size:22px;--dx:-52px;--dy:44px;--rot:26deg;animation-duration:55s;animation-delay:-5s">−</i>
+    <i class="piece" style="left:57%;top:24%;--dx:48px;--dy:-52px;--rot:40deg;animation-duration:74s;animation-delay:-18s"></i>
+    <i style="left:64%;top:74%;font-size:32px;--dx:38px;--dy:-66px;--rot:-20deg;animation-duration:61s;animation-delay:-26s">€</i>
+    <i class="pic" style="left:72%;top:44%;--dx:-40px;--dy:-48px;--rot:22deg;animation-duration:69s;animation-delay:-9s"></i>
+    <i style="left:80%;top:12%;font-size:24px;--dx:-34px;--dy:74px;--rot:-16deg;animation-duration:57s;animation-delay:-34s">%</i>
+    <i class="piece" style="left:87%;top:62%;--dx:30px;--dy:-58px;--rot:-34deg;animation-duration:76s;animation-delay:-15s"></i>
+    <i style="left:93%;top:34%;font-size:40px;--dx:-44px;--dy:52px;--rot:12deg;animation-duration:63s;animation-delay:-40s">€</i>
+    <i class="recu" style="left:9%;top:44%;--dx:44px;--dy:52px;--rot:-18deg;animation-duration:78s;animation-delay:-20s"></i>
+    <i class="recu" style="left:68%;top:88%;--dx:-36px;--dy:-74px;--rot:24deg;animation-duration:59s;animation-delay:-44s"></i>
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="topbar">
+    <a class="brand" href="../NaoGroup.html" title="Revenir à NaoGroup">
+      <svg class="logo" viewBox="0 0 40 40" role="img" aria-label="NaoBudget"><use href="#nao-logo"/></svg>
+      <div class="brand-txt">
+        <h1>Nao<span>Budget</span></h1>
+        <div class="brand-sub">Suivi mensuel &amp; annuel</div>
+      </div>
+    </a>
+    <!-- Le logo ramène déjà à la maison, mais rien ne le disait :
+         ce bouton le dit. -->
+    <a class="btn retour" href="../NaoGroup.html" title="Revenir à la page d'accueil NaoGroup">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" rx="13" fill="url(#nb-degrade)"/>
+        <path d="M12 25.5V11L27 25V10.5" fill="none" stroke="#fff" stroke-width="4.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22.4 15.1L27 10.5l4.6 4.6" fill="none" stroke="#fff" stroke-width="4.2"
+              stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+        <path d="M9.5 30.5H30.5" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>
+      </svg>
+      <span>← NaoGroup</span>
+    </a>
+    <div class="spacer"></div>
+
+    <div class="yearpick">
+      <button id="yprev" type="button" title="Année précédente" aria-label="Année précédente">‹</button>
+      <span id="ylab">2026</span>
+      <button id="ynext" type="button" title="Année suivante" aria-label="Année suivante">›</button>
+    </div>
+
+    <button class="theme-switch" id="theme-switch" type="button" role="switch" aria-checked="false"
+            aria-label="Thème sombre" title="Basculer clair / sombre"><span class="thumb" id="theme-icon">☀️</span></button>
+
+    <button class="btn" id="btnExport" type="button" title="Enregistrer une copie de secours">💾 Sauvegarder</button>
+    <button class="btn" id="btnImport" type="button" title="Recharger une sauvegarde (.json) ou importer un tableau Excel (.xlsx, .csv)">📂 Charger</button>
+    <button class="btn" id="btnPrint" type="button" title="Composer un document à imprimer ou à enregistrer en PDF">🖨️ Imprimer / PDF</button>
+    <input type="file" id="fileIn" accept=".json,.xlsx,.xlsm,.csv,.ofx,.qfx" hidden>
+    <input type="file" id="fileBank" accept=".csv,.ofx,.qfx,.json,.txt" hidden>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="tabs" id="tabs">
+    <button data-v="annuel" type="button" class="on"><span class="em">📊</span> Vue annuelle</button>
+    <button data-v="mois" type="button"><span class="em">📆</span> Le mois</button>
+    <button data-v="graph" type="button"><span class="em">🥧</span> Graphiques</button>
+    <button data-v="agenda" type="button"><span class="em">📅</span> Agenda des prélèvements</button>
+    <button data-v="reglages" type="button"><span class="em">⚙️</span> Réglages</button>
+  </div>
+
+  <div id="view"></div>
+
+  <div class="foot">
+    💜 NaoBudget — vos données restent sur cet ordinateur (stockage local du navigateur).
+    Pensez à « Sauvegarder » de temps en temps pour garder une copie du fichier.
+  </div>
+</div>
+
+<!-- ============ L'entrée dans l'outil ============
+     Un petit tableau de bord se construit tout seul : les barres poussent,
+     la courbe se trace, et le jeton NaoBudget vient s'y poser. -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <i class="piece p1">€</i><i class="piece p2">€</i><i class="piece p3">€</i>
+  <i class="piece p4">%</i><i class="piece p5">€</i>
+  <div class="scene">
+    <div class="graph">
+      <svg viewBox="0 0 280 160" aria-hidden="true">
+        <line class="axe" x1="14" y1="138" x2="266" y2="138"/>
+        <rect class="b" style="--i:0" x="26"  y="86"  width="22" height="52" rx="6"/>
+        <rect class="b" style="--i:1" x="60"  y="62"  width="22" height="76" rx="6"/>
+        <rect class="b" style="--i:2" x="94"  y="98"  width="22" height="40" rx="6"/>
+        <rect class="b" style="--i:3" x="128" y="44"  width="22" height="94" rx="6"/>
+        <rect class="b" style="--i:4" x="162" y="74"  width="22" height="64" rx="6"/>
+        <rect class="b" style="--i:5" x="196" y="30"  width="22" height="108" rx="6"/>
+        <rect class="b" style="--i:6" x="230" y="56"  width="22" height="82" rx="6"/>
+        <polyline class="courbe" pathLength="1" fill="none"
+          points="37,78 71,54 105,90 139,36 173,66 207,22 241,48"/>
+      </svg>
+      <div class="jeton">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#nao-logo"/></svg>
+      </div>
+    </div>
+    <div class="titre">Nao<span>Budget</span></div>
+    <div class="phrase">Savoir où va l'argent, <span>mois après mois</span>.</div>
+    <div class="passer">Cliquer pour entrer</div>
+  </div>
+</div>
+
+<!-- Le bloc-notes : hors des onglets, donc visible depuis n'importe quelle vue. -->
+<aside class="notes" id="notes" aria-label="Mes notes">
+  <button class="notes-tab" id="notesTab" type="button" aria-expanded="false"
+          title="Mes notes (Alt+N)"><span class="em">📝</span><span class="mot">Notes</span></button>
+  <div class="notes-in">
+    <div class="notes-hd">
+      <span class="em">📝</span><b>Mes notes</b>
+      <span class="notes-etat" id="notesEtat"></span>
+      <button class="xclose" id="notesFermer" type="button" title="Fermer (Alt+N)">✕</button>
+    </div>
+    <div class="notes-out">
+      <button class="qbtn" data-note="coche" title="Cocher ou décocher la ligne">☐</button>
+      <button class="qbtn" data-note="date" title="Insérer la date du jour">📅</button>
+      <button class="qbtn" data-note="trait" title="Insérer un séparateur">──</button>
+      <span class="right"></span>
+      <button class="qbtn" data-note="vider" title="Tout effacer">🧹</button>
+    </div>
+    <textarea id="notesZone" spellcheck="true"
+      placeholder="Ce qu'il ne faut pas oublier…&#10;&#10;☐ Résilier Duolingo&#10;☐ Appeler l'assurance pour le devis&#10;— 12 mars — remboursement mutuelle à vérifier"></textarea>
+    <div class="notes-ft"><span id="notesCompte">vide</span>
+      <span class="right"></span><span>Enregistré avec le budget</span></div>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+<div class="version-badge" title="NaoBudget — NaoGroup">v2.1</div>
+<script src="naobudget-import.js"></script>
+<script src="naobudget-print.js"></script>
+<script src="naobudget-humour.js"></script>
+<script src="naobudget-banque.js"></script>
+<script src="naobudget-copie.js"></script>
+<script src="naobudget-notes.js"></script>
+<script src="naobudget.js"></script>
+</body>
+</html>

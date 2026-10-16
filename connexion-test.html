@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — connexion (phase de test)</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="naogroup-local-auth.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236F55D0'/><stop offset='1' stop-color='%23C39BF3'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5; --rose:#E58BA0;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 34%, #7564C2 0%, #43358A 42%, #1C1636 100%);
+  background-attachment:fixed;padding:26px 24px 70px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 30%, #000 0 30%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 30%, #000 0 30%, transparent 72%)}
+.halos{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.halos i{position:absolute;border-radius:50%;filter:blur(60px);animation:flotte 14s ease-in-out infinite alternate}
+.halos i:nth-child(1){width:400px;height:400px;background:#B9A8F0;left:6%;top:6%;opacity:.45}
+.halos i:nth-child(2){width:340px;height:340px;background:#60ccc1;right:8%;bottom:6%;opacity:.28;animation-duration:17s}
+@keyframes flotte{from{transform:translate(0,0) scale(1)}to{transform:translate(46px,-34px) scale(1.18)}}
+@keyframes monte{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes secoue{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+@keyframes tampon{0%{opacity:0;transform:rotate(-14deg) scale(2.2)}60%{opacity:1;transform:rotate(-6deg) scale(.94)}100%{opacity:1;transform:rotate(-6deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.wrap{position:relative;z-index:1;max-width:440px;margin:40px auto 0}
+a.back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--ui);font-style:normal;
+  font-size:13px;font-weight:600;color:var(--ink-2);background:var(--verre);border:1px solid var(--bord);
+  padding:9px 16px;border-radius:999px;margin-bottom:22px;transition:.25s}
+a.back:hover{background:var(--verre-2);color:#fff}
+.tete{text-align:center;margin-bottom:24px}
+.jeton{width:64px;height:64px;border-radius:20px;box-shadow:0 18px 40px -16px rgba(0,0,0,.8);animation:monte .8s ease both}
+.badge{display:inline-block;font-family:var(--ui);font-style:normal;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--lilas);border:1px solid var(--bord);
+  border-radius:999px;padding:4px 12px;margin:14px 0 10px}
+h1{font-size:24px;margin:0 0 6px;letter-spacing:-.02em;color:#fff}
+.sub{font-size:14px;color:var(--ink-2);margin:0}
+
+.card{position:relative;background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:26px;
+  backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .7s ease both}
+.card.secoue{animation:secoue .5s ease}
+.card h2{margin:0 0 6px;font-size:18px;color:#fff}
+.card p.aide{margin:0 0 16px;font-size:13px;color:var(--ink-2)}
+label{display:block;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+.champ{margin-bottom:14px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input{width:100%;font-family:var(--ui);font-style:normal;font-size:14px;color:#fff;
+  background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:12px;padding:11px 14px;outline:none}
+input:focus{border-color:var(--bord-2);background:rgba(0,0,0,.3)}
+::placeholder{color:var(--ink-3);font-style:italic}
+button.principal{width:100%;font-family:var(--ui);font-style:normal;font-size:14px;font-weight:600;color:#1C1636;
+  border:none;background:linear-gradient(135deg,#8E7BD4,#C39BF3);padding:13px 0;border-radius:999px;cursor:pointer;margin-top:4px}
+button.principal:hover{filter:brightness(1.07)}
+button.principal:disabled{opacity:.6;cursor:wait}
+button.lien{background:none;border:0;padding:0;font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-2);cursor:pointer;text-decoration:underline}
+button.lien:hover{color:#fff}
+a.lien-a{font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-2);text-decoration:underline}
+a.lien-a:hover{color:#fff}
+.ligne{text-align:center;margin-top:14px}
+.msg{margin-top:12px;font-family:var(--ui);font-style:normal;font-size:12px;color:var(--lilas);
+  background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:12px;padding:10px 13px;display:none}
+.msg.visible{display:block}
+.msg.erreur{color:var(--rose);border-color:rgba(194,75,99,.4)}
+.tampon-zone{text-align:center;padding:6px 0 2px}
+.tampon{display:inline-block;border:3px solid var(--rose);color:var(--rose);border-radius:10px;padding:8px 20px;
+  font-family:var(--ui);font-style:normal;font-weight:800;font-size:18px;letter-spacing:.14em;text-transform:uppercase;
+  transform:rotate(-6deg);animation:tampon .5s cubic-bezier(.2,.8,.2,1) both;margin-bottom:14px}
+.tampon-zone p{font-size:13.5px;color:var(--ink-2);margin:0 0 14px}
+.code{font-family:var(--mono);font-style:normal;font-size:20px;letter-spacing:.1em;color:#fff;text-align:center;
+  background:rgba(0,0,0,.3);border:1px dashed var(--bord-2);border-radius:12px;padding:16px;margin:12px 0;user-select:all}
+.outils-cochees{display:flex;gap:8px;justify-content:center;margin:4px 0 16px;flex-wrap:wrap}
+.outils-cochees span{font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-2);background:rgba(0,0,0,.2);
+  border:1px solid var(--bord);border-radius:999px;padding:5px 11px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="halos" aria-hidden="true"><i></i><i></i></div>
+
+<div class="wrap">
+  <a class="back" href="NaoGroup.html">← NaoGroup</a>
+
+  <div class="tete">
+    <svg class="jeton" viewBox="0 0 40 40" role="img" aria-label="NaoGroup">
+      <defs><linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient></defs>
+      <rect width="40" height="40" rx="13" fill="url(#ggr)"/>
+      <path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g>
+    </svg>
+    <div class="badge">Phase de test — comptes locaux</div>
+    <h1>Se connecter</h1>
+    <p class="sub">Avec l'identifiant et le mot de passe remis par Naomie.</p>
+  </div>
+
+  <div class="card" id="carte">
+    <div class="msg" id="msgInvitation" role="status" style="margin:0 0 16px"></div>
+
+    <div id="zoneInvite" hidden>
+      <h2>Accès sur invitation</h2>
+      <p class="aide">NaoGroup est en phase de test : on y entre avec le lien personnel reçu par e-mail. Ouvrez ce lien sur cet appareil, il enregistre votre accès — puis revenez ici avec l'identifiant et le mot de passe provisoire du message.</p>
+      <p class="aide">Pas encore d'invitation ? <a class="lien-a" href="contact.html?type=souscription">Demandez un accès</a>.</p>
+      <div class="ligne"><a class="lien-a" href="#creatrice" id="lienCreatrice">Première ouverture (créatrice)</a></div>
+    </div>
+
+    <form id="fConnexion" hidden>
+      <h2>Connexion</h2>
+      <p class="aide">Avec l'identifiant et le mot de passe reçus.</p>
+      <div class="champ"><label for="ident">Identifiant</label><input type="text" id="ident" autocomplete="username" autocapitalize="off" spellcheck="false" required></div>
+      <div class="champ"><label for="mdp">Mot de passe</label><input type="password" id="mdp" autocomplete="current-password" required></div>
+      <button type="submit" class="principal" id="btnConnexion">Se connecter</button>
+      <div class="ligne"><button type="button" class="lien" id="lienOubli">Mot de passe oublié ?</button></div>
+      <div class="msg" id="msgConnexion" role="alert"></div>
+    </form>
+
+    <form id="fPremiere" hidden>
+      <h2>Première ouverture</h2>
+      <p class="aide">Créez votre compte : celui de la créatrice, qui gère ensuite les profils des testeuses et testeurs.</p>
+      <div class="duo">
+        <div class="champ"><label for="p-prenom">Prénom</label><input type="text" id="p-prenom" autocomplete="given-name" required></div>
+        <div class="champ"><label for="p-nom">Nom</label><input type="text" id="p-nom" autocomplete="family-name" required></div>
+      </div>
+      <div class="champ"><label for="p-ident">Identifiant</label><input type="text" id="p-ident" autocomplete="username" autocapitalize="off" spellcheck="false" required></div>
+      <div class="champ"><label for="p-mdp">Mot de passe — 8 caractères au moins</label><input type="password" id="p-mdp" autocomplete="new-password" required></div>
+      <div class="champ"><label for="p-mdp2">Confirmation</label><input type="password" id="p-mdp2" autocomplete="new-password" required></div>
+      <button type="submit" class="principal" id="btnPremiere">Créer mon compte</button>
+      <div class="msg" id="msgPremiere" role="alert"></div>
+    </form>
+
+    <form id="fNouveau" hidden>
+      <h2>Choisissez votre mot de passe</h2>
+      <p class="aide" id="bonjour">Le mot de passe reçu est provisoire : remplacez-le par un mot de passe connu de vous seul·e.</p>
+      <div class="champ"><label for="n-mdp">Nouveau mot de passe — 8 caractères au moins</label><input type="password" id="n-mdp" autocomplete="new-password" required></div>
+      <div class="champ"><label for="n-mdp2">Confirmation</label><input type="password" id="n-mdp2" autocomplete="new-password" required></div>
+      <button type="submit" class="principal" id="btnNouveau">Enregistrer et entrer</button>
+      <div class="msg" id="msgNouveau" role="alert"></div>
+    </form>
+
+    <div id="zoneCode" hidden>
+      <h2>Votre code de secours</h2>
+      <p class="aide">Notez-le et gardez-le hors de l'ordinateur : c'est le seul moyen de retrouver l'accès si vous oubliez votre mot de passe. Il remplace tout code précédent.</p>
+      <div class="code" id="codeAffiche"></div>
+      <button type="button" class="principal" id="btnCodeNote">J'ai noté le code — entrer</button>
+    </div>
+
+    <div id="zoneOubli" hidden>
+      <h2>Mot de passe oublié</h2>
+      <p class="aide">Retrouvez l'accès avec votre code de secours (créatrice uniquement). Pour un profil de test, demandez un nouveau mot de passe provisoire à Naomie.</p>
+      <div class="champ"><label for="o-ident">Identifiant</label><input type="text" id="o-ident" autocomplete="username" autocapitalize="off" spellcheck="false"></div>
+      <div class="champ"><label for="o-code">Code de secours</label><input type="text" id="o-code" autocomplete="off"></div>
+      <div class="champ"><label for="o-mdp">Nouveau mot de passe — 8 caractères au moins</label><input type="password" id="o-mdp" autocomplete="new-password"></div>
+      <div class="champ"><label for="o-mdp2">Confirmation</label><input type="password" id="o-mdp2" autocomplete="new-password"></div>
+      <button type="button" class="principal" id="btnOubli">Réinitialiser le mot de passe</button>
+      <div class="msg" id="msgOubli" role="alert"></div>
+      <div class="ligne"><button type="button" class="lien" id="lienRetourOubli">← Retour à la connexion</button></div>
+    </div>
+
+    <div class="tampon-zone" id="zoneTampon" hidden>
+      <div class="tampon" id="texteTampon">Accès suspendu</div>
+      <p id="motifTampon"></p>
+      <button type="button" class="lien" id="lienAutre">Essayer avec un autre identifiant</button>
+    </div>
+  </div>
+
+  <p class="sub" style="text-align:center;margin-top:18px">Ceci est un accès de test, local à ce navigateur — pas encore le vrai système de comptes NaoGroup.</p>
+</div>
+
+<script>
+(function(){
+  var T = window.NaoTest, $ = function(id){ return document.getElementById(id); };
+  var scenes = ['fConnexion','fPremiere','fNouveau','zoneCode','zoneOubli','zoneTampon','zoneInvite'];
+  function montrer(id){ scenes.forEach(function(s){ $(s).hidden = s !== id; }); }
+  function message(el, texte, erreur){ el.textContent = texte; el.classList.toggle('erreur', !!erreur); el.classList.add('visible'); }
+  function secouer(){ var c = $('carte'); c.classList.remove('secoue'); void c.offsetWidth; c.classList.add('secoue'); }
+  function retour(){ var r = new URLSearchParams(location.search).get('retour'); return r || T.url('NaoGroup.html'); }
+
+  if (!T.chiffrementDisponible()) {
+    montrer('fConnexion'); message($('msgConnexion'), 'Ce navigateur ne fournit pas le chiffrement nécessaire : utilisez une version récente de Chrome, Edge ou Firefox.', true);
+    $('btnConnexion').disabled = true; return;
+  }
+
+  /* Un lien d'invitation (#invitation=…) transporte le compte jusqu'à cet appareil : on l'applique d'abord. */
+  var invitation = null;
+  if (/^#invitation=/.test(location.hash)) {
+    var inv = T.lireInvitation(location.hash);
+    history.replaceState(null, '', location.pathname + location.search); // le lien, et l'empreinte qu'il porte, ne restent pas dans l'adresse
+    if (!inv) invitation = { ok: false, texte: "Ce lien d'invitation est illisible ou incomplet : demandez-en un nouveau." };
+    else {
+      var res = T.appliquerInvitation(inv);
+      if (res.ok) invitation = { ok: true, inv: inv, texte: inv.type === 'maj'
+        ? 'Votre accès a été mis à jour sur cet appareil.'
+        : res.remis ? 'Invitation enregistrée. Connectez-vous avec l’identifiant « ' + inv.identifiant + ' » et le mot de passe provisoire reçu par e-mail.'
+        : 'Votre accès est déjà enregistré sur cet appareil : connectez-vous avec votre mot de passe.' };
+      else invitation = { ok: false, texte: res.code === 'inconnu'
+        ? "Cette mise à jour ne correspond à aucun profil sur cet appareil : ouvrez d'abord votre invitation."
+        : res.code === 'directrice' ? 'Ce lien ne peut pas modifier le compte de la créatrice.'
+        : "Ce navigateur refuse le stockage local : l'accès ne peut pas être enregistré ici." };
+    }
+  }
+
+  /* Sans compte sur l'appareil : écran d'invitation. L'écran « première ouverture » (créer le compte de la
+     créatrice) n'apparaît que sur #creatrice, pour ne pas l'offrir à chaque visiteur du site. */
+  var comptes = T.lireComptes();
+  montrer(comptes.length ? 'fConnexion' : (location.hash === '#creatrice' ? 'fPremiere' : 'zoneInvite'));
+  if (invitation) {
+    message($('msgInvitation'), invitation.texte, !invitation.ok);
+    if (invitation.ok) {
+      $('ident').value = invitation.inv.identifiant;
+      var cInv = T.lireComptes().filter(function(x){ return T.normIdentifiant(x.identifiant) === invitation.inv.identifiant; })[0];
+      var accInv = cInv && T.etatAcces(cInv);
+      if (accInv && !accInv.ok) { $('texteTampon').textContent = accInv.tampon; $('motifTampon').textContent = accInv.motif; montrer('zoneTampon'); }
+    }
+  }
+  /* Un lien ouvert dans cet onglet ne recharge pas la page (même adresse, autre ancre) : on la recharge. */
+  window.addEventListener('hashchange', function(){ if (/^#(invitation=|creatrice$)/.test(location.hash)) location.reload(); });
+  $('p-prenom') && $('p-prenom').addEventListener('input', proposerIdent);
+  $('p-nom') && $('p-nom').addEventListener('input', proposerIdent);
+  var identTouche = false;
+  $('p-ident') && $('p-ident').addEventListener('input', function(){ identTouche = true; });
+  function proposerIdent(){ if (!identTouche) $('p-ident').value = T.identifiantPropose($('p-prenom').value, $('p-nom').value); }
+
+  /* ---------- Première ouverture ---------- */
+  $('fPremiere').addEventListener('submit', function(e){
+    e.preventDefault();
+    var prenom = $('p-prenom').value.trim(), nom = $('p-nom').value.trim();
+    var ident = T.normIdentifiant($('p-ident').value);
+    var mdp = $('p-mdp').value, mdp2 = $('p-mdp2').value;
+    var m = $('msgPremiere');
+    if (!prenom || !nom) return message(m, 'Renseignez votre prénom et votre nom.', true);
+    if (!/^[a-z0-9._-]{3,40}$/.test(ident)) return message(m, "L'identifiant compte de 3 à 40 caractères : lettres sans accent, chiffres, point, tiret.", true);
+    if (mdp.length < 8) return message(m, 'Le mot de passe compte au moins 8 caractères.', true);
+    if (mdp !== mdp2) return message(m, 'La confirmation ne correspond pas au mot de passe.', true);
+    var b = $('btnPremiere'); b.disabled = true;
+    var code = T.codeSecours();
+    Promise.all([T.protegerMdp(mdp), T.protegerMdp(T.normCode(code))]).then(function(r){
+      b.disabled = false;
+      var liste = T.lireComptes();
+      if (liste.some(function(c){ return c.role === 'directrice'; })) { montrer('fConnexion'); return; }
+      var c = { id: T.nouvelId(), role: 'directrice', identifiant: ident, prenom: prenom, nom: nom, statut: 'actif', motif: '',
+        outils: T.outils.map(function(o){ return o.id; }), mdp: r[0], secours: r[1], changerMdp: false, creeLe: new Date().toISOString() };
+      liste.push(c);
+      if (!T.ecrireComptes(liste)) return message(m, 'Ce navigateur refuse le stockage local : le compte ne peut pas être créé ici.', true);
+      T.poserSession(c.id, true);
+      $('codeAffiche').textContent = code;
+      montrer('zoneCode');
+    }).catch(function(){ b.disabled = false; message(m, 'Chiffrement indisponible dans ce navigateur.', true); });
+  });
+  $('btnCodeNote').addEventListener('click', function(){ location.href = retour(); });
+
+  /* ---------- Connexion ---------- */
+  var echecs = 0, attenteJusqua = 0;
+  function freine(m){
+    var reste = Math.ceil((attenteJusqua - Date.now()) / 1000);
+    if (reste > 0) { message(m, 'Trop d’essais : patientez ' + reste + ' s.', true); return true; }
+    return false;
+  }
+  function rate(){ echecs++; if (echecs >= 5) attenteJusqua = Date.now() + 15000 * Math.min(8, echecs - 4); }
+
+  $('fConnexion').addEventListener('submit', function(e){
+    e.preventDefault();
+    var m = $('msgConnexion'); m.classList.remove('visible');
+    if (freine(m)) { secouer(); return; }
+    var ident = T.normIdentifiant($('ident').value), mdp = $('mdp').value;
+    if (!ident || !mdp) return message(m, "Renseignez l'identifiant et le mot de passe.", true);
+    var liste = T.lireComptes();
+    var c = liste.find(function(x){ return T.normIdentifiant(x.identifiant) === ident; });
+    var b = $('btnConnexion'); b.disabled = true; b.textContent = 'Vérification…';
+    T.verifierMdp(mdp, (c && c.mdp) ? c.mdp : T.SECRET_LEURRE).then(function(ok){
+      b.disabled = false; b.textContent = 'Se connecter';
+      if (!c || !c.mdp || !ok) {
+        rate(); secouer(); message(m, 'Identifiant ou mot de passe incorrect.', true); $('mdp').value = ''; return;
+      }
+      echecs = 0;
+      var acc = T.etatAcces(c);
+      if (!acc.ok) {
+        $('texteTampon').textContent = acc.tampon; $('motifTampon').textContent = acc.motif; montrer('zoneTampon'); return;
+      }
+      T.poserSession(c.id, true);
+      if (c.changerMdp) {
+        $('bonjour').textContent = 'Bonjour ' + (c.prenom || c.identifiant) + '. Le mot de passe reçu est provisoire : remplacez-le par un mot de passe connu de vous seul·e.';
+        montrer('fNouveau');
+      } else {
+        var outilsNoms = (c.outils || []).map(function(id){ var o = T.outils.filter(function(x){ return x.id===id; })[0]; return o ? o.nom : id; });
+        location.href = retour();
+      }
+    }).catch(function(){ b.disabled = false; b.textContent = 'Se connecter'; message(m, 'Vérification impossible dans ce navigateur.', true); });
+  });
+
+  /* ---------- Nouveau mot de passe (provisoire → personnel) ---------- */
+  $('fNouveau').addEventListener('submit', function(e){
+    e.preventDefault();
+    var m = $('msgNouveau'), a = $('n-mdp').value, b2 = $('n-mdp2').value;
+    if (a.length < 8) return message(m, 'Le mot de passe compte au moins 8 caractères.', true);
+    if (a !== b2) return message(m, 'La confirmation ne correspond pas au mot de passe.', true);
+    var s = T.session(); var liste = T.lireComptes(); var c = s && T.compteParId(s.id, liste);
+    if (!c) { montrer('fConnexion'); return; }
+    var b = $('btnNouveau'); b.disabled = true;
+    T.verifierMdp(a, c.mdp).then(function(meme){
+      if (meme) { b.disabled = false; return message(m, 'Choisissez un mot de passe différent du mot de passe provisoire.', true); }
+      return T.protegerMdp(a).then(function(s2){
+        b.disabled = false; c.mdp = s2; c.changerMdp = false;
+        var i = liste.findIndex(function(x){ return x.id === c.id; }); liste[i] = c;
+        if (!T.ecrireComptes(liste)) return message(m, 'Ce navigateur refuse le stockage local.', true);
+        location.href = retour();
+      });
+    }).catch(function(){ b.disabled = false; message(m, 'Chiffrement indisponible dans ce navigateur.', true); });
+  });
+
+  /* ---------- Mot de passe oublié (créatrice, avec le code de secours) ---------- */
+  $('lienOubli').addEventListener('click', function(){ montrer('zoneOubli'); });
+  $('lienRetourOubli').addEventListener('click', function(){ montrer('fConnexion'); });
+  $('lienAutre').addEventListener('click', function(){ $('mdp').value=''; montrer('fConnexion'); });
+  $('btnOubli').addEventListener('click', function(){
+    var m = $('msgOubli'); m.classList.remove('visible');
+    if (freine(m)) return;
+    var ident = T.normIdentifiant($('o-ident').value), code = T.normCode($('o-code').value);
+    var mdp = $('o-mdp').value, mdp2 = $('o-mdp2').value;
+    if (mdp.length < 8) return message(m, 'Le mot de passe compte au moins 8 caractères.', true);
+    if (mdp !== mdp2) return message(m, 'La confirmation ne correspond pas au mot de passe.', true);
+    var liste = T.lireComptes();
+    var c = liste.find(function(x){ return T.normIdentifiant(x.identifiant) === ident; });
+    T.verifierMdp(code, (c && c.secours) ? c.secours : T.SECRET_LEURRE).then(function(ok){
+      if (!c || !c.secours || !ok) { rate(); return message(m, 'Identifiant ou code de secours incorrect.', true); }
+      var nouveauCode = T.codeSecours();
+      return Promise.all([T.protegerMdp(mdp), T.protegerMdp(T.normCode(nouveauCode))]).then(function(r){
+        echecs = 0; c.mdp = r[0]; c.secours = r[1]; c.changerMdp = false;
+        var i = liste.findIndex(function(x){ return x.id === c.id; }); liste[i] = c; T.ecrireComptes(liste);
+        T.poserSession(c.id, true);
+        $('codeAffiche').textContent = nouveauCode; montrer('zoneCode');
+      });
+    }).catch(function(){ message(m, 'Chiffrement indisponible dans ce navigateur.', true); });
+  });
+
+  /* Déjà connecté·e ? On file directement, sauf mot de passe provisoire à changer. */
+  (function(){
+    var s = T.session(); if (!s) return;
+    var c = T.compteParId(s.id); if (!c) return;
+    var acc = T.etatAcces(c);
+    if (!acc.ok) { $('texteTampon').textContent = acc.tampon; $('motifTampon').textContent = acc.motif; montrer('zoneTampon'); return; }
+    if (c.changerMdp) { $('bonjour').textContent = 'Bonjour ' + (c.prenom || c.identifiant) + '. Choisissez votre propre mot de passe.'; montrer('fNouveau'); return; }
+    if (!new URLSearchParams(location.search).get('retour')) return; // arrivée directe sur la page : on laisse voir l'écran
+    location.href = retour();
+  })();
+})();
+</script>
+</body>
+</html>

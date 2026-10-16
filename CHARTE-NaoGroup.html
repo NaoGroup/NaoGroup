@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — la charte</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236F55D0'/><stop offset='1' stop-color='%23C39BF3'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+/* ============================================================
+   La charte de NaoGroup.
+   Fond : celui de l'écran de connexion NaoFi — c'est le fond
+   principal de la maison, pas une variante.
+   ============================================================ */
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.65;
+  background:radial-gradient(1200px 820px at 50% 34%, #7564C2 0%, #43358A 42%, #1C1636 100%);
+  background-attachment:fixed;padding:26px 24px 70px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 34%, #000 0 30%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 34%, #000 0 30%, transparent 72%);
+  animation:grille 1.8s ease both}
+@keyframes grille{from{opacity:0;transform:scale(1.14)}to{opacity:1;transform:none}}
+.halos{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.halos i{position:absolute;border-radius:50%;filter:blur(60px);animation:flotte 14s ease-in-out infinite alternate}
+.halos i:nth-child(1){width:440px;height:440px;background:#B9A8F0;left:8%;top:10%;opacity:.5}
+.halos i:nth-child(2){width:380px;height:380px;background:#60ccc1;right:7%;bottom:8%;opacity:.3;animation-duration:17s}
+.halos i:nth-child(3){width:320px;height:320px;background:#ed7483;right:28%;top:-8%;opacity:.26;animation-duration:21s}
+@keyframes flotte{from{transform:translate(0,0) scale(1)}to{transform:translate(46px,-34px) scale(1.18)}}
+@keyframes monte{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.wrap{position:relative;z-index:1;max-width:1020px;margin:0 auto}
+a.back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--ui);font-style:normal;
+  font-size:13px;font-weight:600;color:var(--ink-2);background:var(--verre);border:1px solid var(--bord);
+  padding:9px 16px;border-radius:999px;margin-bottom:24px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:.25s;animation:monte .6s ease both}
+a.back:hover{background:var(--verre-2);color:#fff;transform:translateX(-3px)}
+h1{font-size:34px;margin:0 0 6px;letter-spacing:-.025em;color:#fff;animation:monte .7s ease both}
+h1 span{color:var(--lilas)}
+.lead{font-size:16.5px;color:var(--ink-2);margin:0 0 6px;max-width:72ch;animation:monte .7s .08s ease both}
+h2{font-size:24px;margin:40px 0 14px;letter-spacing:-.015em;color:#fff}
+.card{background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:24px;margin-bottom:16px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .7s ease both}
+.sign{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.sign .mark{flex:none;display:flex;flex-direction:column;align-items:center;gap:10px}
+.sign svg.big{width:112px;height:112px;border-radius:34px;box-shadow:0 18px 40px -16px rgba(0,0,0,.8)}
+.sign .sizes{display:flex;gap:9px;align-items:flex-end;background:rgba(0,0,0,.22);padding:9px 12px;border-radius:13px}
+.sign .sizes svg{border-radius:22%}
+.sign .txt{flex:1;min-width:290px}
+.sign h3{margin:0 0 2px;font-size:24px;color:#fff}
+.sign h3 span{color:var(--lilas)}
+.sign .role{font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
+.sign p{margin:0 0 12px;font-size:15px;color:var(--ink-2)}
+.sign .why{background:rgba(0,0,0,.24);border-left:3px solid var(--lilas);border-radius:0 14px 14px 0;
+  padding:13px 16px;font-size:14.5px;color:var(--ink-2)}
+.sign .why b{color:var(--lilas)}
+.grille-signes{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:16px}
+.grille-signes .card{margin-bottom:0}
+.sign.compact{gap:18px}
+.sign.compact svg.big{width:92px;height:92px;border-radius:28px}
+.sign.compact .txt{min-width:220px}
+.sign.compact h3{font-size:21px}
+.sign.compact p,.sign.compact .why{font-size:13.5px}
+@media (max-width:520px){.grille-signes{grid-template-columns:1fr}}
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sw{border-radius:16px;padding:13px;border:1px solid var(--bord);background:rgba(0,0,0,.2)}
+.sw i{display:block;height:42px;border-radius:11px;margin-bottom:9px}
+.sw b{font-family:var(--ui);font-style:normal;font-size:12px;display:block;color:#fff}
+.sw code{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink-3)}
+.rule{display:flex;gap:13px;align-items:flex-start;margin-bottom:13px}
+.rule:last-child{margin-bottom:0}
+.rule .no{flex:none;width:27px;height:27px;border-radius:10px;background:linear-gradient(135deg,#8E7BD4,#C39BF3);
+  color:#1C1636;display:grid;place-items:center;font-family:var(--ui);font-style:normal;font-weight:800;font-size:13px}
+.rule div{font-size:15px;color:var(--ink-2)}
+code.k{font-family:var(--mono);font-style:normal;font-size:12.5px;background:rgba(0,0,0,.3);color:var(--lilas);
+  padding:2px 8px;border-radius:7px}
+.fondbox{border-radius:18px;overflow:hidden;border:1px solid var(--bord);height:170px;position:relative;
+  background:radial-gradient(1200px 820px at 50% 42%, #7564C2 0%, #43358A 42%, #1C1636 100%)}
+</style>
+</head>
+<body>
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<script src="naogroup-logos.js"></script>
+
+<div class="wrap">
+  <a class="back" href="NaoGroup.html">← NaoGroup</a>
+  <h1>Nao<span>Group</span> — la charte</h1>
+  <p class="lead"><span id="nbLogos">Un logo par outil</span>, une seule idée : un jeton carré-arrondi en dégradé lilas, et à l'intérieur un
+    <b>N</b> blanc tracé d'un seul geste. Ce qui change d'un outil à l'autre, c'est <b>l'accent qui accompagne
+    le N</b> : une flèche, une ligne, un toit, une étoile, un tilde. On reconnaît la famille avant même de lire le nom.</p>
+
+  <h2>Le signe de la maison</h2>
+
+  <div class="card"><div class="sign">
+    <div class="mark">
+      <svg class="big" viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+      <div class="sizes">
+        <svg viewBox="0 0 40 40" width="40" height="40"><use href="#l-gr"/></svg>
+        <svg viewBox="0 0 40 40" width="24" height="24"><use href="#l-gr"/></svg>
+        <svg viewBox="0 0 40 40" width="16" height="16"><use href="#l-gr"/></svg>
+      </div>
+    </div>
+    <div class="txt">
+      <h3>Nao<span>Group</span></h3>
+      <div class="role">La maison — le point d'entrée</div>
+      <p>Le N de la famille, et sous lui <b>une constellation de points</b> — une petite ligne de
+        pastilles blanches, en arc doux.</p>
+      <div class="why"><b>Signification :</b> chaque point est un outil de la maison. Ce n'est plus le
+        détail de chaque accent qui s'empile sur le jeton — c'est <b>le principe même</b> : plusieurs
+        outils, réunis autour d'un même N. La maison peut accueillir un cinquième outil ou un trentième
+        sans jamais redessiner son logo : le nombre de points reste symbolique, pas littéral.</div>
+    </div>
+  </div></div>
+
+  <h2>Les signes des outils</h2>
+  <p class="lead" style="margin-bottom:18px">Chaque outil garde le jeton et le N ; il n'invente qu'<b>un seul accent</b>. Ils sont tous montrés ici à trois tailles,
+    jusqu'à 16 px, la taille d'un favicon. Cette page s'écrit toute seule à partir de <code class="k">naogroup-logos.js</code> :
+    un nouvel outil y ajoute sa ligne, et son logo apparaît ici, avec sa couleur dans la palette.</p>
+
+  <div class="grille-signes" id="signesOutils"></div>
+
+  <h2>Le fond</h2>
+  <div class="card">
+    <p style="margin:0 0 14px;font-size:15px;color:var(--ink-2)">Celui de l'écran de connexion de NaoFi.
+      C'est <b>le fond principal de la maison</b> : un grand dégradé radial violet, une <b>trame de points</b>
+      masquée sur les bords, et <b>trois halos flous</b> qui dérivent lentement — lilas, turquoise, rose.
+      Le site NaoGroup et cette charte le portent en entier ; les outils en reprennent la composition
+      dans leurs propres teintes, claires ou sombres.</p>
+    <div class="fondbox">
+      <div style="position:absolute;inset:0;background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);
+        background-size:26px 26px;-webkit-mask-image:radial-gradient(circle at 50% 45%, #000 0 32%, transparent 76%);
+        mask-image:radial-gradient(circle at 50% 45%, #000 0 32%, transparent 76%)"></div>
+      <i style="position:absolute;width:240px;height:240px;border-radius:50%;background:#B9A8F0;filter:blur(60px);opacity:.5;left:6%;top:-45%"></i>
+      <i style="position:absolute;width:210px;height:210px;border-radius:50%;background:#60ccc1;filter:blur(60px);opacity:.3;right:8%;bottom:-45%"></i>
+      <i style="position:absolute;width:180px;height:180px;border-radius:50%;background:#ed7483;filter:blur(60px);opacity:.26;right:32%;top:-35%"></i>
+    </div>
+    <p style="margin:14px 0 0;font-size:14.5px;color:var(--ink-3)">
+      <code class="k">radial-gradient(1200px 820px at 50% 42%, #7564C2, #43358A 42%, #1C1636)</code> ·
+      trame <code class="k">26 px</code> · halos <code class="k">#B9A8F0 · #60ccc1 · #ed7483</code>, flou 60 px.
+      <b>Jamais de noir</b> : le sombre de la maison est un violet profond.</p>
+  </div>
+
+  <h2>La palette</h2>
+  <div class="card">
+    <div class="swatches">
+      <div class="sw"><i style="background:linear-gradient(135deg,#6F55D0,#C39BF3)"></i><b>Jeton NaoGroup</b><code>#6F55D0 → #C39BF3</code></div>
+      <div id="paletteOutils" style="display:contents"></div>
+      <div class="sw"><i style="background:#7257CF"></i><b>Accent</b><code>#7257CF</code></div>
+      <div class="sw"><i style="background:#2F8F63"></i><b>Payé</b><code>#2F8F63</code></div>
+      <div class="sw"><i style="background:#C24B63"></i><b>Rejeté</b><code>#C24B63</code></div>
+    </div>
+    <p style="margin:16px 0 0;font-size:15px;color:var(--ink-2)">
+      Le <b>vert</b> et le <b>rouge</b> ne servent qu'à dire l'état d'une dépense : payée, ou rejetée.
+      Jamais à décorer un titre ou un bloc — sinon la couleur ne veut plus rien dire. Tout le reste
+      vit dans le lilas : indigo pour les revenus, violet pour les dépenses fixes, mauve pour les variables.
+    </p>
+  </div>
+
+  <h2>Pour le prochain outil</h2>
+  <div class="card">
+    <div class="rule"><div class="no">1</div><div>Reprendre le <b>jeton</b> : carré de 40, coins arrondis à 13, dégradé lilas en diagonale.</div></div>
+    <div class="rule"><div class="no">2</div><div>Reprendre le <b>N</b> : un seul tracé <code class="k">stroke-width 4.2</code>, bouts et angles arrondis, blanc plein.</div></div>
+    <div class="rule"><div class="no">3</div><div>Inventer <b>un seul accent</b> en blanc à 50 % qui dit le métier de l'outil — et rien d'autre. Une flèche, un axe, un anneau : un geste, pas une illustration.</div></div>
+    <div class="rule"><div class="no">4</div><div>Ne pas toucher au logo <b>NaoGroup</b> : sa constellation de points symbolise déjà « plusieurs outils réunis », sans qu'il faille y ajouter chaque nouvel accent un par un.</div></div>
+    <div class="rule"><div class="no">5</div><div>Vérifier qu'il reste lisible à <b>16 px</b> (la taille d'un favicon). Si l'accent devient une bouillie, il est trop détaillé.</div></div>
+    <div class="rule"><div class="no">6</div><div>Copier le bloc <code class="k">:root</code> de NaoBudget : c'est la charte complète, thème sombre compris.</div></div>
+    <div class="rule"><div class="no">7</div><div>Ajouter le jeton dans <code class="k">naogroup-logos.js</code> (il apparaît alors ici) et l'outil dans le catalogue de <code class="k">naogroup-cloud.js</code> (il rejoint les profils et les accès).</div></div>
+  </div>
+</div>
+
+<script>
+/* Les cartes et la palette viennent du registre de naogroup-logos.js : rien à recopier ici. */
+(function () {
+  var O = (window.NaoLogos && NaoLogos.outils) || [];
+  var trois = function (s) { return [40, 24, 16].map(function (t) { return '<svg viewBox="0 0 40 40" width="' + t + '" height="' + t + '"><use href="#' + s + '"/></svg>'; }).join(''); };
+  document.getElementById('signesOutils').innerHTML = O.map(function (o) {
+    return '<div class="card"><div class="sign compact"><div class="mark"><svg class="big" viewBox="0 0 40 40" role="img" aria-label="' + o.nom + '"><use href="#' + o.id + '"/></svg>' +
+      '<div class="sizes">' + trois(o.id) + '</div></div><div class="txt"><h3>Nao<span>' + o.nom.slice(3) + '</span></h3><div class="role">' + o.role + '</div>' +
+      '<p>' + o.accent + '</p><div class="why"><b>Signification :</b> ' + o.sens + '</div></div></div></div>';
+  }).join('');
+  document.getElementById('paletteOutils').innerHTML = O.map(function (o) {
+    var fond = o.m ? o.de + ',' + o.m + ',' + o.a : o.de + ',' + o.a, code = o.m ? o.de + ' → ' + o.m + ' → ' + o.a : o.de + ' → ' + o.a;
+    return '<div class="sw"><i style="background:linear-gradient(135deg,' + fond + ')"></i><b>Jeton ' + o.nom + '</b><code>' + code + '</code></div>';
+  }).join('');
+  var n = O.length + 1;
+  document.getElementById('nbLogos').textContent = n + ' logos';
+})();
+</script>
+</body>
+</html>

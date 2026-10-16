@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — contact</title>
+<meta name="description" content="Écrivez à NaoGroup, ou souscrivez à une formule.">
+<script src="naogroup-cloud.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236F55D0'/><stop offset='1' stop-color='%23C39BF3'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5; --rose:#E58BA0; --vert:#6FCB9C;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.65;
+  background:radial-gradient(1200px 820px at 50% 34%, #7564C2 0%, #43358A 42%, #1C1636 100%);
+  background-attachment:fixed;padding:26px 24px 70px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 34%, #000 0 30%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 34%, #000 0 30%, transparent 72%);animation:grille 1.8s ease both}
+@keyframes grille{from{opacity:0;transform:scale(1.14)}to{opacity:1;transform:none}}
+.halos{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.halos i{position:absolute;border-radius:50%;filter:blur(60px);animation:flotte 14s ease-in-out infinite alternate}
+.halos i:nth-child(1){width:440px;height:440px;background:#B9A8F0;left:8%;top:10%;opacity:.5}
+.halos i:nth-child(2){width:380px;height:380px;background:#60ccc1;right:7%;bottom:8%;opacity:.3;animation-duration:17s}
+.halos i:nth-child(3){width:320px;height:320px;background:#ed7483;right:28%;top:-8%;opacity:.26;animation-duration:21s}
+@keyframes flotte{from{transform:translate(0,0) scale(1)}to{transform:translate(46px,-34px) scale(1.18)}}
+@keyframes monte{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+
+.wrap{position:relative;z-index:1;max-width:780px;margin:0 auto}
+a.back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--ui);font-style:normal;
+  font-size:13px;font-weight:600;color:var(--ink-2);background:var(--verre);border:1px solid var(--bord);
+  padding:9px 16px;border-radius:999px;margin-bottom:24px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:.25s;animation:monte .6s ease both}
+a.back:hover{background:var(--verre-2);color:#fff;transform:translateX(-3px)}
+.jeton{width:74px;height:74px;border-radius:23px;box-shadow:0 18px 40px -16px rgba(0,0,0,.8);animation:monte .8s ease both;margin-bottom:16px}
+h1{font-size:38px;margin:0 0 8px;letter-spacing:-.025em;color:#fff;animation:monte .7s ease both}
+h1 span{color:var(--lilas)}
+.lead{font-size:17px;color:var(--ink-2);margin:0 0 34px;max-width:60ch;animation:monte .7s .08s ease both}
+.card{background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:28px 30px;margin-bottom:20px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .7s ease both}
+h2{font-size:20px;margin:0 0 16px;letter-spacing:-.01em;color:#fff}
+label{display:block;font-family:var(--ui);font-style:normal;font-size:12px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 7px}
+label .fac{font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-3)}
+.champ{margin-bottom:18px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:560px){.duo{grid-template-columns:1fr}}
+input[type=text],input[type=email],input[type=tel],select,textarea{width:100%;font-family:var(--ui);font-style:normal;font-size:14.5px;color:#fff;
+  background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:14px;padding:12px 15px;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--bord-2);background:rgba(0,0,0,.3)}
+select option{background:#3A2E7A;color:#fff}
+textarea{min-height:130px;resize:vertical}
+::placeholder{color:var(--ink-3);font-style:italic}
+.piege{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* ---- les formules ---- */
+.formules{display:grid;gap:12px;margin-bottom:18px}
+.formule{display:flex;gap:14px;align-items:flex-start;background:rgba(0,0,0,.2);border:1px solid var(--bord);border-radius:18px;padding:14px 16px;
+  cursor:pointer;transition:.2s;text-transform:none;letter-spacing:0;margin:0}
+.formule:hover{border-color:var(--bord-2)}
+.formule.oui{background:rgba(139,116,212,.24);border-color:var(--lilas)}
+.formule input{margin-top:5px;width:18px;height:18px;accent-color:#8E7BD4;flex:none}
+.formule .haut{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.formule b{font-family:var(--sans);font-style:italic;font-size:17px;color:#fff;font-weight:700}
+.formule .prix{font-family:var(--ui);font-style:normal;font-size:13px;color:var(--lilas);font-weight:700}
+.formule .outils{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.formule .outils svg{width:26px;height:26px;border-radius:8px}
+.formule small{display:block;font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:6px;font-weight:400}
+.periodes{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.periodes label{display:inline-flex;align-items:center;gap:8px;cursor:pointer;margin:0;text-transform:none;letter-spacing:0;font-size:13.5px;
+  color:var(--ink-2);background:rgba(0,0,0,.2);border:1px solid var(--bord);border-radius:999px;padding:9px 16px}
+.periodes input{accent-color:#8E7BD4}
+.accord{display:flex;gap:10px;align-items:flex-start;font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-2);text-transform:none;
+  letter-spacing:0;font-weight:400;margin:0 0 18px;cursor:pointer}
+.accord input{margin-top:3px;accent-color:#8E7BD4}
+
+button.envoi{font-family:var(--ui);font-style:normal;font-size:14px;font-weight:600;color:#1C1636;border:none;
+  background:linear-gradient(135deg,#C9B7F5,#EBDFFD);padding:13px 24px;border-radius:999px;cursor:pointer;transition:.25s;display:inline-flex;align-items:center;gap:8px}
+button.envoi:hover{filter:brightness(1.06);transform:translateY(-2px)}
+button.envoi:disabled{opacity:.6;cursor:wait;transform:none}
+.note{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-3);margin-top:12px}
+.note a{color:var(--lilas)}
+.msg{margin-top:14px;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--rose);display:none}
+.msg.visible{display:block}
+.succes{text-align:center;padding:14px 4px}
+.succes .rond{width:64px;height:64px;border-radius:50%;background:rgba(47,143,99,.22);border:2px solid var(--vert);color:var(--vert);
+  display:grid;place-items:center;font-size:30px;font-style:normal;margin:0 auto 14px}
+.succes h2{margin-bottom:8px}
+.succes p{color:var(--ink-2);font-size:15px;margin:0 0 10px}
+
+.reseaux{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.reseau{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;background:var(--verre);
+  border:1px solid var(--bord);border-radius:18px;padding:16px 18px;transition:.25s;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.reseau:hover{background:var(--verre-2);transform:translateY(-4px);border-color:var(--bord-2)}
+.reseau .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;
+  background:linear-gradient(135deg,#8E7BD4,#C39BF3);color:#fff;font-family:var(--ui);font-style:normal;font-weight:700;font-size:14px}
+.reseau b{display:block;font-size:15px;color:#fff}
+.reseau span{font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<script src="naogroup-logos.js"></script>
+
+<div class="wrap">
+  <a class="back" href="NaoGroup.html">← NaoGroup</a>
+  <svg class="jeton" viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+  <h1>Nous <span>contacter</span></h1>
+  <p class="lead">Une question, une envie de rejoindre NaoGroup, un outil à ouvrir ? Écrivez-nous depuis cette page :
+    votre demande nous arrive directement, et nous vous répondons par e-mail.</p>
+
+  <div class="card" id="carteForm">
+    <h2>Votre demande</h2>
+    <form id="formContact" novalidate>
+      <div class="duo">
+        <div class="champ"><label for="nom">Votre nom</label><input type="text" id="nom" placeholder="Prénom et nom" autocomplete="name" required></div>
+        <div class="champ"><label for="email">Votre e-mail</label><input type="email" id="email" placeholder="vous@exemple.fr" autocomplete="email" required></div>
+      </div>
+      <div class="duo">
+        <div class="champ"><label for="tel">Téléphone <span class="fac">(facultatif)</span></label><input type="tel" id="tel" autocomplete="tel"></div>
+        <div class="champ"><label for="entreprise">Entreprise <span class="fac">(facultatif)</span></label><input type="text" id="entreprise" autocomplete="organization"></div>
+      </div>
+
+      <div class="champ">
+        <label for="type">Sujet</label>
+        <select id="type">
+          <option value="question">J'ai une question</option>
+          <option value="souscription">Souscrire à une formule</option>
+          <option value="acces">Ouvrir un outil supplémentaire</option>
+          <option value="mdp">Mot de passe oublié</option>
+          <option value="autre">Autre demande</option>
+        </select>
+      </div>
+
+      <div id="blocSouscription" hidden>
+        <label>Formule(s) souhaitée(s)</label>
+        <div class="formules" id="formules"><div class="note">Chargement des formules…</div></div>
+        <label>Facturation</label>
+        <div class="periodes">
+          <label><input type="radio" name="periode" value="mensuel" checked> Mensuelle</label>
+          <label><input type="radio" name="periode" value="annuel"> Annuelle</label>
+        </div>
+        <p class="note" style="margin:-6px 0 18px">Prix toutes taxes comprises. Après validation de votre demande, vous recevez votre identifiant et un mot de passe provisoire :
+          tous vos outils sont ouverts à la date convenue, et vierges.</p>
+      </div>
+
+      <div class="champ" id="blocIdent" hidden>
+        <label for="ident">Votre identifiant <span class="fac">(si vous en avez un)</span></label>
+        <input type="text" id="ident" placeholder="nom_p" autocomplete="username" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <div class="champ">
+        <label for="message">Message <span class="fac" id="facMessage"></span></label>
+        <textarea id="message" placeholder="Votre message…"></textarea>
+      </div>
+
+      <div class="piege" aria-hidden="true"><label for="site">Ne pas remplir</label><input type="text" id="site" tabindex="-1" autocomplete="off"></div>
+
+      <label class="accord"><input type="checkbox" id="accord"> <span>J'accepte que NaoGroup utilise ces informations pour me répondre. Elles ne sont ni revendues ni partagées.</span></label>
+
+      <button type="submit" class="envoi" id="btnEnvoi">Envoyer ma demande →</button>
+      <div class="msg" id="msg" role="alert"></div>
+      <p class="note" id="noteEnvoi">Votre demande est envoyée directement à NaoGroup. Vous préférez votre messagerie ?
+        <a href="#" id="lienMailto">Écrire depuis mon e-mail</a> (<b style="color:#fff">support.naogroup@gmail.com</b>).</p>
+    </form>
+  </div>
+
+  <div class="card succes" id="carteSucces" hidden>
+    <div class="rond">✓</div>
+    <h2>Demande envoyée</h2>
+    <p id="texteSucces">Merci ! NaoGroup vous répond par e-mail, à l'adresse indiquée.</p>
+    <p><a class="back" href="NaoGroup.html" style="margin:8px 0 0">← Retour à NaoGroup</a></p>
+  </div>
+
+  <h2>Ailleurs</h2>
+  <div class="reseaux">
+    <a class="reseau" href="mailto:support.naogroup@gmail.com"><div class="ic">@</div><div><b>E-mail</b><span>support.naogroup@gmail.com</span></div></a>
+    <a class="reseau" href="https://www.instagram.com/NaoGroup" target="_blank" rel="noopener"><div class="ic">IG</div><div><b>Instagram</b><span>@NaoGroup</span></div></a>
+    <a class="reseau" href="https://www.linkedin.com/company/NaoGroup" target="_blank" rel="noopener"><div class="ic">in</div><div><b>LinkedIn</b><span>NaoGroup</span></div></a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var FORMULES = [];
+  var LIBELLES = { question:"J'ai une question", souscription:'Souscription', acces:'Ouverture d’un outil', mdp:'Mot de passe oublié', autre:'Autre demande' };
+
+  /* ---- ce qu'on nous a demandé d'ouvrir : ?type=souscription, ou ?objet=Accès NaoBudget ---- */
+  var p = new URLSearchParams(location.search), type = p.get('type'), objet = p.get('objet') || '';
+  if (!type) type = /mot de passe/i.test(objet) ? 'mdp' : /^acc[eè]s /i.test(objet) ? 'acces' : objet ? 'autre' : 'question';
+  if (!LIBELLES[type]) type = 'question';
+  $('type').value = type;
+  if (type === 'acces') $('message').value = 'Bonjour, je souhaite l’ouverture de ' + objet.replace(/^acc[eè]s\s+/i, '') + ' dans mon abonnement.';
+  else if (type === 'autre' && objet) $('message').value = objet + '\n\n';
+
+  /* ---- le formulaire s'adapte au sujet ---- */
+  function adapter(){
+    var t = $('type').value;
+    $('blocSouscription').hidden = t !== 'souscription';
+    $('blocIdent').hidden = !(t === 'acces' || t === 'mdp');
+    $('facMessage').textContent = t === 'souscription' ? '(facultatif)' : '';
+    $('message').placeholder = t === 'souscription' ? 'Une précision, une question sur les formules… (facultatif)' : 'Votre message…';
+  }
+  $('type').addEventListener('change', adapter); adapter();
+
+  /* ---- les formules : cartes à cocher, avec les outils de chacune ---- */
+  function jetons(f){
+    return (f.outils || []).map(function(id){
+      var o = Nao.outilParId(id); if (!o) return '';
+      return '<svg viewBox="0 0 40 40" role="img" aria-label="' + Nao.esc(o.nom) + '"><title>' + Nao.esc(o.nom) + '</title><use href="#' + o.symbole + '"/></svg>';
+    }).join('');
+  }
+  function noms(f){ return (f.outils || []).map(function(id){ var o = Nao.outilParId(id); return o ? o.nom : ''; }).filter(Boolean).join(', '); }
+  Nao.formulesPubliques().then(function(liste){
+    FORMULES = liste;
+    $('formules').innerHTML = liste.map(function(f){
+      var prix = Number(f.prix) ? String(f.prix).replace('.', ',') + ' € / mois' : 'Gratuit';
+      return '<label class="formule"><input type="checkbox" value="' + Nao.esc(f.id) + '">' +
+        '<div><div class="haut"><b>' + Nao.esc(f.nom) + '</b><span class="prix">' + prix + '</span></div>' +
+        '<div class="outils">' + jetons(f) + '</div><small>' + Nao.esc(noms(f)) + '</small></div></label>';
+    }).join('');
+    if (p.get('formule')) {
+      var c = $('formules').querySelector('input[value="' + p.get('formule') + '"]'); if (c) { c.checked = true; c.closest('.formule').classList.add('oui'); }
+    }
+  });
+  $('formules').addEventListener('change', function(e){ if (e.target.type === 'checkbox') e.target.closest('.formule').classList.toggle('oui', e.target.checked); });
+
+  /* ---- Nom et identifiant déjà connus si la personne est connectée ---- */
+  if (Nao.configure) Nao.profil().then(function(pr){
+    if (!pr) return;
+    if (!$('nom').value) $('nom').value = [pr.prenom, pr.nom].filter(Boolean).join(' ');
+    if (!$('ident').value) $('ident').value = pr.identifiant;
+    if (!$('entreprise').value && pr.entreprise) $('entreprise').value = pr.entreprise;
+  }).catch(function(){});
+
+  function erreur(t){ var m = $('msg'); m.textContent = t; m.classList.add('visible'); }
+  function choisies(){
+    return Array.prototype.map.call($('formules').querySelectorAll('input:checked'), function(i){
+      var f = FORMULES.filter(function(x){ return x.id === i.value; })[0] || {};
+      return { id: i.value, nom: f.nom || i.value, prix: f.prix || 0 };
+    });
+  }
+  function collecter(){
+    var t = $('type').value, ident = $('ident').value.trim(), corps = $('message').value.trim();
+    if (ident && !$('blocIdent').hidden) corps = 'Identifiant : ' + ident + (corps ? '\n\n' + corps : '');
+    return {
+      nom: $('nom').value.trim(), email: $('email').value.trim(), telephone: $('tel').value.trim(), entreprise: $('entreprise').value.trim(),
+      type: t, sujet: LIBELLES[t], formules: t === 'souscription' ? choisies() : [],
+      periode: t === 'souscription' ? (document.querySelector('input[name=periode]:checked') || {}).value || 'mensuel' : '', message: corps
+    };
+  }
+  function verifier(d){
+    if (!d.nom) return 'Indiquez votre nom.';
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) return 'Indiquez une adresse e-mail valide, pour que nous puissions vous répondre.';
+    if (d.type === 'souscription' && !d.formules.length) return 'Choisissez au moins une formule.';
+    if (d.type !== 'souscription' && d.message.length < 3) return 'Écrivez votre message.';
+    if (!$('accord').checked) return 'Cochez la case d’accord pour envoyer votre demande.';
+    return '';
+  }
+  function texteMail(d){
+    var l = [];
+    if (d.formules.length) l.push('Souscription — ' + d.formules.map(function(f){ return f.nom + (f.prix ? ' (' + f.prix + ' €/mois)' : ''); }).join(', ') + ' — facturation ' + d.periode + '.');
+    if (d.message) l.push(d.message);
+    l.push('\n' + d.nom + (d.entreprise ? ' — ' + d.entreprise : '') + '\n' + d.email + (d.telephone ? '\n' + d.telephone : ''));
+    return l.join('\n\n');
+  }
+  function ouvrirMessagerie(d){
+    location.href = 'mailto:support.naogroup@gmail.com?subject=' + encodeURIComponent(d.sujet) + '&body=' + encodeURIComponent(texteMail(d));
+  }
+  function succes(t){ $('carteForm').hidden = true; $('texteSucces').textContent = t || $('texteSucces').textContent; $('carteSucces').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+  $('lienMailto').addEventListener('click', function(e){
+    e.preventDefault(); var d = collecter();
+    if (!d.nom) return erreur('Indiquez au moins votre nom avant d’ouvrir votre messagerie.');
+    ouvrirMessagerie(d);
+  });
+
+  $('formContact').addEventListener('submit', function(e){
+    e.preventDefault(); $('msg').classList.remove('visible');
+    var d = collecter(), pb = verifier(d);
+    if (pb) return erreur(pb);
+    if ($('site').value) return succes();                     /* un robot a rempli le champ caché : on fait comme si */
+    if (!Nao.configure) return ouvrirMessagerie(d);            /* pas encore branché sur le serveur : on passe par la messagerie */
+    var derniere = 0; try { derniere = parseInt(sessionStorage.getItem('ng:derniere-demande') || '0', 10); } catch (x) {}
+    if (Date.now() - derniere < 30000) return erreur('Votre demande vient d’être envoyée. Patientez quelques secondes avant d’en envoyer une autre.');
+    var b = $('btnEnvoi'); b.disabled = true; b.textContent = 'Envoi…';
+    Nao.envoyerDemande(d).then(function(r){
+      b.disabled = false; b.textContent = 'Envoyer ma demande →';
+      if (r.ok) {
+        try { sessionStorage.setItem('ng:derniere-demande', String(Date.now())); } catch (x) {}
+        succes(d.type === 'souscription' ? 'Merci ! Votre demande de souscription est bien arrivée. NaoGroup la valide et vous répond par e-mail, à ' + d.email + ', avec votre identifiant.' : 'Merci ! NaoGroup vous répond par e-mail, à ' + d.email + '.');
+      } else {
+        erreur('L’envoi n’a pas abouti. Vous pouvez écrire depuis votre messagerie (lien ci-dessous) ou réessayer dans un instant.');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

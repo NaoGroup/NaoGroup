@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — Fiche testeur</title>
+<meta name="description" content="Fiche de retour détaillée pour les testeurs et testeuses de NaoGroup, outil par outil.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236F55D0'/><stop offset='1' stop-color='%23C39BF3'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5; --vert:#6FCB9C; --rose:#E58BA0; --ambre:#E3B872;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 12%, #7564C2 0%, #43358A 42%, #1C1636 100%);background-attachment:fixed;
+  padding:26px 18px 90px}
+[hidden]{display:none!important}
+.wrap{max-width:760px;margin:0 auto}
+.haut{text-align:center;margin-bottom:26px}
+.jeton{width:52px;height:52px;border-radius:17px;margin-bottom:14px;box-shadow:0 14px 30px -12px rgba(0,0,0,.7)}
+h1{margin:0 0 8px;font-size:27px;color:#fff;letter-spacing:-.02em}
+h1 span{color:var(--lilas)}
+.lead{font-size:14.5px;color:var(--ink-2);max-width:56ch;margin:0 auto}
+.bascule{display:flex;justify-content:center;gap:8px;margin:22px 0 8px}
+.bascule button{font-family:var(--ui);font-style:normal;font-size:13px;font-weight:600;color:var(--ink-2);
+  background:var(--verre);border:1px solid var(--bord);border-radius:999px;padding:9px 20px;cursor:pointer;transition:.2s}
+.bascule button.actif{background:linear-gradient(135deg,#C9B7F5,#EBDFFD);color:#1C1636;border-color:transparent}
+.panneau{background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:26px 24px;margin-top:18px;
+  backdrop-filter:blur(14px);box-shadow:var(--ombre)}
+.groupe{margin-bottom:22px}
+.groupe:last-child{margin-bottom:0}
+.groupe > label.titre{display:block;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--lilas);margin-bottom:10px}
+.aide{font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-3);margin:-6px 0 10px}
+input,textarea,select{width:100%;font-family:var(--ui);font-style:normal;font-size:14px;color:#fff;background:rgba(0,0,0,.22);
+  border:1px solid var(--bord);border-radius:13px;padding:11px 14px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--bord-2);background:rgba(0,0,0,.3)}
+::placeholder{color:var(--ink-3);font-style:italic}
+textarea{resize:vertical;min-height:56px}
+.grille2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grille2{grid-template-columns:1fr}}
+.tuiles{display:flex;gap:9px;flex-wrap:wrap}
+.tuile{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.2);border:1px solid var(--bord);border-radius:999px;
+  padding:9px 15px;cursor:pointer;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2)}
+.tuile.oui{background:rgba(139,116,212,.24);border-color:var(--lilas);color:#fff}
+.tuile input{width:auto}
+.bloc-outil{border:1px solid var(--bord);border-radius:16px;padding:16px 18px;margin-bottom:14px;background:rgba(0,0,0,.12)}
+.bloc-outil:last-child{margin-bottom:0}
+.bloc-outil h3{margin:0 0 12px;font-size:16px;color:#fff;font-family:var(--ui);font-style:normal;font-weight:700;
+  display:flex;align-items:center;gap:8px}
+.bloc-outil .champ{margin-bottom:10px}
+.bloc-outil .champ:last-child{margin-bottom:0}
+.bloc-outil label.mini{display:block;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.bloc-outil textarea{min-height:44px;font-size:13.5px}
+.notes{display:flex;gap:6px}
+.etoile{width:32px;height:32px;border-radius:9px;border:1px solid var(--bord);background:rgba(0,0,0,.2);color:var(--ink-3);
+  font-family:var(--ui);font-style:normal;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.etoile.on{background:linear-gradient(135deg,#C9B7F5,#EBDFFD);color:#1C1636;border-color:transparent}
+.oui-non{display:flex;gap:8px}
+.oui-non button{flex:1;font-family:var(--ui);font-style:normal;font-size:12.5px;font-weight:600;color:var(--ink-2);
+  background:rgba(0,0,0,.2);border:1px solid var(--bord);border-radius:11px;padding:8px;cursor:pointer}
+.oui-non button.actif{background:rgba(139,116,212,.28);border-color:var(--lilas);color:#fff}
+.prix{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.prix .champ{flex:1;min-width:120px}
+.bas{display:flex;justify-content:center;margin-top:26px}
+.btn{font-family:var(--ui);font-style:normal;font-size:14px;font-weight:700;color:#1C1636;
+  background:linear-gradient(135deg,#C9B7F5,#EBDFFD);border:none;border-radius:999px;padding:14px 30px;cursor:pointer;transition:.2s}
+.btn:hover{filter:brightness(1.05)}
+.retour{text-align:center;margin-top:12px}
+.retour a{color:var(--ink-3);font-family:var(--ui);font-style:normal;font-size:12.5px;text-decoration:none}
+.retour a:hover{color:var(--ink-2)}
+.merci{text-align:center;padding:50px 16px}
+.merci h2{color:#fff;font-size:23px;margin:0 0 10px}
+.merci p{color:var(--ink-2);max-width:52ch;margin:0 auto 22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="haut">
+    <svg class="jeton" viewBox="0 0 40 40" role="img" aria-label="NaoGroup">
+      <defs><linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient></defs>
+      <rect width="40" height="40" rx="13" fill="url(#ggr)"/><path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g>
+    </svg>
+    <h1>Fiche <span>testeur</span></h1>
+    <p class="lead">Un retour détaillé, outil par outil — c'est ce qui aide le plus à améliorer NaoGroup avant sa sortie.</p>
+  </div>
+
+  <div class="bascule">
+    <button type="button" class="actif" id="btnJour">Retour du jour</button>
+    <button type="button" id="btnSemaine">Retour de la semaine</button>
+  </div>
+
+  <form id="fiche">
+  <div class="panneau">
+    <div class="groupe">
+      <label class="titre" for="prenom">Votre prénom (ou pseudo)</label>
+      <input id="prenom" placeholder="Comment vous appeler dans le retour" required>
+    </div>
+    <div class="groupe" id="periodeJour">
+      <label class="titre" for="date">Date testée</label>
+      <input id="date" type="date">
+    </div>
+    <div class="groupe" id="periodeSemaine" hidden>
+      <label class="titre" for="semaine">Semaine testée</label>
+      <input id="semaine" placeholder="Ex. : semaine du 22 au 28 septembre">
+    </div>
+
+    <div class="groupe">
+      <label class="titre">Outils testés</label>
+      <div class="tuiles" id="tuilesOutils">
+        <label class="tuile"><input type="checkbox" value="NaoFi">NaoFi</label>
+        <label class="tuile"><input type="checkbox" value="NaoBudget">NaoBudget</label>
+        <label class="tuile"><input type="checkbox" value="NaoPlan">NaoPlan</label>
+        <label class="tuile"><input type="checkbox" value="NaoAgenda">NaoAgenda</label>
+        <label class="tuile"><input type="checkbox" value="NaoAstro">NaoAstro</label>
+        <label class="tuile"><input type="checkbox" value="NaoLang">NaoLang</label>
+        <label class="tuile"><input type="checkbox" value="NaoFactu">NaoFactu</label>
+        <label class="tuile"><input type="checkbox" value="NaoBaby">NaoBaby</label>
+        <label class="tuile"><input type="checkbox" value="NaoWedding">NaoWedding</label>
+        <label class="tuile"><input type="checkbox" value="NaoTrip">NaoTrip</label>
+        <label class="tuile"><input type="checkbox" value="NaoDoc">NaoDoc</label>
+        <label class="tuile"><input type="checkbox" value="NaoDaily">NaoDaily</label>
+        <label class="tuile"><input type="checkbox" value="NaoCV">NaoCV</label>
+        <label class="tuile"><input type="checkbox" value="NaoSanté">NaoSanté</label>
+        <label class="tuile"><input type="checkbox" value="NaoPet">NaoPet</label>
+        <label class="tuile"><input type="checkbox" value="NaoInvest">NaoInvest</label>
+        <label class="tuile"><input type="checkbox" value="NaoStudy">NaoStudy</label>
+        <label class="tuile"><input type="checkbox" value="NaoRoots">NaoRoots</label>
+      </div>
+    </div>
+
+    <div class="groupe">
+      <label class="titre">Appareil(s) utilisé(s)</label>
+      <div class="tuiles" id="tuilesAppareils">
+        <label class="tuile"><input type="checkbox" value="Ordinateur">Ordinateur</label>
+        <label class="tuile"><input type="checkbox" value="Tablette">Tablette</label>
+        <label class="tuile"><input type="checkbox" value="Téléphone">Téléphone</label>
+      </div>
+      <p class="aide" style="margin:10px 0 0">Sur tablette ou téléphone, dites-nous dans le commentaire de l'outil ce qui gênait : boutons trop petits, texte coupé, défilement pénible, installation sur l'écran d'accueil…</p>
+    </div>
+
+    <div class="groupe">
+      <label class="titre">Retour détaillé, outil par outil</label>
+      <p class="aide">Cette section n'apparaît que pour les outils cochés ci-dessus.</p>
+      <div id="detailOutils"></div>
+      <p class="aide" id="aucunOutil">Cochez au moins un outil ci-dessus pour détailler votre retour.</p>
+    </div>
+
+    <div class="groupe">
+      <label class="titre" for="idee">Une idée pour NaoGroup ?</label>
+      <p class="aide">Un outil qui manque, une fonction transversale, une envie — tout est bon à prendre.</p>
+      <textarea id="idee" placeholder="Ex. : un outil pour suivre..., relier NaoBudget et NaoFactu..."></textarea>
+    </div>
+
+    <div class="groupe">
+      <label class="titre">Combien seriez-vous prêt·e à payer pour l'ensemble de NaoGroup ?</label>
+      <div class="prix">
+        <div class="champ"><label class="mini" for="prixMontant">Montant (€)</label><input id="prixMontant" type="number" min="0" step="0.5" placeholder="Ex. : 9,90"></div>
+        <div class="champ"><label class="mini" for="prixPeriode">Formule</label>
+          <select id="prixPeriode">
+            <option value="mois">Par mois</option>
+            <option value="annee">Par année</option>
+            <option value="fois">En une fois</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="groupe">
+      <label class="titre" for="autre">Autre chose à ajouter</label>
+      <textarea id="autre" placeholder="Libre" style="min-height:52px"></textarea>
+    </div>
+  </div>
+
+  <div class="bas"><button type="submit" class="btn">Envoyer mon retour</button></div>
+  <div class="retour"><a href="NaoGroup.html">← Retour à NaoGroup</a></div>
+  </form>
+
+  <div class="merci" id="merci" hidden>
+    <h2>Votre retour est prêt — merci !</h2>
+    <p>Choisissez comment l'envoyer à NaoGroup : le message est déjà rédigé, il ne reste qu'à valider dans votre messagerie. Rien n'est envoyé avant.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px">
+      <a class="btn" id="envMailto" href="#" style="text-decoration:none">Ma messagerie</a>
+      <a class="btn" id="envGmail" href="#" target="_blank" rel="noopener" style="text-decoration:none">Gmail</a>
+      <button type="button" class="btn" id="envCopier">Copier le texte</button>
+    </div>
+    <p class="aide" style="margin:0 0 8px">Aucun des trois ne marche ? Copiez le texte ci-dessous et envoyez-le à support.naogroup@gmail.com.</p>
+    <textarea id="texteFinal" readonly rows="9" style="text-align:left;font-size:12.5px"></textarea>
+    <p style="margin-top:22px"><a class="btn" href="fiche-testeur.html" style="text-decoration:none;display:inline-block">Faire un nouveau retour</a></p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(s){ return document.querySelector(s); };
+var mode = 'jour';
+
+$('#btnJour').addEventListener('click', function(){ mode='jour'; $('#btnJour').classList.add('actif'); $('#btnSemaine').classList.remove('actif'); $('#periodeJour').hidden=false; $('#periodeSemaine').hidden=true; });
+$('#btnSemaine').addEventListener('click', function(){ mode='semaine'; $('#btnSemaine').classList.add('actif'); $('#btnJour').classList.remove('actif'); $('#periodeSemaine').hidden=false; $('#periodeJour').hidden=true; });
+var dEl = $('#date'); if (dEl) dEl.valueAsDate = new Date();
+
+function blocOutil(nom){
+  var etoiles = ''; for (var i=1;i<=5;i++) etoiles += '<button type="button" class="etoile" data-n="'+i+'" data-outil="'+nom+'">'+i+'</button>';
+  return '<div class="bloc-outil" data-bloc="'+nom+'"><h3>'+nom+'</h3>'+
+    '<div class="champ"><label class="mini">Note</label><div class="notes">'+etoiles+'</div></div>'+
+    '<div class="champ"><label class="mini" for="pf-'+nom+'">Point fort</label><textarea id="pf-'+nom+'" placeholder="Ce qui a bien fonctionné"></textarea></div>'+
+    '<div class="champ"><label class="mini" for="pa-'+nom+'">Point à améliorer</label><textarea id="pa-'+nom+'" placeholder="Ce qui a coincé ou manqué de clarté"></textarea></div>'+
+    '<div class="champ"><label class="mini" for="sm-'+nom+'">Suggestion / manque</label><textarea id="sm-'+nom+'" placeholder="Une fonction qui manque, une idée"></textarea></div>'+
+    '<div class="champ"><label class="mini" for="co-'+nom+'">Commentaire</label><textarea id="co-'+nom+'" placeholder="Libre"></textarea></div>'+
+    '<div class="champ"><label class="mini">Recommanderiez-vous cet outil ?</label><div class="oui-non" data-recommande="'+nom+'">'+
+    '<button type="button" data-v="oui">Oui</button><button type="button" data-v="peut-etre">Peut-être</button><button type="button" data-v="non">Non</button></div></div>'+
+    '</div>';
+}
+function majDetail(){
+  var coches = Array.prototype.map.call(document.querySelectorAll('#tuilesOutils input:checked'), function(i){ return i.value; });
+  var actuels = Array.prototype.map.call(document.querySelectorAll('#detailOutils [data-bloc]'), function(b){ return b.getAttribute('data-bloc'); });
+  coches.forEach(function(o){ if (actuels.indexOf(o) < 0) $('#detailOutils').insertAdjacentHTML('beforeend', blocOutil(o)); });
+  actuels.forEach(function(o){ if (coches.indexOf(o) < 0) { var b = document.querySelector('[data-bloc="'+o+'"]'); if (b) b.remove(); } });
+  $('#aucunOutil').hidden = coches.length > 0;
+}
+document.addEventListener('change', function(e){
+  if (e.target.closest('#tuilesOutils')) { e.target.closest('.tuile').classList.toggle('oui', e.target.checked); majDetail(); }
+  else if (e.target.closest('#tuilesAppareils')) e.target.closest('.tuile').classList.toggle('oui', e.target.checked);
+});
+document.addEventListener('click', function(e){
+  var et = e.target.closest('.etoile');
+  if (et) {
+    var n = +et.getAttribute('data-n'), outil = et.getAttribute('data-outil');
+    var bloc = document.querySelector('[data-bloc="'+outil+'"]');
+    Array.prototype.forEach.call(bloc.querySelectorAll('.etoile'), function(e2){ e2.classList.toggle('on', +e2.getAttribute('data-n') <= n); });
+    bloc.setAttribute('data-note', n);
+  }
+  var on = e.target.closest('[data-recommande] button');
+  if (on) { var grp = on.parentElement; Array.prototype.forEach.call(grp.children, function(b){ b.classList.remove('actif'); }); on.classList.add('actif'); }
+});
+
+$('#fiche').addEventListener('submit', function(e){
+  e.preventDefault();
+  var prenom = $('#prenom').value.trim() || 'Testeur';
+  var periode = mode === 'jour' ? ('le ' + (dEl.value || 'jour non précisé')) : ('sur ' + ($('#semaine').value.trim() || 'la semaine'));
+  var lignes = [];
+  lignes.push('Retour ' + (mode === 'jour' ? 'quotidien' : 'hebdomadaire') + ' de ' + prenom + ' — ' + periode);
+  var appareils = Array.prototype.map.call(document.querySelectorAll('#tuilesAppareils input:checked'), function(i){ return i.value; });
+  lignes.push('Appareil(s) : ' + (appareils.length ? appareils.join(', ') : 'non précisé'));
+  lignes.push('');
+  Array.prototype.forEach.call(document.querySelectorAll('#detailOutils [data-bloc]'), function(b){
+    var nom = b.getAttribute('data-bloc');
+    var note = b.getAttribute('data-note') || 'non notée';
+    var rec = b.querySelector('[data-recommande] .actif');
+    var v = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    lignes.push('=== ' + nom + ' ===');
+    lignes.push(note === 'non notée' ? 'Note : non notée' : 'Note : ' + note + '/5');
+    if (v('pf-'+nom)) lignes.push('Point fort : ' + v('pf-'+nom));
+    if (v('pa-'+nom)) lignes.push('Point à améliorer : ' + v('pa-'+nom));
+    if (v('sm-'+nom)) lignes.push('Suggestion / manque : ' + v('sm-'+nom));
+    if (v('co-'+nom)) lignes.push('Commentaire : ' + v('co-'+nom));
+    lignes.push('Recommande : ' + (rec ? rec.textContent : 'non précisé'));
+    lignes.push('');
+  });
+  var champ = function(id, titre){ var v = $('#'+id).value.trim(); if (v) lignes.push(titre + ' : ' + v); };
+  champ('idee', 'Idée pour NaoGroup');
+  var montant = $('#prixMontant').value.trim();
+  if (montant) {
+    var periodes = {mois:'par mois', annee:'par année', fois:'en une fois'};
+    lignes.push('Prêt·e à payer : ' + montant + ' € ' + periodes[$('#prixPeriode').value]);
+  }
+  champ('autre', 'Autre');
+  var texte = lignes.join('\n');
+  var sujet = 'Retour testeur NaoGroup — ' + prenom + ' (' + (mode === 'jour' ? 'jour' : 'semaine') + ')';
+  $('#texteFinal').value = texte;
+  $('#envMailto').href = 'mailto:support.naogroup@gmail.com?subject=' + encodeURIComponent(sujet) + '&body=' + encodeURIComponent(texte);
+  $('#envGmail').href = 'https://mail.google.com/mail/?view=cm&fs=1&to=support.naogroup@gmail.com&su=' + encodeURIComponent(sujet) + '&body=' + encodeURIComponent(texte);
+  $('#fiche').hidden = true; $('.bascule').hidden = true; $('#merci').hidden = false;
+  window.scrollTo(0, 0);
+});
+$('#envCopier').addEventListener('click', function(){
+  var t = $('#texteFinal'); t.select();
+  if (navigator.clipboard) navigator.clipboard.writeText(t.value).then(function(){ $('#envCopier').textContent = 'Copié ✓'; });
+  else { try { document.execCommand('copy'); $('#envCopier').textContent = 'Copié ✓'; } catch (e) {} }
+});
+})();
+</script>
+</body>
+</html>

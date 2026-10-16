@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — suivi des invitations (privé)</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236F55D0'/><stop offset='1' stop-color='%23C39BF3'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5;
+  --vert:#2F8F63; --rouge:#C24B63; --orange:#C4903F;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 22%, #7564C2 0%, #43358A 42%, #1C1636 100%);
+  background-attachment:fixed;padding:26px 24px 70px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 20%, #000 0 30%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 20%, #000 0 30%, transparent 72%)}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto}
+
+.tete{display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.jeton{width:44px;height:44px;border-radius:14px;box-shadow:0 10px 24px -10px rgba(0,0,0,.7)}
+h1{margin:0;font-size:26px;letter-spacing:-.02em;color:#fff}
+h1 span{color:var(--lilas)}
+.badge{font-family:var(--ui);font-style:normal;font-size:10px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--lilas);border:1px solid var(--bord);border-radius:999px;padding:4px 11px}
+.lead{font-size:15px;color:var(--ink-2);margin:10px 0 28px;max-width:70ch}
+.lead b{color:#fff}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:26px}
+.stat{background:var(--verre);border:1px solid var(--bord);border-radius:16px;padding:14px 16px}
+.stat b{display:block;font-size:24px;color:#fff;font-style:normal}
+.stat span{font-family:var(--ui);font-style:normal;font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+
+.panneau{background:var(--verre);border:1px solid var(--bord);border-radius:22px;padding:24px;margin-bottom:22px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre)}
+.panneau h2{margin:0 0 16px;font-size:18px;color:#fff}
+.grille-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+label{display:block;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+input,select,textarea{width:100%;font-family:var(--ui);font-style:normal;font-size:13.5px;color:#fff;
+  background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:12px;padding:10px 13px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--bord-2);background:rgba(0,0,0,.3)}
+::placeholder{color:var(--ink-3);font-style:italic}
+select option{background:#3A2E7A;color:#fff}
+.full{grid-column:1/-1}
+.actions-form{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+button{font-family:var(--ui);font-style:normal;font-size:13px;font-weight:600;border:none;border-radius:999px;
+  padding:11px 20px;cursor:pointer;transition:.2s}
+.btn-principal{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#EBDFFD)}
+.btn-principal:hover{filter:brightness(1.06)}
+.btn-fant{color:var(--ink-2);background:transparent;border:1px solid var(--bord)}
+.btn-fant:hover{background:var(--verre-2);color:#fff}
+
+.outils-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.outils-bar input[type=search]{max-width:240px}
+.outils-bar select{max-width:180px}
+.spacer{flex:1}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{text-align:left;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);padding:0 10px 10px;border-bottom:1px solid var(--bord)}
+tbody td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top;color:var(--ink-2)}
+tbody tr:hover{background:rgba(255,255,255,.04)}
+tbody td b{color:#fff;font-weight:600;display:block}
+tbody td small{color:var(--ink-3);font-family:var(--ui);font-style:normal;font-size:11.5px}
+.pastille{display:inline-flex;align-items:center;gap:6px;font-family:var(--ui);font-style:normal;font-size:11.5px;
+  font-weight:600;padding:4px 10px;border-radius:999px}
+.pastille.recu{background:rgba(196,144,63,.18);color:#E3B872}
+.pastille.invite{background:rgba(139,116,212,.22);color:var(--lilas)}
+.pastille.actif{background:rgba(47,143,99,.2);color:#6FCB9C}
+.pastille.refuse{background:rgba(194,75,99,.2);color:#E58BA0}
+.tag-espace{font-family:var(--ui);font-style:normal;font-size:10.5px;color:var(--ink-3);border:1px solid var(--bord);
+  border-radius:999px;padding:2px 9px;display:inline-block;margin-top:4px}
+.lig-actions{display:flex;gap:8px}
+.mini{font-family:var(--ui);font-style:normal;font-size:11.5px;font-weight:600;background:transparent;border:none;
+  color:var(--ink-3);cursor:pointer;padding:4px 6px}
+.mini:hover{color:#fff}
+.vide{text-align:center;padding:50px 20px;color:var(--ink-3);font-size:14px}
+
+.note{font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-3);margin-top:22px;
+  border-top:1px solid var(--bord);padding-top:16px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient>
+  <symbol id="l-gr" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#ggr)"/>
+    <path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#fff" opacity=".6">
+      <circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/>
+      <circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/>
+    </g>
+  </symbol>
+</defs></svg>
+
+<div class="wrap">
+  <div class="tete">
+    <svg class="jeton" viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+    <h1>Suivi des <span>invitations</span></h1>
+    <span class="badge">Privé — vous seule</span>
+  </div>
+  <p class="lead">Votre carnet des personnes invitées sur NaoGroup. <b>Tout reste dans ce navigateur</b>, sur cet
+    ordinateur — comme les autres outils de la maison. Pensez à <b>exporter en CSV</b> régulièrement pour garder
+    une sauvegarde, ou pour retrouver la liste sur un autre appareil.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="panneau">
+    <h2 id="titreForm">Ajouter une personne</h2>
+    <form id="formPersonne">
+      <input type="hidden" id="idEdition">
+      <div class="grille-form">
+        <div>
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" placeholder="Prénom Nom" required>
+        </div>
+        <div>
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="personne@exemple.fr" required>
+        </div>
+        <div>
+          <label for="espace">Espace</label>
+          <select id="espace">
+            <option value="Particulier">🏠 Particulier</option>
+            <option value="Professionnel">💼 Professionnel</option>
+            <option value="Les deux">🏠💼 Les deux</option>
+          </select>
+        </div>
+        <div>
+          <label for="statut">Statut</label>
+          <select id="statut">
+            <option value="recu">Demande reçue</option>
+            <option value="invite">Invité·e</option>
+            <option value="actif">Actif</option>
+            <option value="refuse">Refusé / en pause</option>
+          </select>
+        </div>
+        <div>
+          <label for="date">Date</label>
+          <input type="date" id="date">
+        </div>
+        <div class="full">
+          <label for="notes">Notes</label>
+          <textarea id="notes" rows="2" placeholder="D'où vient la demande, outils souhaités…"></textarea>
+        </div>
+      </div>
+      <div class="actions-form">
+        <button type="submit" class="btn-principal" id="btnEnregistrer">Ajouter</button>
+        <button type="button" class="btn-fant" id="btnAnnuler" style="display:none">Annuler la modification</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panneau">
+    <div class="outils-bar">
+      <h2 style="margin:0">Toutes les personnes</h2>
+      <div class="spacer"></div>
+      <input type="search" id="recherche" placeholder="Rechercher un nom, un e-mail…">
+      <select id="filtreStatut">
+        <option value="">Tous les statuts</option>
+        <option value="recu">Demande reçue</option>
+        <option value="invite">Invité·e</option>
+        <option value="actif">Actif</option>
+        <option value="refuse">Refusé / en pause</option>
+      </select>
+      <button type="button" class="btn-fant" id="btnExport">Exporter en CSV ↓</button>
+      <button type="button" class="btn-fant" id="btnImportBtn">Importer un CSV ↑</button>
+      <input type="file" id="btnImport" accept=".csv" style="display:none">
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>Personne</th><th>Espace</th><th>Statut</th><th>Date</th><th>Notes</th><th></th></tr>
+        </thead>
+        <tbody id="corpsTable"></tbody>
+      </table>
+      <div class="vide" id="videMsg" style="display:none">Personne pour l'instant — ajoutez la première invitation ci-dessus.</div>
+    </div>
+  </div>
+
+  <p class="note">Cette page est un outil interne, elle n'est pas reliée au site public de NaoGroup et n'est
+    listée dans aucune navigation. Gardez son lien pour vous, ou mettez-la en favori.
+    Pour activer réellement les comptes derrière les outils, voir le
+    <a href="GUIDE-SUPABASE.html" style="color:var(--lilas);font-weight:600;text-decoration:none">guide d'activation</a>.</p>
+</div>
+
+<script>
+var CLE = 'naogroup_invitations';
+var LIBELLES_STATUT = {recu:'Demande reçue', invite:'Invité·e', actif:'Actif', refuse:'Refusé / en pause'};
+
+function charger(){
+  try{ return JSON.parse(localStorage.getItem(CLE)) || []; }catch(e){ return []; }
+}
+function sauver(liste){
+  localStorage.setItem(CLE, JSON.stringify(liste));
+}
+function idUnique(){
+  return 'p' + Date.now() + Math.random().toString(36).slice(2,7);
+}
+
+var personnes = charger();
+
+function rendreStats(){
+  var el = document.getElementById('stats');
+  var total = personnes.length;
+  var parStatut = {recu:0, invite:0, actif:0, refuse:0};
+  personnes.forEach(function(p){ parStatut[p.statut] = (parStatut[p.statut]||0) + 1; });
+  el.innerHTML =
+    '<div class="stat"><b>'+total+'</b><span>Au total</span></div>'+
+    '<div class="stat"><b>'+parStatut.recu+'</b><span>Demandes reçues</span></div>'+
+    '<div class="stat"><b>'+parStatut.invite+'</b><span>Invité·e·s</span></div>'+
+    '<div class="stat"><b>'+parStatut.actif+'</b><span>Actifs</span></div>';
+}
+
+function rendreTable(){
+  var corps = document.getElementById('corpsTable');
+  var recherche = document.getElementById('recherche').value.trim().toLowerCase();
+  var filtre = document.getElementById('filtreStatut').value;
+
+  var liste = personnes.filter(function(p){
+    var okRecherche = !recherche || (p.nom+' '+p.email).toLowerCase().indexOf(recherche) !== -1;
+    var okFiltre = !filtre || p.statut === filtre;
+    return okRecherche && okFiltre;
+  }).sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+
+  document.getElementById('videMsg').style.display = liste.length ? 'none' : 'block';
+  corps.innerHTML = liste.map(function(p){
+    return '<tr>'+
+      '<td><b>'+escHtml(p.nom)+'</b><small>'+escHtml(p.email)+'</small></td>'+
+      '<td><span class="tag-espace">'+escHtml(p.espace)+'</span></td>'+
+      '<td><span class="pastille '+p.statut+'">'+LIBELLES_STATUT[p.statut]+'</span></td>'+
+      '<td>'+(p.date || '—')+'</td>'+
+      '<td style="max-width:220px">'+escHtml(p.notes||'')+'</td>'+
+      '<td><div class="lig-actions">'+
+        '<button class="mini" data-action="editer" data-id="'+p.id+'">Modifier</button>'+
+        '<button class="mini" data-action="supprimer" data-id="'+p.id+'">Supprimer</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function escHtml(s){
+  return String(s||'').replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function rafraichir(){ rendreStats(); rendreTable(); }
+rafraichir();
+
+document.getElementById('formPersonne').addEventListener('submit', function(e){
+  e.preventDefault();
+  var idEdition = document.getElementById('idEdition').value;
+  var donnees = {
+    nom: document.getElementById('nom').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    espace: document.getElementById('espace').value,
+    statut: document.getElementById('statut').value,
+    date: document.getElementById('date').value,
+    notes: document.getElementById('notes').value.trim()
+  };
+  if(idEdition){
+    var i = personnes.findIndex(function(p){ return p.id === idEdition; });
+    if(i !== -1) personnes[i] = Object.assign({id:idEdition}, donnees);
+  } else {
+    donnees.id = idUnique();
+    if(!donnees.date) donnees.date = new Date().toISOString().slice(0,10);
+    personnes.push(donnees);
+  }
+  sauver(personnes);
+  finirEdition();
+  rafraichir();
+});
+
+document.getElementById('btnAnnuler').addEventListener('click', finirEdition);
+
+function finirEdition(){
+  document.getElementById('formPersonne').reset();
+  document.getElementById('idEdition').value = '';
+  document.getElementById('titreForm').textContent = 'Ajouter une personne';
+  document.getElementById('btnEnregistrer').textContent = 'Ajouter';
+  document.getElementById('btnAnnuler').style.display = 'none';
+}
+
+document.getElementById('corpsTable').addEventListener('click', function(e){
+  var btn = e.target.closest('button[data-action]');
+  if(!btn) return;
+  var id = btn.getAttribute('data-id');
+  var action = btn.getAttribute('data-action');
+  if(action === 'supprimer'){
+    if(confirm('Supprimer cette personne du suivi ?')){
+      personnes = personnes.filter(function(p){ return p.id !== id; });
+      sauver(personnes);
+      rafraichir();
+    }
+  } else if(action === 'editer'){
+    var p = personnes.find(function(p){ return p.id === id; });
+    if(!p) return;
+    document.getElementById('idEdition').value = p.id;
+    document.getElementById('nom').value = p.nom;
+    document.getElementById('email').value = p.email;
+    document.getElementById('espace').value = p.espace;
+    document.getElementById('statut').value = p.statut;
+    document.getElementById('date').value = p.date;
+    document.getElementById('notes').value = p.notes;
+    document.getElementById('titreForm').textContent = 'Modifier ' + p.nom;
+    document.getElementById('btnEnregistrer').textContent = 'Enregistrer les modifications';
+    document.getElementById('btnAnnuler').style.display = 'inline-block';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+});
+
+document.getElementById('recherche').addEventListener('input', rendreTable);
+document.getElementById('filtreStatut').addEventListener('change', rendreTable);
+
+document.getElementById('btnExport').addEventListener('click', function(){
+  var entetes = ['nom','email','espace','statut','date','notes'];
+  var lignes = [entetes.join(',')].concat(personnes.map(function(p){
+    return entetes.map(function(c){
+      var v = String(p[c]||'').replace(/"/g,'""');
+      return /[",\n]/.test(v) ? '"'+v+'"' : v;
+    }).join(',');
+  }));
+  var blob = new Blob(["﻿"+lignes.join('\n')], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'naogroup-invitations-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('btnImportBtn').addEventListener('click', function(){
+  document.getElementById('btnImport').click();
+});
+document.getElementById('btnImport').addEventListener('change', function(e){
+  var fichier = e.target.files[0];
+  if(!fichier) return;
+  var lecteur = new FileReader();
+  lecteur.onload = function(){
+    var texte = String(lecteur.result).replace(/^﻿/, '');
+    var lignes = texte.split(/\r?\n/).filter(Boolean);
+    var entetes = lignes.shift().split(',');
+    var ajoutes = 0;
+    lignes.forEach(function(ligne){
+      var valeurs = ligne.match(/(".*?"|[^,]+)/g) || [];
+      var obj = {};
+      entetes.forEach(function(h, i){
+        obj[h.trim()] = (valeurs[i]||'').replace(/^"|"$/g,'').replace(/""/g,'"');
+      });
+      if(obj.email && !personnes.some(function(p){ return p.email === obj.email; })){
+        obj.id = idUnique();
+        if(!obj.statut) obj.statut = 'recu';
+        if(!obj.espace) obj.espace = 'Particulier';
+        personnes.push(obj);
+        ajoutes++;
+      }
+    });
+    sauver(personnes);
+    rafraichir();
+    alert(ajoutes + ' personne(s) importée(s).');
+    e.target.value = '';
+  };
+  lecteur.readAsText(fichier);
+});
+</script>
+</body>
+</html>

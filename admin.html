@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — administration</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="naogroup-cloud.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236F55D0'/><stop offset='1' stop-color='%23C39BF3'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5; --vert:#6FCB9C; --rose:#E58BA0; --ambre:#E3B872;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 18%, #7564C2 0%, #43358A 42%, #1C1636 100%);background-attachment:fixed;
+  padding:22px 22px 80px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.14) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 14%, #000 0 30%, transparent 72%);mask-image:radial-gradient(circle at 50% 14%, #000 0 30%, transparent 72%)}
+@keyframes monte{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto}
+
+.haut{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.haut .jeton{width:46px;height:46px;border-radius:15px;box-shadow:0 10px 24px -10px rgba(0,0,0,.7)}
+h1{margin:0;font-size:27px;letter-spacing:-.02em;color:#fff}
+h1 span{color:var(--lilas)}
+.badge{font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--lilas);border:1px solid var(--bord);border-radius:999px;padding:5px 12px}
+.haut .sp{flex:1}
+.btn{font-family:var(--ui);font-style:normal;font-size:12.5px;font-weight:600;color:#fff;background:var(--verre);
+  border:1px solid var(--bord);border-radius:999px;padding:9px 16px;cursor:pointer;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--verre-2);border-color:var(--bord-2)}
+.btn.plein{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#EBDFFD);border-color:transparent}
+.btn.plein:hover{filter:brightness(1.06)}
+.btn.petit{padding:6px 11px;font-size:11.5px}
+.btn.danger{color:var(--rose);border-color:rgba(229,139,160,.4)}
+.btn.danger:hover{background:rgba(229,139,160,.12)}
+.btn:disabled{opacity:.5;cursor:wait}
+.lead{font-size:14.5px;color:var(--ink-2);margin:6px 0 24px;max-width:78ch}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--verre);border:1px solid var(--bord);border-radius:16px;padding:13px 16px}
+.stat b{display:block;font-size:24px;color:#fff;font-style:normal}
+.stat span{font-family:var(--ui);font-style:normal;font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+
+.panneau{background:var(--verre);border:1px solid var(--bord);border-radius:22px;padding:22px;margin-bottom:22px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .5s ease both}
+.panneau > h2{margin:0 0 4px;font-size:19px;color:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panneau > .aide{margin:0 0 16px;font-size:13px;color:var(--ink-3);max-width:80ch}
+.barre{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.barre .sp{flex:1}
+.champ-recherche{width:230px}
+
+label{display:block;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+input,select,textarea{width:100%;font-family:var(--ui);font-style:normal;font-size:13.5px;color:#fff;background:rgba(0,0,0,.22);
+  border:1px solid var(--bord);border-radius:12px;padding:10px 13px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--bord-2);background:rgba(0,0,0,.3)}
+input[type=checkbox]{width:auto}
+select option{background:#3A2E7A;color:#fff}
+::placeholder{color:var(--ink-3);font-style:italic}
+textarea{resize:vertical;min-height:64px}
+
+.tableau{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:var(--ui);font-style:normal;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:0 10px 10px;border-bottom:1px solid var(--bord);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle;color:var(--ink-2)}
+tr:hover td{background:rgba(255,255,255,.035)}
+td b{color:#fff;font-weight:600;display:block}
+td small{display:block;color:var(--ink-3);font-family:var(--ui);font-style:normal;font-size:11px}
+.vide{text-align:center;color:var(--ink-3);padding:34px 10px;font-size:14px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.pastille{display:inline-flex;align-items:center;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.p-actif,.p-payee{background:rgba(47,143,99,.2);color:var(--vert)}
+.p-suspendu,.p-a_payer{background:rgba(196,144,63,.2);color:var(--ambre)}
+.p-bloque,.p-annulee{background:rgba(194,75,99,.22);color:var(--rose)}
+.p-admin,.p-en_cours{background:rgba(139,116,212,.28);color:var(--lilas)}
+.p-nouvelle{background:rgba(196,144,63,.24);color:var(--ambre)}
+.p-traitee{background:rgba(47,143,99,.2);color:var(--vert)}
+.p-archivee{background:rgba(255,255,255,.1);color:var(--ink-3)}
+.mini-jetons{display:flex;gap:4px;flex-wrap:wrap;max-width:190px}
+.mj{width:22px;height:22px;border-radius:7px}
+.mj.off{filter:grayscale(1);opacity:.28}
+.rouge{color:var(--rose)}
+.ambre{color:var(--ambre)}
+
+/* ---- fenêtres ---- */
+.voile{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;
+  background:rgba(20,14,44,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.voile.ouvert{display:flex}
+.fen{width:100%;max-width:720px;background:linear-gradient(180deg,#43358A,#2A2160);border:1px solid var(--bord-2);border-radius:24px;padding:26px 28px;box-shadow:var(--ombre);animation:monte .3s ease both}
+.fen.etroite{max-width:460px}
+.fen h3{margin:0 0 4px;font-size:21px;color:#fff}
+.fen .sous{margin:0 0 18px;font-size:13px;color:var(--ink-3)}
+.grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.grille .large{grid-column:1/-1}
+.bas{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:20px}
+.msg{margin-top:12px;font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--rose);display:none}
+.msg.visible{display:block}
+.matrice{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tuile{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.2);border:1px solid var(--bord);border-radius:14px;padding:10px 12px;cursor:pointer;transition:.15s;font-family:var(--ui);font-style:normal;text-transform:none;letter-spacing:0;margin:0}
+.tuile:hover{border-color:var(--bord-2)}
+.tuile.oui{background:rgba(139,116,212,.22);border-color:var(--lilas)}
+.tuile svg{width:30px;height:30px;border-radius:9px;flex:none}
+.tuile:not(.oui) svg{filter:grayscale(1);opacity:.4}
+.tuile b{display:block;font-size:13px;color:#fff;font-weight:600;font-family:var(--sans);font-style:italic}
+.tuile small{display:block;font-size:10.5px;color:var(--ink-3);text-transform:none}
+.tuile input{margin-left:auto}
+.remis{background:rgba(0,0,0,.28);border:1px dashed var(--bord-2);border-radius:14px;padding:14px 16px;margin:14px 0;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2)}
+.remis code{font-family:var(--mono);font-size:15px;color:#fff;background:rgba(255,255,255,.1);padding:3px 8px;border-radius:8px;user-select:all}
+.tampon-mini{display:inline-block;font-family:var(--ui);font-style:normal;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:2px solid;border-radius:7px;padding:2px 9px;transform:rotate(-4deg)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:90;background:#1C1636;border:1px solid var(--bord-2);color:#fff;
+  font-family:var(--ui);font-style:normal;font-size:13px;padding:11px 18px;border-radius:999px;box-shadow:var(--ombre);opacity:0;pointer-events:none;transition:.3s}
+.toast.on{opacity:1}
+.refus{max-width:480px;margin:90px auto;text-align:center}
+.refus h2{color:#fff}
+
+/* ---- la facture : feuille blanche, imprimable ---- */
+.feuille{background:#fff;color:#1d1a2b;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-style:normal;border-radius:6px;padding:40px 44px;max-width:780px;margin:0 auto;box-shadow:var(--ombre);position:relative;line-height:1.5}
+.feuille .ent{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:3px solid #7B5FD9;padding-bottom:18px;margin-bottom:22px}
+.feuille .marque{display:flex;gap:12px;align-items:center}
+.feuille .marque svg{width:46px;height:46px;border-radius:14px}
+.feuille .marque b{font-family:Georgia,serif;font-style:italic;font-size:22px}
+.feuille .marque b i{color:#7B5FD9}
+.feuille .ed{font-size:11.5px;color:#5b5670;line-height:1.5;margin-top:4px}
+.feuille .titre-doc{text-align:right}
+.feuille .titre-doc h4{margin:0;font-size:26px;letter-spacing:.08em;color:#7B5FD9}
+.feuille .titre-doc div{font-size:12.5px;color:#4a4560}
+.feuille .duo{display:flex;gap:30px;margin-bottom:22px}
+.feuille .duo > div{flex:1;background:#f6f3fc;border-radius:10px;padding:12px 16px;font-size:12.5px}
+.feuille .duo h5{margin:0 0 4px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7B5FD9}
+.feuille table{font-size:12.5px;margin-bottom:14px}
+.feuille th{color:#7B5FD9;border-bottom:2px solid #e3ddee;padding:0 8px 8px}
+.feuille td{color:#1d1a2b;border-bottom:1px solid #eee9f5;padding:9px 8px}
+.feuille td:nth-child(n+2),.feuille th:nth-child(n+2){text-align:right;white-space:nowrap}
+.feuille tr:hover td{background:none}
+.feuille .total{display:flex;justify-content:flex-end;margin:6px 0 18px}
+.feuille .total div{background:#7B5FD9;color:#fff;border-radius:10px;padding:10px 20px;font-size:15px;font-weight:700}
+.feuille .mentions{font-size:11px;color:#5b5670;border-top:1px solid #e3ddee;padding-top:12px}
+.feuille .tampon-paye{position:absolute;right:54px;top:150px;transform:rotate(-12deg);border:4px solid #2F8F63;color:#2F8F63;border-radius:12px;padding:6px 18px;font-weight:800;font-size:22px;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.feuille .tampon-paye small{display:block;font-size:11px;letter-spacing:.04em;text-transform:none;text-align:center}
+.barre-doc{max-width:780px;margin:0 auto 14px;display:flex;gap:10px;justify-content:flex-end}
+.voile.doc{background:rgba(20,14,44,.85)}
+@media print{
+  body{background:#fff!important;padding:0!important}
+  body::before,.wrap,.toast,.voile:not(#m-doc){display:none!important}
+  #m-doc{position:static!important;display:block!important;background:#fff!important;padding:0!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .barre-doc{display:none!important}
+  .feuille{box-shadow:none;border-radius:0;max-width:none;padding:0}
+}
+</style>
+</head>
+<body>
+<script src="naogroup-logos.js"></script>
+
+<div class="wrap">
+
+  <div id="refus" class="refus" hidden>
+    <h2 id="refusTitre">Accès réservé</h2>
+    <p id="refusTexte" style="color:var(--ink-2)"></p>
+    <a class="btn" href="NaoGroup.html">← Retour à NaoGroup</a>
+  </div>
+
+  <div id="app" hidden>
+    <div class="haut">
+      <svg class="jeton" viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+      <h1>Administration <span>NaoGroup</span></h1>
+      <span class="badge">Naomie Lechner — Créatrice</span>
+      <span class="sp"></span>
+      <a class="btn" href="NaoGroup.html">← Le site</a>
+      <button type="button" class="btn" id="btnMonMdp">Mon mot de passe</button>
+      <button type="button" class="btn" id="btnSortir">Déconnexion</button>
+    </div>
+    <p class="lead">Vous êtes la seule administratrice. Vous créez les profils, choisissez pour chacun les outils ouverts
+      (les autres restent visibles, grisés et fermés), suspendez ou bloquez un accès, suivez les abonnements et
+      établissez les factures. Chaque nouveau profil trouve tous ses outils vierges.</p>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="panneau" id="panneauUsage">
+      <h2>Statistiques d'usage
+        <select id="periodeUsage" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option><option value="90">90 derniers jours</option>
+        </select></h2>
+      <p class="aide">Taux d'utilisation, taux de réutilisation et temps passé sur chaque outil. Ne sont mesurés que <b style="color:#fff">le moment et la durée d'ouverture</b> — jamais ce que les profils y saisissent —
+        et seulement les profils clients (pas vous). Le temps compte quand l'onglet est visible et qu'une action a eu lieu dans la dernière minute.</p>
+      <div class="stats" id="kpiUsage" style="margin-bottom:16px"></div>
+      <div id="graphUsage" style="margin-bottom:16px"></div>
+      <div class="tableau"><table>
+        <thead><tr><th>Outil</th><th>Ont l'accès</th><th>Utilisateurs actifs</th><th>Taux d'utilisation</th><th>Sessions</th><th>Temps moyen / session</th><th>Temps moyen / profil</th><th>Taux de réutilisation</th><th>Retour sous 7 j.</th></tr></thead>
+        <tbody id="corpsUsage"></tbody>
+      </table><div class="vide" id="videUsage" hidden>Pas encore de données : elles apparaissent dès que des profils ouvrent leurs outils.</div></div>
+      <p class="aide" style="margin-top:12px"><b style="color:#fff">Comment lire.</b> <i>Taux d'utilisation</i> = profils qui ont ouvert l'outil ÷ profils qui l'ont dans leur abonnement.
+        <i>Taux de réutilisation</i> = profils actifs sur l'outil qui y sont revenus au moins un 2<sup>e</sup> jour ÷ profils actifs.
+        <i>Retour sous 7 j.</i> = parmi ceux dont la 1<sup>re</sup> ouverture date d'au moins une semaine, part revenue dans les 7 jours qui ont suivi.
+        <i>Fidélité DAU/MAU</i> = part des profils actifs sur 30 jours qui le sont aussi aujourd'hui.</p>
+    </div>
+
+    <div class="panneau">
+      <h2>Profils</h2>
+      <p class="aide">Un mot de passe ne se relit jamais : on en donne un provisoire, que la personne remplace à sa première connexion.
+        Un accès suspendu ou bloqué est refusé dès la connexion suivante, avec le motif saisi.</p>
+      <div class="barre">
+        <input class="champ-recherche" type="search" id="rech" placeholder="Rechercher un nom, un identifiant…">
+        <select id="filtre" style="width:auto">
+          <option value="">Tous les statuts</option><option value="actif">Actifs</option><option value="suspendu">Suspendus</option>
+          <option value="bloque">Bloqués</option><option value="echu">Abonnement échu</option>
+        </select>
+        <span class="sp"></span>
+        <button type="button" class="btn plein" id="btnAjout">+ Ajouter un profil</button>
+      </div>
+      <div class="tableau"><table>
+        <thead><tr><th>Profil</th><th>Espace</th><th>Abonnement</th><th>Outils ouverts</th><th>Statut</th><th>Connexion</th><th></th></tr></thead>
+        <tbody id="corpsProfils"></tbody>
+      </table><div class="vide" id="videProfils" hidden>Aucun profil pour l'instant — créez le premier avec « Ajouter un profil ».</div></div>
+    </div>
+
+    <div class="panneau" id="panneauDemandes">
+      <h2>Demandes reçues <span class="badge" id="nbDemandes"></span></h2>
+      <p class="aide">Les messages envoyés depuis la page Contact arrivent ici. Une souscription devient un profil d'un clic : nom, formule, prix et outils sont déjà remplis.</p>
+      <div class="barre">
+        <select id="filtreDemandes" style="width:auto">
+          <option value="">À traiter</option><option value="toutes">Toutes</option><option value="traitee">Traitées</option><option value="archivee">Archivées</option>
+        </select>
+      </div>
+      <div class="tableau"><table>
+        <thead><tr><th>Reçue</th><th>De</th><th>Sujet</th><th>Détail</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="corpsDemandes"></tbody>
+      </table><div class="vide" id="videDemandes" hidden>Aucune demande à traiter.</div></div>
+    </div>
+
+    <div class="panneau">
+      <h2>Factures d'abonnement</h2>
+      <p class="aide">Numérotées <code>NG-AAAA-001</code>, prix toutes taxes comprises. Le bouton « Facture » d'un profil
+        pré-remplit le client, la formule et le prix. NaoFactu pourra les reprendre plus tard.</p>
+      <div class="barre"><span class="sp"></span><button type="button" class="btn plein" id="btnFacture">+ Nouvelle facture</button></div>
+      <div class="tableau"><table>
+        <thead><tr><th>Numéro</th><th>Client</th><th>Date</th><th>Période</th><th>Total TTC</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="corpsFactures"></tbody>
+      </table><div class="vide" id="videFactures" hidden>Aucune facture pour l'instant.</div></div>
+    </div>
+
+    <div class="panneau">
+      <h2>Formules et tarifs</h2>
+      <p class="aide">Une formule propose des outils et un prix de départ ; vous pouvez toujours ajuster les outils profil par profil.
+        Prix toutes taxes comprises, par mois.</p>
+      <div id="listeFormules"></div>
+      <div class="bas" style="justify-content:space-between">
+        <button type="button" class="btn" id="btnAjoutFormule">+ Ajouter une formule</button>
+        <button type="button" class="btn plein" id="btnEnregFormules">Enregistrer les formules</button>
+      </div>
+    </div>
+
+    <div class="panneau">
+      <h2>NaoGroup, l'éditeur</h2>
+      <p class="aide">Ces informations figurent en en-tête des factures.</p>
+      <div class="grille" id="formEditeur">
+        <div><label for="ed-nom">Nom commercial</label><input id="ed-nom"></div>
+        <div><label for="ed-forme">Forme juridique</label><input id="ed-forme"></div>
+        <div><label for="ed-siret">SIREN ou SIRET</label><input id="ed-siret"></div>
+        <div><label for="ed-email">E-mail</label><input id="ed-email"></div>
+        <div class="large"><label for="ed-adresse">Adresse</label><input id="ed-adresse" placeholder="Numéro, rue, code postal, ville"></div>
+        <div><label for="ed-rep">Représentante</label><input id="ed-rep"></div>
+        <div><label for="ed-qual">Qualité</label><input id="ed-qual"></div>
+        <div class="large"><label for="ed-tva">Mention de TVA</label><input id="ed-tva"></div>
+      </div>
+      <div class="bas"><button type="button" class="btn plein" id="btnEnregEditeur">Enregistrer</button></div>
+    </div>
+
+    <p class="lead" style="font-size:12.5px;color:var(--ink-3)"><b>À savoir.</b> Les pages du site sont des fichiers : ce qui est réellement protégé
+      côté serveur, ce sont les comptes, les droits, les abonnements et les sauvegardes de chaque profil. Un profil suspendu, bloqué ou échu
+      ne peut plus lire ni enregistrer ses données.</p>
+  </div>
+</div>
+
+<!-- ============ Fenêtre : ajouter / modifier un profil ============ -->
+<div class="voile" id="m-profil" role="dialog" aria-modal="true"><div class="fen">
+  <div id="etapeForm">
+    <h3 id="pTitre">Ajouter un profil</h3>
+    <p class="sous" id="pSous">Le profil trouvera tous ses outils vierges.</p>
+    <div class="grille">
+      <div><label for="p-prenom">Prénom</label><input id="p-prenom" autocomplete="off"></div>
+      <div><label for="p-nom">Nom</label><input id="p-nom" autocomplete="off"></div>
+      <div><label for="p-ident">Identifiant</label><input id="p-ident" autocomplete="off" spellcheck="false" placeholder="nom_p"></div>
+      <div><label for="p-espace">Espace</label>
+        <select id="p-espace"><option value="particulier">🏠 Particulier</option><option value="professionnel">💼 Professionnel</option><option value="les_deux">🏠💼 Les deux</option></select></div>
+      <div id="bloc-mdp"><label for="p-mdp">Mot de passe provisoire</label>
+        <div style="display:flex;gap:6px"><input id="p-mdp" autocomplete="off" spellcheck="false"><button type="button" class="btn petit" id="btnPropose">Proposer</button></div></div>
+      <div><label for="p-entreprise">Entreprise (facultatif)</label><input id="p-entreprise" autocomplete="off"></div>
+    </div>
+
+    <h3 style="font-size:16px;margin:22px 0 6px">Abonnement</h3>
+    <div class="grille">
+      <div><label for="p-formule">Formule</label><select id="p-formule"></select></div>
+      <div><label for="p-prix">Prix TTC (€)</label><input id="p-prix" type="number" min="0" step="0.01"></div>
+      <div><label for="p-periode">Facturation</label><select id="p-periode"><option value="mensuel">Mensuelle</option><option value="annuel">Annuelle</option></select></div>
+      <div><label for="p-debut">Début</label><input id="p-debut" type="date"></div>
+      <div><label for="p-fin">Fin (vide = sans échéance)</label><input id="p-fin" type="date"></div>
+    </div>
+
+    <h3 style="font-size:16px;margin:22px 0 6px">Outils ouverts à ce profil</h3>
+    <p class="sous" style="margin-bottom:10px">Cochés : ouverts. Les autres apparaîtront grisés et fermés sur son accueil. Modifiable à tout moment.
+      <button type="button" class="btn petit" id="btnTout" style="margin-left:6px">Tout cocher</button>
+      <button type="button" class="btn petit" id="btnRien">Tout décocher</button></p>
+    <div class="matrice" id="matrice"></div>
+
+    <div style="margin-top:16px"><label for="p-notes">Notes</label><textarea id="p-notes" placeholder="D'où vient la demande, ce qui a été convenu…"></textarea></div>
+    <div class="msg" id="pMsg" role="alert"></div>
+    <div class="bas"><button type="button" class="btn" data-ferme="m-profil">Annuler</button><button type="button" class="btn plein" id="btnEnregProfil">Enregistrer</button></div>
+  </div>
+
+  <div id="etapeRemis" hidden>
+    <h3>Profil créé</h3>
+    <p class="sous">Communiquez ces deux informations à la personne, hors de cette page. Le mot de passe ne s'affichera plus jamais.</p>
+    <div class="remis">Identifiant : <code id="rId"></code><br><br>Mot de passe provisoire : <code id="rMdp"></code><br><br>
+      <span style="color:var(--ink-3)">À sa première connexion, elle choisira son propre mot de passe. Tous ses outils seront vierges.</span></div>
+    <div class="bas"><button type="button" class="btn" id="btnCopier">Copier le message</button><button type="button" class="btn plein" data-ferme="m-profil">Terminé</button></div>
+  </div>
+</div></div>
+
+<!-- ============ Fenêtre : suspendre / bloquer / réactiver ============ -->
+<div class="voile" id="m-statut" role="dialog" aria-modal="true"><div class="fen etroite">
+  <h3 id="sTitre">Suspendre l'accès</h3>
+  <p class="sous" id="sSous"></p>
+  <div id="sMotifBloc"><label for="sMotif">Motif — affiché à la personne quand elle se connecte</label>
+    <textarea id="sMotif" placeholder="Ex. : abonnement impayé — écrivez-nous pour régulariser."></textarea></div>
+  <div class="msg" id="sMsg"></div>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-statut">Annuler</button><button type="button" class="btn plein" id="btnValiderStatut">Valider</button></div>
+</div></div>
+
+<!-- ============ Fenêtre : une demande reçue ============ -->
+<div class="voile" id="m-demande" role="dialog" aria-modal="true"><div class="fen">
+  <h3>Demande reçue</h3>
+  <p class="sous">Répondez par e-mail, ou transformez-la en profil.</p>
+  <div id="dContenu"></div>
+  <div class="msg" id="dMsg"></div>
+  <div class="bas" style="justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:8px;align-items:center"><label style="margin:0">Statut</label>
+      <select id="dStatut" style="width:auto"><option value="nouvelle">Nouvelle</option><option value="en_cours">En cours</option><option value="traitee">Traitée</option><option value="archivee">Archivée</option></select>
+      <button type="button" class="btn petit danger" id="dSupprimer">Supprimer</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" id="dRepondre" href="#">Répondre par e-mail</a>
+      <button type="button" class="btn plein" id="dCreer">Créer le profil</button>
+      <button type="button" class="btn" data-ferme="m-demande">Fermer</button></div>
+  </div>
+</div></div>
+
+<!-- ============ Fenêtre : mot de passe provisoire ============ -->
+<div class="voile" id="m-mdp" role="dialog" aria-modal="true"><div class="fen etroite">
+  <h3>Nouveau mot de passe provisoire</h3>
+  <p class="sous" id="mSous"></p>
+  <div id="mForm"><label for="mMdp">Mot de passe provisoire</label>
+    <div style="display:flex;gap:6px"><input id="mMdp" autocomplete="off" spellcheck="false"><button type="button" class="btn petit" id="btnPropose2">Proposer</button></div>
+    <div class="msg" id="mMsg"></div>
+    <div class="bas"><button type="button" class="btn" data-ferme="m-mdp">Annuler</button><button type="button" class="btn plein" id="btnValiderMdp">Enregistrer</button></div></div>
+  <div id="mRemis" hidden><div class="remis">Mot de passe provisoire : <code id="mRemisMdp"></code></div>
+    <p class="sous">La personne le remplacera à sa prochaine connexion.</p>
+    <div class="bas"><button type="button" class="btn plein" data-ferme="m-mdp">Terminé</button></div></div>
+</div></div>
+
+<!-- ============ Fenêtre : mon mot de passe ============ -->
+<div class="voile" id="m-moi" role="dialog" aria-modal="true"><div class="fen etroite">
+  <h3>Mon mot de passe</h3><p class="sous">Le vôtre, celui de l'administratrice.</p>
+  <label for="moi1">Nouveau mot de passe — 8 caractères au moins</label><input id="moi1" type="password" autocomplete="new-password">
+  <div style="height:12px"></div><label for="moi2">Confirmation</label><input id="moi2" type="password" autocomplete="new-password">
+  <div class="msg" id="moiMsg"></div>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-moi">Annuler</button><button type="button" class="btn plein" id="btnValiderMoi">Enregistrer</button></div>
+</div></div>
+
+<!-- ============ Fenêtre : nouvelle facture ============ -->
+<div class="voile" id="m-facture" role="dialog" aria-modal="true"><div class="fen">
+  <h3>Nouvelle facture</h3><p class="sous">Prix toutes taxes comprises.</p>
+  <div class="grille">
+    <div class="large"><label for="f-client">Client</label><select id="f-client"></select></div>
+    <div class="large"><label for="f-adresse">Adresse du client (facultatif)</label><input id="f-adresse" placeholder="Numéro, rue, code postal, ville"></div>
+    <div><label for="f-date">Date d'émission</label><input id="f-date" type="date"></div>
+    <div><label for="f-ech">Échéance</label><input id="f-ech" type="date"></div>
+    <div class="large"><label for="f-periode">Période facturée</label><input id="f-periode" placeholder="Ex. : octobre 2026"></div>
+  </div>
+  <h3 style="font-size:16px;margin:20px 0 8px">Lignes</h3>
+  <div id="f-lignes"></div>
+  <button type="button" class="btn petit" id="btnAjoutLigne">+ Ajouter une ligne</button>
+  <div class="msg" id="fMsg"></div>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-facture">Annuler</button><button type="button" class="btn plein" id="btnCreerFacture">Créer la facture</button></div>
+</div></div>
+
+<!-- ============ La facture, imprimable ============ -->
+<div class="voile doc" id="m-doc" role="dialog" aria-modal="true"><div style="width:100%">
+  <div class="barre-doc"><button type="button" class="btn plein" id="btnImprimer">Imprimer / PDF</button><button type="button" class="btn" data-ferme="m-doc">Fermer</button></div>
+  <div class="feuille" id="feuille"></div>
+</div></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(s, el){ return (el||document).querySelector(s); };
+var esc = Nao.esc;
+var C = null, MOI = null, PROFILS = [], FACT = [], REGL = {}, DEMANDES = [], demandeOuverte = null, demandePourProfil = null;
+var TYPES_DEMANDE = {question:'Question', souscription:'Souscription', acces:'Ouverture d\'un outil', mdp:'Mot de passe oublié', autre:'Autre'};
+
+/* ---------- valeurs de départ ---------- */
+var TOUS = Nao.outils.map(function(o){ return o.id; });
+var FORMULES_DEFAUT = JSON.parse(JSON.stringify(Nao.formulesDefaut));
+var EDITEUR_DEFAUT = {nom:'NaoGroup', forme:"Entreprise individuelle (EI), régime micro-entrepreneur", siret:'', adresse:'', email:'support.naogroup@gmail.com',
+  representante:'Naomie Lechner', qualite:'Créatrice', tva:'TVA non applicable, article 293 B du CGI'};
+
+/* ---------- petits outils ---------- */
+function euros(n){ return (Number(n)||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}); }
+function ajd(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function plusJours(iso,n){ var d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dateFr(iso){ return iso ? new Date(iso+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '—'; }
+function dateHeure(iso){ return iso ? new Date(iso).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'jamais'; }
+function moisAnnee(){ return new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'}); }
+function toast(t){ var e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(function(){ e.classList.remove('on'); },2600); }
+function ouvrir(id){ $('#'+id).classList.add('ouvert'); }
+function fermer(id){ $('#'+id).classList.remove('ouvert'); }
+function msg(id,t){ var e=$('#'+id); e.textContent=t||''; e.classList.toggle('visible',!!t); }
+function copier(t){ if(navigator.clipboard) return navigator.clipboard.writeText(t).then(function(){ toast('Copié.'); }); }
+function nomComplet(p){ return [p.prenom, String(p.nom||'').toUpperCase()].filter(Boolean).join(' ') || p.identifiant; }
+function jetonsDe(p){ return Nao.outils.map(function(o){ var ok = Nao.aAcces(p,o.id) || (p.role!=='admin' && (p.outils||[]).indexOf(o.id)>=0);
+  return '<svg class="mj'+(ok?'':' off')+'" viewBox="0 0 40 40" title="'+esc(o.nom)+'"><title>'+esc(o.nom)+'</title><use href="#'+o.symbole+'"/></svg>'; }).join(''); }
+function joursAvant(fin){ return fin ? Math.ceil((new Date(fin+'T23:59:59') - new Date())/86400000) : null; }
+function formuleDe(id){ return (REGL.formules||[]).filter(function(f){ return f.id===id; })[0] || null; }
+
+/* ---------- appel à la fonction serveur ---------- */
+function appelAdmin(corps){
+  return C.functions.invoke('admin-profils', {body:corps}).then(function(r){
+    if (r.error) {
+      var m = r.error.message || 'Erreur.';
+      var suite = (r.error.context && r.error.context.json) ? r.error.context.json().then(function(j){ return (j && j.erreur) || m; }, function(){ return m; }) : Promise.resolve(m);
+      return suite.then(function(t){ throw new Error(t); });
+    }
+    if (r.data && r.data.erreur) throw new Error(r.data.erreur);
+    return r.data;
+  });
+}
+
+/* ---------- chargement ---------- */
+function charger(){
+  return Promise.all([
+    C.from('profils').select('*').order('created_at'),
+    C.from('reglages').select('*'),
+    C.from('factures').select('*').order('date_emission',{ascending:false}).order('numero',{ascending:false}),
+    C.from('notes_profils').select('*'),
+    C.from('demandes').select('*').order('created_at',{ascending:false})
+  ]).then(function(r){
+    var er = r[0].error || r[1].error || r[2].error || r[3].error;
+    if (er) throw new Error(er.message);
+    DEMANDES = r[4].error ? [] : (r[4].data || []);   /* table absente : SQL à relancer, sans bloquer le reste */
+    if (r[4].error) setTimeout(function(){ toast('Demandes indisponibles : relancez supabase-schema.sql.'); }, 600);
+    PROFILS = r[0].data || [];
+    var notes = {}; (r[3].data||[]).forEach(function(n){ notes[n.user_id] = n.notes; });
+    PROFILS.forEach(function(p){ p.notes = notes[p.user_id] || ''; });
+    REGL = {};
+    (r[1].data||[]).forEach(function(x){ REGL[x.cle] = x.valeur; });
+    if (!Array.isArray(REGL.formules)) REGL.formules = JSON.parse(JSON.stringify(FORMULES_DEFAUT));
+    REGL.editeur = Object.assign({}, EDITEUR_DEFAUT, REGL.editeur||{});
+    FACT = r[2].data || [];
+  });
+}
+function enregReglage(cle, valeur){
+  return C.from('reglages').upsert({cle:cle, valeur:valeur, updated_at:new Date().toISOString()}).then(function(r){ if(r.error) throw new Error(r.error.message); });
+}
+
+/* ---------- rendu ---------- */
+function rendre(){ rendreStats(); rendreDemandes(); rendreProfils(); rendreFactures(); rendreFormules(); rendreEditeur(); }
+
+function rendreStats(){
+  var clients = PROFILS.filter(function(p){ return p.role!=='admin'; });
+  var actifs = clients.filter(function(p){ return p.statut==='actif' && !Nao.abonnementExpire(p); }).length;
+  var arret = clients.filter(function(p){ return p.statut!=='actif'; }).length;
+  var echus = clients.filter(function(p){ return Nao.abonnementExpire(p); }).length;
+  var mois = ajd().slice(0,7);
+  var encaisse = FACT.filter(function(f){ return f.statut==='payee' && String(f.date_paiement||'').slice(0,7)===mois; }).reduce(function(s,f){ return s+Number(f.total); },0);
+  var attente = FACT.filter(function(f){ return f.statut==='a_payer'; }).reduce(function(s,f){ return s+Number(f.total); },0);
+  var aTraiter = DEMANDES.filter(function(d){ return d.statut==='nouvelle' || d.statut==='en_cours'; }).length;
+  $('#stats').innerHTML =
+    '<div class="stat"><b>'+aTraiter+'</b><span>Demandes à traiter</span></div>'+
+    '<div class="stat"><b>'+actifs+'</b><span>Profils actifs</span></div>'+
+    '<div class="stat"><b>'+arret+'</b><span>Suspendus / bloqués</span></div>'+
+    '<div class="stat"><b>'+echus+'</b><span>Abonnements échus</span></div>'+
+    '<div class="stat"><b>'+euros(encaisse)+'</b><span>Encaissé ce mois</span></div>'+
+    '<div class="stat"><b>'+euros(attente)+'</b><span>À encaisser</span></div>';
+}
+
+function rendreProfils(){
+  var q = Nao.sansAccent($('#rech').value.trim()), f = $('#filtre').value;
+  var liste = PROFILS.filter(function(p){
+    var okQ = !q || Nao.sansAccent(nomComplet(p)+' '+p.identifiant+' '+(p.entreprise||'')).indexOf(q) !== -1;
+    var okF = !f || (f==='echu' ? Nao.abonnementExpire(p) : p.statut===f);
+    return okQ && okF;
+  });
+  $('#videProfils').hidden = liste.length > 0;
+  $('#corpsProfils').innerHTML = liste.map(function(p){
+    var admin = p.role==='admin', ab = p.abonnement||{}, fm = formuleDe(ab.formule), reste = joursAvant(ab.fin);
+    var abTxt = admin ? '<span class="pastille p-admin">Créatrice</span>' :
+      '<b>'+esc(fm ? fm.nom : (ab.formule||'—'))+'</b><small>'+(ab.prix!=null&&ab.prix!==''?euros(ab.prix)+' / '+(ab.periode==='annuel'?'an':'mois'):'')+
+      (ab.fin ? ' · '+(reste<0?'<span class="rouge">échu depuis le '+dateFr(ab.fin)+'</span>':(reste<=30?'<span class="ambre">échéance '+dateFr(ab.fin)+' (J-'+reste+')</span>':'jusqu\'au '+dateFr(ab.fin))) : ' · sans échéance')+'</small>';
+    var esp = {particulier:'🏠 Particulier', professionnel:'💼 Professionnel', les_deux:'🏠💼 Les deux'}[p.espace]||'';
+    var act = '<button class="btn petit" data-a="modifier" data-id="'+p.user_id+'">Modifier</button>';
+    if (!admin) {
+      act += p.statut==='actif'
+        ? '<button class="btn petit" data-a="suspendre" data-id="'+p.user_id+'">Suspendre</button><button class="btn petit danger" data-a="bloquer" data-id="'+p.user_id+'">Bloquer</button>'
+        : '<button class="btn petit" data-a="reactiver" data-id="'+p.user_id+'">Réactiver</button>';
+      act += '<button class="btn petit" data-a="mdp" data-id="'+p.user_id+'">Mot de passe</button>'+
+             '<button class="btn petit" data-a="facture" data-id="'+p.user_id+'">Facture</button>'+
+             '<button class="btn petit danger" data-a="vider" data-id="'+p.user_id+'">Vider ses outils</button>'+
+             '<button class="btn petit danger" data-a="supprimer" data-id="'+p.user_id+'">Supprimer</button>';
+    }
+    var statut = '<span class="pastille p-'+p.statut+'">'+({actif:'Actif',suspendu:'Suspendu',bloque:'Bloqué'}[p.statut])+'</span>'+
+      (p.mdp_provisoire && !admin ? '<small>mot de passe provisoire</small>' : '')+((p.motif && p.statut!=='actif') ? '<small>'+esc(p.motif)+'</small>' : '');
+    return '<tr><td><b>'+esc(nomComplet(p))+'</b><small>'+esc(p.identifiant)+(p.entreprise?' · '+esc(p.entreprise):'')+'</small></td>'+
+      '<td>'+esp+'</td><td>'+abTxt+'</td><td><div class="mini-jetons">'+jetonsDe(p)+'</div></td><td>'+statut+'</td><td>'+dateHeure(p.derniere_connexion)+'</td>'+
+      '<td><div class="actions">'+act+'</div></td></tr>';
+  }).join('');
+}
+
+function rendreDemandes(){
+  var f = $('#filtreDemandes').value;
+  var liste = DEMANDES.filter(function(d){ return f==='' ? (d.statut==='nouvelle'||d.statut==='en_cours') : f==='toutes' ? true : d.statut===f; });
+  var n = DEMANDES.filter(function(d){ return d.statut==='nouvelle'; }).length;
+  $('#nbDemandes').textContent = n ? n+' nouvelle'+(n>1?'s':'') : 'rien de nouveau';
+  $('#videDemandes').hidden = liste.length > 0;
+  $('#corpsDemandes').innerHTML = liste.map(function(d){
+    var detail = d.type==='souscription'
+      ? (d.formules||[]).map(function(x){ return esc(x.nom); }).join(', ')+'<small>facturation '+(d.periode==='annuel'?'annuelle':'mensuelle')+'</small>'
+      : esc(String(d.message||'').slice(0,90))+(String(d.message||'').length>90?'…':'');
+    return '<tr><td>'+dateHeure(d.created_at)+'</td><td><b>'+esc(d.nom)+'</b><small>'+esc(d.email)+'</small></td><td>'+esc(TYPES_DEMANDE[d.type]||d.type)+'</td>'+
+      '<td style="max-width:280px">'+detail+'</td><td><span class="pastille p-'+d.statut+'">'+({nouvelle:'Nouvelle',en_cours:'En cours',traitee:'Traitée',archivee:'Archivée'}[d.statut])+'</span></td>'+
+      '<td><div class="actions"><button class="btn petit'+(d.statut==='nouvelle'?' plein':'')+'" data-d="voir" data-id="'+d.id+'">Ouvrir</button></div></td></tr>';
+  }).join('');
+}
+
+function rendreFactures(){
+  $('#videFactures').hidden = FACT.length > 0;
+  $('#corpsFactures').innerHTML = FACT.map(function(f){
+    var cl = f.client||{};
+    var act = '<button class="btn petit" data-fa="voir" data-id="'+f.id+'">Voir</button>';
+    if (f.statut==='a_payer') act += '<button class="btn petit" data-fa="payer" data-id="'+f.id+'">Marquer payée</button><button class="btn petit danger" data-fa="annuler" data-id="'+f.id+'">Annuler</button>';
+    return '<tr><td><b>'+esc(f.numero)+'</b></td><td>'+esc(cl.nom||'—')+'<small>'+esc(cl.identifiant||'')+'</small></td><td>'+dateFr(f.date_emission)+'</td><td>'+esc(f.periode||'')+'</td>'+
+      '<td><b>'+euros(f.total)+'</b></td><td><span class="pastille p-'+f.statut+'">'+({a_payer:'À payer',payee:'Payée',annulee:'Annulée'}[f.statut])+'</span>'+
+      (f.statut==='payee'?'<small>le '+dateFr(f.date_paiement)+'</small>':'')+'</td><td><div class="actions">'+act+'</div></td></tr>';
+  }).join('');
+}
+
+function tuilesOutils(cochees, prefixeId, avecInput){
+  return Nao.outils.map(function(o){
+    var oui = cochees.indexOf(o.id) >= 0;
+    return '<label class="tuile'+(oui?' oui':'')+'"><svg viewBox="0 0 40 40"><use href="#'+o.symbole+'"/></svg><div><b>'+esc(o.nom)+'</b><small>'+esc(o.role)+'</small></div>'+
+      '<input type="checkbox" data-outil="'+o.id+'" '+(oui?'checked':'')+'></label>';
+  }).join('');
+}
+document.addEventListener('change', function(e){
+  var t = e.target; if (t && t.matches && t.matches('.tuile input[type=checkbox]')) t.closest('.tuile').classList.toggle('oui', t.checked);
+});
+function outilsCoches(conteneur){ return Array.prototype.map.call(conteneur.querySelectorAll('input[data-outil]:checked'), function(i){ return i.getAttribute('data-outil'); }); }
+function cocher(conteneur, liste){
+  conteneur.querySelectorAll('input[data-outil]').forEach(function(i){ i.checked = liste.indexOf(i.getAttribute('data-outil'))>=0; i.closest('.tuile').classList.toggle('oui', i.checked); });
+}
+
+function rendreFormules(){
+  $('#listeFormules').innerHTML = REGL.formules.map(function(f, i){
+    return '<div class="panneau" style="margin-bottom:14px;padding:16px" data-f="'+i+'"><div class="grille" style="margin-bottom:12px">'+
+      '<div><label>Nom de la formule</label><input data-champ="nom" value="'+esc(f.nom)+'"></div>'+
+      '<div><label>Prix TTC par mois (€)</label><input data-champ="prix" type="number" min="0" step="0.01" value="'+esc(f.prix)+'"></div>'+
+      '<div style="align-self:end"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;margin:0 0 8px;cursor:pointer"><input type="checkbox" data-champ="publique" '+(f.publique===false?'':'checked')+'> Proposée sur la page Contact</label>'+
+      '<div style="text-align:right"><button class="btn petit danger" data-supf="'+i+'">Supprimer</button></div></div></div>'+
+      '<div class="matrice">'+tuilesOutils(f.outils||[])+'</div></div>';
+  }).join('');
+}
+function lireFormules(){
+  return Array.prototype.map.call($('#listeFormules').children, function(bloc, i){
+    var nom = $('[data-champ=nom]',bloc).value.trim() || 'Formule '+(i+1);
+    var ancien = REGL.formules[i] || {};
+    return {id: ancien.id || (Nao.sansAccent(nom).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'f'+Date.now()), nom:nom, prix:Number($('[data-champ=prix]',bloc).value)||0, publique:$('[data-champ=publique]',bloc).checked, outils:outilsCoches(bloc)};
+  });
+}
+function rendreEditeur(){
+  var e = REGL.editeur;
+  $('#ed-nom').value=e.nom; $('#ed-forme').value=e.forme; $('#ed-siret').value=e.siret; $('#ed-email').value=e.email;
+  $('#ed-adresse').value=e.adresse; $('#ed-rep').value=e.representante; $('#ed-qual').value=e.qualite; $('#ed-tva').value=e.tva;
+}
+
+/* ---------- profil : ajouter / modifier ---------- */
+var edition = null, identTouche = false;
+function remplirFormules(){
+  $('#p-formule').innerHTML = REGL.formules.map(function(f){ return '<option value="'+esc(f.id)+'">'+esc(f.nom)+'</option>'; }).join('')+'<option value="">Sur mesure</option>';
+}
+function ouvrirProfil(p, demande){
+  edition = p || null; identTouche = !!p; demandePourProfil = demande || null;
+  remplirFormules();
+  $('#etapeForm').hidden = false; $('#etapeRemis').hidden = true; msg('pMsg','');
+  var admin = p && p.role==='admin';
+  $('#pTitre').textContent = p ? 'Modifier '+nomComplet(p) : 'Ajouter un profil';
+  $('#pSous').textContent = p ? (admin ? 'Votre fiche d\'administratrice : tous les outils vous sont ouverts.' : 'Les changements d\'outils s\'appliquent à sa prochaine ouverture.') : 'Le profil trouvera tous ses outils vierges.';
+  $('#bloc-mdp').hidden = !!p;
+  $('#p-prenom').value = p ? p.prenom : ''; $('#p-nom').value = p ? p.nom : '';
+  $('#p-ident').value = p ? p.identifiant : ''; $('#p-espace').value = p ? p.espace : 'particulier';
+  $('#p-entreprise').value = p ? p.entreprise : '';
+  $('#p-mdp').value = p ? '' : Nao.motDePasseProvisoire();
+  var ab = (p && p.abonnement) || {};
+  var f0 = ab.formule !== undefined ? ab.formule : REGL.formules[0].id;
+  $('#p-formule').value = f0; if ($('#p-formule').value !== f0) $('#p-formule').value = '';
+  $('#p-prix').value = ab.prix != null ? ab.prix : ((formuleDe(f0)||{}).prix || 0);
+  $('#p-periode').value = ab.periode || 'mensuel'; $('#p-debut').value = ab.debut || ajd(); $('#p-fin').value = ab.fin || '';
+  $('#p-notes').value = p ? p.notes : '';
+  $('#matrice').innerHTML = tuilesOutils(admin ? TOUS : (p ? p.outils||[] : (formuleDe(f0)||{outils:[]}).outils));
+  ['p-formule','p-prix','p-periode','p-debut','p-fin','btnTout','btnRien'].forEach(function(id){ $('#'+id).disabled = !!admin; });
+  $('#matrice').querySelectorAll('input').forEach(function(i){ i.disabled = !!admin; });
+  ouvrir('m-profil'); $('#p-prenom').focus();
+}
+function proposerIdent(){ if(!identTouche) $('#p-ident').value = Nao.identifiantPropose($('#p-prenom').value, $('#p-nom').value); }
+$('#p-prenom').addEventListener('input', proposerIdent); $('#p-nom').addEventListener('input', proposerIdent);
+$('#p-ident').addEventListener('input', function(){ identTouche = true; });
+$('#btnPropose').addEventListener('click', function(){ $('#p-mdp').value = Nao.motDePasseProvisoire(); });
+$('#btnTout').addEventListener('click', function(){ cocher($('#matrice'), TOUS); });
+$('#btnRien').addEventListener('click', function(){ cocher($('#matrice'), []); });
+$('#p-formule').addEventListener('change', function(){
+  var f = formuleDe(this.value); if (!f) return;
+  $('#p-prix').value = f.prix; cocher($('#matrice'), f.outils||[]);
+});
+
+$('#btnEnregProfil').addEventListener('click', function(){
+  var b = this; msg('pMsg','');
+  var id = Nao.normIdentifiant($('#p-ident').value);
+  var prenom = $('#p-prenom').value.trim(), nom = $('#p-nom').value.trim();
+  if (!prenom && !nom) return msg('pMsg','Indiquez au moins un prénom ou un nom.');
+  if (!/^[a-z0-9._-]+$/.test(id)) return msg('pMsg','Identifiant : lettres, chiffres et _ - . seulement, sans espace ni accent.');
+  var admin = edition && edition.role==='admin';
+  var ab = { formule:$('#p-formule').value, prix:Number($('#p-prix').value)||0, periode:$('#p-periode').value, debut:$('#p-debut').value, fin:$('#p-fin').value };
+  var champs = { prenom:prenom, nom:nom, espace:$('#p-espace').value, entreprise:$('#p-entreprise').value.trim(), notes:$('#p-notes').value.trim() };
+  b.disabled = true;
+  var suite;
+  if (!edition) {
+    var mdp = $('#p-mdp').value;
+    if (mdp.length < 8) { b.disabled=false; return msg('pMsg','Le mot de passe provisoire doit contenir 8 caractères au moins.'); }
+    suite = appelAdmin({action:'creer', identifiant:id, mdp:mdp, prenom:prenom, nom:nom, espace:champs.espace, entreprise:champs.entreprise,
+      outils:outilsCoches($('#matrice')), abonnement:ab, notes:champs.notes}).then(function(r){
+      r.profil.notes = champs.notes;
+      PROFILS.push(r.profil);
+      if (demandePourProfil) {                       /* la demande à l'origine de ce profil est traitée */
+        var dem = demandePourProfil; demandePourProfil = null;
+        C.from('demandes').update({statut:'traitee'}).eq('id', dem.id).select().single().then(function(x){
+          if (x.data) { DEMANDES[DEMANDES.indexOf(dem)] = x.data; rendre(); }
+        });
+      }
+      $('#rId').textContent = id; $('#rMdp').textContent = mdp;
+      $('#etapeForm').hidden = true; $('#etapeRemis').hidden = false;
+    });
+  } else {
+    var avant = edition.identifiant;
+    suite = (id !== avant ? appelAdmin({action:'identifiant', user_id:edition.user_id, identifiant:id}) : Promise.resolve()).then(function(){
+      var maj = { prenom:champs.prenom, nom:champs.nom, espace:champs.espace, entreprise:champs.entreprise, identifiant:id };
+      if (!admin) { maj.outils = outilsCoches($('#matrice')); maj.abonnement = ab; }
+      return C.from('profils').update(maj).eq('user_id', edition.user_id).select().single();
+    }).then(function(r){
+      if (r.error) throw new Error(r.error.message);
+      return C.from('notes_profils').upsert({user_id:edition.user_id, notes:champs.notes}).then(function(n){
+        if (n.error) throw new Error(n.error.message);
+        var i = PROFILS.findIndex(function(x){ return x.user_id===edition.user_id; });
+        r.data.notes = champs.notes; PROFILS[i] = r.data;
+        fermer('m-profil'); toast('Profil enregistré.');
+      });
+    });
+  }
+  suite.then(function(){ b.disabled=false; rendre(); }).catch(function(e){ b.disabled=false; msg('pMsg', e.message); });
+});
+$('#btnCopier').addEventListener('click', function(){
+  copier('Bonjour, voici votre accès NaoGroup — '+Nao.url('connexion.html')+'\nIdentifiant : '+$('#rId').textContent+'\nMot de passe provisoire : '+$('#rMdp').textContent+'\nVous choisirez votre propre mot de passe à la première connexion.');
+});
+
+/* ---------- statut ---------- */
+var cibleStatut = null, actionStatut = '';
+function ouvrirStatut(p, action){
+  cibleStatut = p; actionStatut = action; msg('sMsg','');
+  var t = {suspendre:'Suspendre l\'accès', bloquer:'Bloquer l\'accès', reactiver:'Réactiver l\'accès'}[action];
+  $('#sTitre').textContent = t; $('#sSous').textContent = nomComplet(p) + ' · ' + p.identifiant;
+  $('#sMotifBloc').hidden = action === 'reactiver'; $('#sMotif').value = '';
+  ouvrir('m-statut');
+}
+$('#btnValiderStatut').addEventListener('click', function(){
+  var b = this; b.disabled = true;
+  var s = {suspendre:'suspendu', bloquer:'bloque', reactiver:'actif'}[actionStatut];
+  C.from('profils').update({statut:s, motif: s==='actif' ? '' : $('#sMotif').value.trim()}).eq('user_id', cibleStatut.user_id).select().single().then(function(r){
+    b.disabled = false;
+    if (r.error) return msg('sMsg', r.error.message);
+    var i = PROFILS.findIndex(function(x){ return x.user_id===cibleStatut.user_id; }); r.data.notes = PROFILS[i].notes; PROFILS[i] = r.data;
+    fermer('m-statut'); toast(s==='actif' ? 'Accès rétabli.' : 'Accès '+(s==='bloque'?'bloqué':'suspendu')+' dès sa prochaine connexion.'); rendre();
+  });
+});
+
+/* ---------- mot de passe provisoire d'un profil ---------- */
+var cibleMdp = null;
+function ouvrirMdp(p){
+  cibleMdp = p; msg('mMsg','');
+  $('#mSous').textContent = nomComplet(p)+' · '+p.identifiant+'. Son mot de passe actuel ne peut pas être lu : on en donne un provisoire.';
+  $('#mMdp').value = Nao.motDePasseProvisoire(); $('#mForm').hidden = false; $('#mRemis').hidden = true; ouvrir('m-mdp');
+}
+$('#btnPropose2').addEventListener('click', function(){ $('#mMdp').value = Nao.motDePasseProvisoire(); });
+$('#btnValiderMdp').addEventListener('click', function(){
+  var b = this, v = $('#mMdp').value;
+  if (v.length < 8) return msg('mMsg','8 caractères au moins.');
+  b.disabled = true;
+  appelAdmin({action:'mdp', user_id:cibleMdp.user_id, mdp:v}).then(function(){
+    b.disabled = false; cibleMdp.mdp_provisoire = true; $('#mRemisMdp').textContent = v; $('#mForm').hidden = true; $('#mRemis').hidden = false; rendre();
+  }).catch(function(e){ b.disabled = false; msg('mMsg', e.message); });
+});
+$('#btnMonMdp').addEventListener('click', function(){ $('#moi1').value=''; $('#moi2').value=''; msg('moiMsg',''); ouvrir('m-moi'); });
+$('#btnValiderMoi').addEventListener('click', function(){
+  var a = $('#moi1').value, c = $('#moi2').value;
+  if (a.length < 8) return msg('moiMsg','8 caractères au moins.');
+  if (a !== c) return msg('moiMsg','Les deux saisies ne sont pas identiques.');
+  Nao.changerMotDePasse(a).then(function(r){ if(!r.ok) return msg('moiMsg', r.message||'Impossible.'); fermer('m-moi'); toast('Mot de passe modifié.'); });
+});
+
+/* ---------- suppression ---------- */
+function supprimer(p){
+  if (!confirm('Supprimer le profil de '+nomComplet(p)+' ?\n\nSon accès et toutes ses sauvegardes seront effacés. Ses factures restent conservées.')) return;
+  appelAdmin({action:'supprimer', user_id:p.user_id}).then(function(){
+    PROFILS = PROFILS.filter(function(x){ return x.user_id!==p.user_id; }); rendre(); toast('Profil supprimé.');
+  }).catch(function(e){ alert(e.message); });
+}
+
+/* ---------- factures ---------- */
+function numeroSuivant(){
+  var an = ajd().slice(0,4), max = 0;
+  FACT.forEach(function(f){ var m = /^NG-(\d{4})-(\d+)$/.exec(f.numero); if (m && m[1]===an) max = Math.max(max, Number(m[2])); });
+  return 'NG-'+an+'-'+String(max+1).padStart(3,'0');
+}
+function ligneHtml(l){
+  return '<div class="grille" style="grid-template-columns:3fr 1fr 1.3fr auto;margin-bottom:8px;align-items:end" data-ligne>'+
+    '<div><label>Désignation</label><input data-l="d" value="'+esc(l.d||'')+'"></div>'+
+    '<div><label>Qté</label><input data-l="q" type="number" min="1" step="1" value="'+(l.q||1)+'"></div>'+
+    '<div><label>Prix unit. TTC</label><input data-l="p" type="number" min="0" step="0.01" value="'+(l.p||0)+'"></div>'+
+    '<button type="button" class="btn petit danger" data-supl>✕</button></div>';
+}
+function ouvrirFacture(profilId){
+  msg('fMsg','');
+  $('#f-client').innerHTML = PROFILS.filter(function(p){ return p.role!=='admin'; }).map(function(p){ return '<option value="'+p.user_id+'">'+esc(nomComplet(p))+' — '+esc(p.identifiant)+'</option>'; }).join('');
+  if (!$('#f-client').options.length) { toast('Créez d\'abord un profil.'); return; }
+  if (profilId) $('#f-client').value = profilId;
+  $('#f-date').value = ajd(); $('#f-ech').value = plusJours(ajd(), 30); $('#f-periode').value = moisAnnee(); $('#f-adresse').value = '';
+  preLignes(); ouvrir('m-facture');
+}
+function preLignes(){
+  var p = PROFILS.filter(function(x){ return x.user_id===$('#f-client').value; })[0], ab = (p && p.abonnement)||{}, fm = formuleDe(ab.formule);
+  $('#f-lignes').innerHTML = ligneHtml({d:'Abonnement NaoGroup — '+(fm?fm.nom:'sur mesure')+(ab.periode==='annuel'?' (année)':' (mois)'), q:1, p:ab.prix||0});
+}
+$('#f-client').addEventListener('change', preLignes);
+$('#btnAjoutLigne').addEventListener('click', function(){ $('#f-lignes').insertAdjacentHTML('beforeend', ligneHtml({q:1,p:0})); });
+$('#f-lignes').addEventListener('click', function(e){ var b = e.target.closest('[data-supl]'); if (b && $('#f-lignes').children.length>1) b.closest('[data-ligne]').remove(); });
+$('#btnCreerFacture').addEventListener('click', function(){
+  var b = this, p = PROFILS.filter(function(x){ return x.user_id===$('#f-client').value; })[0];
+  var lignes = Array.prototype.map.call($('#f-lignes').querySelectorAll('[data-ligne]'), function(r){
+    return {d:$('[data-l=d]',r).value.trim(), q:Number($('[data-l=q]',r).value)||1, p:Number($('[data-l=p]',r).value)||0};
+  }).filter(function(l){ return l.d; });
+  if (!lignes.length) return msg('fMsg','Ajoutez au moins une ligne.');
+  var total = Math.round(lignes.reduce(function(s,l){ return s+l.q*l.p; },0)*100)/100;
+  b.disabled = true;
+  var ligne = { numero:numeroSuivant(), user_id:p.user_id, client:{nom:nomComplet(p), identifiant:p.identifiant, entreprise:p.entreprise||'', adresse:$('#f-adresse').value.trim(), espace:p.espace},
+    lignes:lignes, total:total, date_emission:$('#f-date').value||ajd(), echeance:$('#f-ech').value||null, periode:$('#f-periode').value.trim(), statut:'a_payer' };
+  C.from('factures').insert(ligne).select().single().then(function(r){
+    b.disabled = false;
+    if (r.error) return msg('fMsg', r.error.message);
+    FACT.unshift(r.data); fermer('m-facture'); rendre(); voirFacture(r.data); toast('Facture '+r.data.numero+' créée.');
+  });
+});
+function voirFacture(f){
+  var e = REGL.editeur, cl = f.client||{}, pro = cl.espace && cl.espace !== 'particulier';
+  var lignes = (f.lignes||[]).map(function(l){ return '<tr><td>'+esc(l.d)+'</td><td>'+l.q+'</td><td>'+euros(l.p)+'</td><td>'+euros(l.q*l.p)+'</td></tr>'; }).join('');
+  $('#feuille').innerHTML =
+    (f.statut==='payee' ? '<div class="tampon-paye">Payée<small>le '+dateFr(f.date_paiement)+'</small></div>' : '')+
+    (f.statut==='annulee' ? '<div class="tampon-paye" style="border-color:#C24B63;color:#C24B63">Annulée</div>' : '')+
+    '<div class="ent"><div><div class="marque"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg><b>Nao<i>Group</i></b></div>'+
+    '<div class="ed"><b>'+esc(e.nom)+'</b><br>'+esc(e.forme)+(e.siret?'<br>SIREN/SIRET : '+esc(e.siret):'')+(e.adresse?'<br>'+esc(e.adresse):'')+(e.email?'<br>'+esc(e.email):'')+'</div></div>'+
+    '<div class="titre-doc"><h4>FACTURE</h4><div><b>'+esc(f.numero)+'</b></div><div>Émise le '+dateFr(f.date_emission)+'</div>'+(f.echeance?'<div>Échéance : '+dateFr(f.echeance)+'</div>':'')+'</div></div>'+
+    '<div class="duo"><div><h5>Émetteur</h5>'+esc(e.nom)+'<br>'+esc(e.representante)+(e.qualite?', '+esc(e.qualite):'')+'</div>'+
+    '<div><h5>Client</h5><b>'+esc(cl.nom||'')+'</b>'+(cl.entreprise?'<br>'+esc(cl.entreprise):'')+(cl.adresse?'<br>'+esc(cl.adresse):'')+'<br>Identifiant : '+esc(cl.identifiant||'')+'</div></div>'+
+    (f.periode ? '<p style="font-size:12.5px;margin:0 0 10px"><b>Période :</b> '+esc(f.periode)+'</p>' : '')+
+    '<table><thead><tr><th>Désignation</th><th>Qté</th><th>Prix unitaire TTC</th><th>Total TTC</th></tr></thead><tbody>'+lignes+'</tbody></table>'+
+    '<div class="total"><div>Total TTC : '+euros(f.total)+'</div></div>'+
+    '<div class="mentions">'+esc(e.tva)+'<br>Paiement à l\'échéance indiquée'+(f.echeance?' ('+dateFr(f.echeance)+')':'')+'.'+
+    (pro ? ' En cas de retard de paiement : pénalités au taux de trois fois le taux d\'intérêt légal et indemnité forfaitaire de 40 € pour frais de recouvrement (professionnels).' : '')+'</div>';
+  ouvrir('m-doc');
+}
+$('#btnImprimer').addEventListener('click', function(){ window.print(); });
+$('#corpsFactures').addEventListener('click', function(e){
+  var b = e.target.closest('[data-fa]'); if(!b) return;
+  var f = FACT.filter(function(x){ return x.id===b.getAttribute('data-id'); })[0], a = b.getAttribute('data-fa');
+  if (a==='voir') return voirFacture(f);
+  var maj = a==='payer' ? {statut:'payee', date_paiement:ajd()} : {statut:'annulee'};
+  if (a==='annuler' && !confirm('Annuler la facture '+f.numero+' ?')) return;
+  C.from('factures').update(maj).eq('id', f.id).select().single().then(function(r){
+    if (r.error) return toast(r.error.message);
+    FACT[FACT.indexOf(f)] = r.data; rendre(); toast(a==='payer' ? 'Facture marquée payée.' : 'Facture annulée.');
+  });
+});
+
+/* ---------- formules et éditeur ---------- */
+$('#btnAjoutFormule').addEventListener('click', function(){ REGL.formules = lireFormules(); REGL.formules.push({id:'f'+Date.now(), nom:'Nouvelle formule', prix:0, outils:[]}); rendreFormules(); });
+$('#listeFormules').addEventListener('click', function(e){
+  var b = e.target.closest('[data-supf]'); if(!b) return;
+  REGL.formules = lireFormules();
+  if (REGL.formules.length <= 1) return toast('Gardez au moins une formule.');
+  REGL.formules.splice(Number(b.getAttribute('data-supf')),1); rendreFormules();
+});
+$('#btnEnregFormules').addEventListener('click', function(){
+  var f = lireFormules(); enregReglage('formules', f).then(function(){ REGL.formules = f; rendre(); toast('Formules enregistrées.'); }).catch(function(e){ alert(e.message); });
+});
+$('#btnEnregEditeur').addEventListener('click', function(){
+  var e = {nom:$('#ed-nom').value.trim(), forme:$('#ed-forme').value.trim(), siret:$('#ed-siret').value.trim(), email:$('#ed-email').value.trim(),
+    adresse:$('#ed-adresse').value.trim(), representante:$('#ed-rep').value.trim(), qualite:$('#ed-qual').value.trim(), tva:$('#ed-tva').value.trim()};
+  enregReglage('editeur', e).then(function(){ REGL.editeur = e; toast('Informations enregistrées.'); }).catch(function(x){ alert(x.message); });
+});
+
+/* ---------- statistiques d'usage ---------- */
+function duree(s){
+  s = Math.round(Number(s)||0);
+  if (s < 60) return s + ' s';
+  if (s < 3600) return Math.round(s/60) + ' min';
+  return Math.floor(s/3600) + ' h ' + String(Math.round((s%3600)/60)).padStart(2,'0');
+}
+function pct(a, b){ return b > 0 ? Math.round(a / b * 100) : null; }
+function barre(v){ return v === null ? '<span style="color:var(--ink-3)">—</span>' :
+  '<div style="display:flex;align-items:center;gap:8px"><div style="width:70px;height:7px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden"><div style="height:100%;width:'+Math.min(100,v)+'%;background:linear-gradient(90deg,#8E7BD4,#C39BF3)"></div></div><b style="min-width:38px;white-space:nowrap">'+v+' %</b></div>'; }
+function chargerUsage(){
+  var j = Number($('#periodeUsage').value) || 30;
+  C.rpc('stats_usage', {jours:j}).then(function(r){
+    if (r.error) {
+      $('#kpiUsage').innerHTML = ''; $('#graphUsage').innerHTML = ''; $('#corpsUsage').innerHTML = '';
+      $('#videUsage').hidden = false; $('#videUsage').textContent = 'Statistiques indisponibles : relancez supabase-schema.sql (' + r.error.message + ').';
+      return;
+    }
+    rendreUsage(r.data || {});
+  });
+}
+function rendreUsage(d){
+  var g = d.global || {}, lignes = d.outils || [];
+  var fidelite = pct(g.dau||0, g.mau||0);
+  $('#kpiUsage').innerHTML =
+    '<div class="stat"><b>'+(g.clients_actifs||0)+'</b><span>Profils clients actifs</span></div>'+
+    '<div class="stat"><b>'+(g.dau||0)+'</b><span>Actifs aujourd\'hui</span></div>'+
+    '<div class="stat"><b>'+(g.wau||0)+'</b><span>Actifs 7 jours</span></div>'+
+    '<div class="stat"><b>'+(g.mau||0)+'</b><span>Actifs 30 jours</span></div>'+
+    '<div class="stat"><b>'+(fidelite===null?'—':fidelite+' %')+'</b><span>Fidélité DAU/MAU</span></div>'+
+    '<div class="stat"><b>'+duree(g.temps_moyen_session_s)+'</b><span>Temps moyen / session</span></div>'+
+    '<div class="stat"><b>'+(g.outils_par_utilisateur||0)+'</b><span>Outils par profil actif</span></div>';
+
+  /* courbe : profils actifs par jour */
+  var serie = {}; (d.serie||[]).forEach(function(x){ serie[x.jour] = x.actifs; });
+  var n = Number(d.jours) || 30, jours = [], max = 1;
+  for (var i = n - 1; i >= 0; i--) { var dt = new Date(); dt.setDate(dt.getDate() - i); var k = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); jours.push([k, serie[k]||0]); max = Math.max(max, serie[k]||0); }
+  var larg = 100 / jours.length;
+  $('#graphUsage').innerHTML = (d.serie && d.serie.length)
+    ? '<div style="font:11px var(--ui);color:var(--ink-3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Profils actifs par jour</div>'+
+      '<svg viewBox="0 0 100 26" preserveAspectRatio="none" style="width:100%;height:90px;display:block;background:rgba(0,0,0,.18);border-radius:12px">'+
+      jours.map(function(x, i){ var h = x[1] / max * 22; return '<rect x="'+(i*larg+larg*.12)+'" y="'+(25-h)+'" width="'+(larg*.76)+'" height="'+h+'" rx=".4" fill="#C39BF3" opacity="'+(x[1]?'.9':'.15')+'"><title>'+x[0]+' : '+x[1]+'</title></rect>'; }).join('')+'</svg>'
+    : '';
+
+  $('#videUsage').hidden = lignes.length > 0 && (g.sessions||0) > 0;
+  if (!$('#videUsage').hidden) $('#videUsage').textContent = 'Pas encore de données : elles apparaissent dès que des profils ouvrent leurs outils.';
+  $('#corpsUsage').innerHTML = ((g.sessions||0) > 0 ? lignes : []).map(function(o){
+    var t = Nao.outilParId(o.outil);
+    var jeton = t ? '<svg class="mj" viewBox="0 0 40 40" style="width:26px;height:26px;flex:none"><use href="#'+t.symbole+'"/></svg>' : '';
+    var retour = o.retour7_eligibles > 0 ? pct(o.retour7, o.retour7_eligibles) : null;
+    return '<tr><td><div style="display:flex;align-items:center;gap:9px">'+jeton+'<b>'+esc(t ? t.nom : o.outil)+'</b></div></td>'+
+      '<td>'+o.avec_acces+'</td><td>'+o.actifs+'</td><td>'+barre(pct(o.actifs, o.avec_acces))+'</td>'+
+      '<td>'+o.sessions+'</td><td>'+(o.sessions?duree(o.temps_moyen_session_s):'—')+'</td><td>'+(o.actifs?duree(o.temps_moyen_utilisateur_s):'—')+'</td>'+
+      '<td>'+barre(pct(o.reutilisateurs, o.actifs))+'</td><td>'+barre(retour)+(o.retour7_eligibles?'<small>sur '+o.retour7_eligibles+' profil'+(o.retour7_eligibles>1?'s':'')+'</small>':'')+'</td></tr>';
+  }).join('');
+}
+$('#periodeUsage').addEventListener('change', chargerUsage);
+
+/* ---------- demandes reçues ---------- */
+function ouvrirDemande(d){
+  demandeOuverte = d;
+  var fm = (d.formules||[]).map(function(x){ return '<li>'+esc(x.nom)+(Number(x.prix)?' — '+euros(x.prix)+' / mois':' — gratuit')+'</li>'; }).join('');
+  var mailto = 'mailto:'+encodeURIComponent(d.email)+'?subject='+encodeURIComponent('Re : '+(d.sujet||'votre demande'))+'&body='+encodeURIComponent('Bonjour '+d.nom.split(' ')[0]+',\n\n');
+  $('#dContenu').innerHTML =
+    '<div class="remis" style="margin-top:0"><b style="color:#fff">'+esc(d.nom)+'</b>'+(d.entreprise?' · '+esc(d.entreprise):'')+'<br>'+
+    '<a href="'+mailto+'" style="color:var(--lilas)">'+esc(d.email)+'</a>'+(d.telephone?' · '+esc(d.telephone):'')+'<br>'+
+    '<span style="color:var(--ink-3)">Reçue le '+dateHeure(d.created_at)+' · '+esc(TYPES_DEMANDE[d.type]||d.type)+'</span></div>'+
+    (fm ? '<p class="sous" style="margin:12px 0 4px">Formule(s) souhaitée(s) — facturation '+(d.periode==='annuel'?'annuelle':'mensuelle')+'</p><ul style="margin:0 0 8px;padding-left:20px;color:var(--ink-2);font-size:14px">'+fm+'</ul>' : '')+
+    (d.message ? '<p class="sous" style="margin:12px 0 4px">Message</p><div style="white-space:pre-wrap;background:rgba(0,0,0,.24);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink-2)">'+esc(d.message)+'</div>' : '');
+  $('#dRepondre').setAttribute('href', mailto);
+  $('#dCreer').hidden = !(d.type==='souscription' || d.type==='acces');
+  $('#dStatut').value = d.statut; msg('dMsg','');
+  ouvrir('m-demande');
+}
+function majDemande(champs, ok){
+  C.from('demandes').update(champs).eq('id', demandeOuverte.id).select().single().then(function(r){
+    if (r.error) return msg('dMsg', r.error.message);
+    DEMANDES[DEMANDES.indexOf(demandeOuverte)] = r.data; demandeOuverte = r.data; rendre(); toast(ok);
+  });
+}
+$('#dStatut').addEventListener('change', function(){ majDemande({statut:this.value}, 'Statut enregistré.'); });
+$('#dSupprimer').addEventListener('click', function(){
+  if (!confirm('Supprimer définitivement cette demande ?')) return;
+  C.from('demandes').delete().eq('id', demandeOuverte.id).then(function(r){
+    if (r.error) return msg('dMsg', r.error.message);
+    DEMANDES = DEMANDES.filter(function(x){ return x.id!==demandeOuverte.id; }); fermer('m-demande'); rendre(); toast('Demande supprimée.');
+  });
+});
+$('#dCreer').addEventListener('click', function(){
+  var d = demandeOuverte; fermer('m-demande');
+  ouvrirProfil(null, d);
+  var mots = d.nom.trim().split(/\s+/), prenom = mots.shift() || '', nom = mots.join(' ');
+  var set = function(id, v){ var e = $('#'+id); e.value = v; e.dispatchEvent(new Event('input',{bubbles:true})); };
+  set('p-prenom', prenom); set('p-nom', nom); set('p-entreprise', d.entreprise || '');
+  $('#p-espace').value = d.entreprise ? 'professionnel' : 'particulier';
+  var choix = (d.formules||[]).map(function(x){ return formuleDe(x.id); }).filter(Boolean);
+  if (choix.length) {
+    $('#p-formule').value = choix[0].id;
+    $('#p-prix').value = choix.reduce(function(s,f){ return s + (Number(f.prix)||0); }, 0);
+    var outils = []; choix.forEach(function(f){ (f.outils||[]).forEach(function(o){ if (outils.indexOf(o)<0) outils.push(o); }); });
+    cocher($('#matrice'), outils);
+  }
+  if (d.periode) $('#p-periode').value = d.periode;
+  $('#p-notes').value = 'Demande du '+dateHeure(d.created_at)+' — '+d.email+(d.telephone ? ' — '+d.telephone : '')+(d.message ? '\n'+d.message : '');
+  $('#pSous').textContent = 'Pré-rempli d’après la demande de '+d.nom+'. Vérifiez, puis enregistrez.';
+});
+$('#corpsDemandes').addEventListener('click', function(e){
+  var b = e.target.closest('[data-d]'); if (!b) return;
+  ouvrirDemande(DEMANDES.filter(function(x){ return x.id===b.getAttribute('data-id'); })[0]);
+});
+$('#filtreDemandes').addEventListener('change', rendreDemandes);
+
+/* ---------- vider les outils d'un profil ---------- */
+function viderOutils(p){
+  if (!confirm('Vider TOUS les outils de '+nomComplet(p)+' ?\n\nToutes ses données saisies seront effacées et ses outils repartiront vierges, sur tous ses appareils. Son accès et son abonnement ne changent pas.')) return;
+  appelAdmin({action:'reinitialiser', user_id:p.user_id}).then(function(){ toast('Ses outils sont vides.'); }).catch(function(e){ alert(e.message); });
+}
+
+/* ---------- branchements ---------- */
+$('#btnAjout').addEventListener('click', function(){ ouvrirProfil(null); });
+$('#btnFacture').addEventListener('click', function(){ ouvrirFacture(null); });
+$('#rech').addEventListener('input', rendreProfils); $('#filtre').addEventListener('change', rendreProfils);
+$('#btnSortir').addEventListener('click', function(){ Nao.deconnexion(); });
+document.addEventListener('click', function(e){
+  var f = e.target.closest('[data-ferme]'); if (f) fermer(f.getAttribute('data-ferme'));
+});
+document.addEventListener('keydown', function(e){ if (e.key==='Escape') document.querySelectorAll('.voile.ouvert').forEach(function(v){ v.classList.remove('ouvert'); }); });
+$('#corpsProfils').addEventListener('click', function(e){
+  var b = e.target.closest('[data-a]'); if(!b) return;
+  var p = PROFILS.filter(function(x){ return x.user_id===b.getAttribute('data-id'); })[0], a = b.getAttribute('data-a');
+  if (a==='modifier') ouvrirProfil(p);
+  else if (a==='suspendre' || a==='bloquer' || a==='reactiver') ouvrirStatut(p, a);
+  else if (a==='mdp') ouvrirMdp(p);
+  else if (a==='facture') ouvrirFacture(p.user_id);
+  else if (a==='vider') viderOutils(p);
+  else if (a==='supprimer') supprimer(p);
+});
+
+/* ---------- démarrage ---------- */
+function refus(titre, texte){ $('#refusTitre').textContent = titre; $('#refusTexte').textContent = texte; $('#refus').hidden = false; }
+if (!Nao.configure) { refus('Serveur non branché', "Les clés du serveur manquent dans naogroup-cloud.js. Suivez le guide d'activation (GUIDE-SUPABASE.html), puis revenez ici."); return; }
+Nao.profil().then(function(p){
+  if (!p) { location.replace(Nao.url('connexion.html')+'?retour='+encodeURIComponent(location.href)); return; }
+  if (p.role !== 'admin' || p.statut !== 'actif') { refus('Accès réservé', "Cette page est réservée à l'administratrice de NaoGroup."); return; }
+  MOI = p;
+  return Nao.client().then(function(c){ C = c; return charger(); }).then(function(){ $('#app').hidden = false; rendre(); chargerUsage(); });
+}).catch(function(e){ refus('Chargement impossible', 'Le serveur ne répond pas comme prévu : '+e.message+' — avez-vous bien exécuté supabase-schema.sql ?'); });
+})();
+</script>
+</body>
+</html>

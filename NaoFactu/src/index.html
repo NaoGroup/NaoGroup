@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="../naogroup-cloud.js" data-outil="naofactu"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naofactu"></script>
+<title>NaoFactu — Vos factures claires, votre activité maîtrisée</title>
+<meta name="description" content="NaoFactu : devis, factures, avoirs, paiements, dépenses et documents comptables — un outil NaoGroup, sans compte ni abonnement.">
+<script>
+/* Le thème est posé avant le premier affichage : pas d'éclair clair en mode sombre. */
+try{var t=localStorage.getItem('naofactu.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}
+</script>
+<!-- Socle mobile : installation sur téléphone/tablette (voir naogroup-mobile.css) -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4E36C4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NaoFactu">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="../naogroup-mobile.css" data-partage="1">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<link rel="stylesheet" href="naofactu.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%234E36C4'/><stop offset='.55' stop-color='%23A488F1'/><stop offset='1' stop-color='%237C8BF0'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M9.5 11.8H19' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' opacity='.5'/><path d='M23.2 11.4L26 14.2L31 8.6' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/><path d='M12 31.5V18.5L28 31.5V18.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+</head>
+<body>
+
+<!-- ================= Marque =================
+     NaoFactu reprend le jeton de la maison (carré de 40, rayon 13) et le N
+     tracé d'un seul geste, descendu dans le bas du jeton comme NaoAgenda.
+     Son accent : au-dessus du N, une ligne de facture (blanc à 50 %) qui se
+     termine par une petite coche pleine, entourée d'une lueur lavande —
+     « la ligne est réglée ». Le dégradé glisse du violet profond à la
+     lavande, puis vers un bleu-violet : la sérénité des comptes tenus.   -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <linearGradient id="nf-degrade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4E36C4"/><stop offset=".55" stop-color="#A488F1"/><stop offset="1" stop-color="#7C8BF0"/>
+    </linearGradient>
+    <radialGradient id="nf-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="nf-relief" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <symbol id="nao-logo" viewBox="0 0 40 40">
+      <rect width="40" height="40" rx="13" fill="url(#nf-degrade)"/>
+      <rect width="40" height="40" rx="13" fill="url(#nf-relief)"/>
+      <circle cx="26.6" cy="11.4" r="6.2" fill="url(#nf-lueur)" opacity=".55"/>
+      <path d="M9.5 11.8H19" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>
+      <path d="M23.2 11.4L26 14.2L31 8.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 31.5V18.5L28 31.5V18.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="fond" aria-hidden="true"><i></i><i></i><i></i><b class="etoiles"></b><div class="motifs" id="motifs"></div></div>
+
+<!-- L'entrée dans l'outil : la facture s'imprime, s'écrit ligne après ligne, se totalise,
+     puis reçoit son tampon « Payée ». Un clic l'abrège. -->
+<div class="nfi" id="nf-intro" role="presentation" title="Cliquer pour entrer">
+  <div class="nfi-ciel" aria-hidden="true"><i></i><i></i><i></i><b></b><div class="motifs nfi-motifs" id="nfi-motifs"></div></div>
+  <div class="nfi-scene">
+    <div class="nfi-fente"><span></span></div>
+    <div class="nfi-sortie">
+      <div class="nfi-feuille"><div class="nfi-papier">
+        <div class="nfi-tete">
+          <svg class="nfi-jeton" viewBox="0 0 40 40" aria-hidden="true">
+            <rect width="40" height="40" rx="13" fill="url(#nf-degrade)"/><rect width="40" height="40" rx="13" fill="url(#nf-relief)"/>
+            <circle class="nfi-lueur" cx="26.6" cy="11.4" r="6.2" fill="url(#nf-lueur)"/>
+            <path class="nfi-trait" d="M9.5 11.8H19" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>
+            <path class="nfi-coche" d="M23.2 11.4L26 14.2L31 8.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="nfi-n" d="M12 31.5V18.5L28 31.5V18.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="nfi-emet"><b>Nao<span>Factu</span></b><small>Votre activité</small></div>
+          <div class="nfi-num"><b>FACTURE</b><small>N° F-2026-001</small></div>
+        </div>
+        <div class="nfi-bande"></div>
+        <div class="nfi-client"><small>Facturé à</small><i style="--w:62%"></i><i style="--w:44%"></i></div>
+        <div class="nfi-lignes">
+          <div style="--i:0"><i style="--w:70%"></i><em>850,00</em></div>
+          <div style="--i:1"><i style="--w:56%"></i><em>620,00</em></div>
+          <div style="--i:2"><i style="--w:64%"></i><em>530,00</em></div>
+        </div>
+        <div class="nfi-total"><span>Total TTC</span><b id="nfi-montant">0,00 €</b></div>
+        <div class="nfi-tampon"><span>PAYÉE</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>
+        <div class="nfi-eclats" id="nfi-eclats" aria-hidden="true"></div>
+        <div class="nfi-reflet"></div>
+      </div></div>
+    </div>
+    <div class="nfi-marque"><h2>Nao<span>Factu</span></h2>
+      <div class="nfi-phrase">Vos factures claires, <span>votre activité maîtrisée.</span></div></div>
+    <div class="nfi-passer">Cliquer pour entrer</div>
+  </div>
+</div>
+
+
+<div class="app">
+  <aside class="side" id="side">
+    <a class="brand" href="../NaoGroup.html" title="Ouvrir NaoGroup">
+      <svg class="logo" viewBox="0 0 40 40" role="img" aria-label="NaoFactu"><use href="#nao-logo"/></svg>
+      <div class="brand-txt">
+        <h1>Nao<span>Factu</span></h1>
+        <div class="brand-sub">Devis · Factures · Comptes</div>
+      </div>
+    </a>
+    <div class="act-pick" id="act-pick"></div>
+    <nav class="menu" id="menu"></nav>
+    <div class="side-foot">
+      <button class="theme-switch" id="theme-switch" type="button" role="switch" aria-checked="false"
+              aria-label="Thème sombre" title="Basculer clair / sombre"><span class="thumb" id="theme-icon">☀️</span></button>
+      <span id="theme-lab">Thème clair</span>
+      <button class="btn sm ghost" type="button" data-do="reinitialiser" style="margin-left:auto" title="Réinitialiser NaoFactu : repartir d'un outil vierge, comme un nouvel utilisateur">♻️</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="mobile-bar">
+      <button class="btn" id="menu-toggle" type="button" aria-label="Ouvrir le menu">☰ Menu</button>
+    </div>
+    <div id="view"></div>
+    <div class="foot">
+      💜 NaoFactu est un outil d'organisation et de suivi — il ne remplace ni un expert-comptable, ni l'administration.
+      Vos données restent sur cet ordinateur (stockage local du navigateur) : pensez à « Sauvegarder » de temps en temps.
+    </div>
+  </main>
+</div>
+
+<div id="print-root"></div>
+<div class="toast" id="toast"></div>
+<div class="version-badge" title="NaoFactu — NaoGroup">v1.1</div>
+<input type="file" id="file-in" hidden>
+
+<script src="nf-modeles.js"></script>
+<script src="nf-core.js"></script>
+<script src="nf-ui.js"></script>
+<script src="nf-docs.js"></script>
+<script src="nf-vues-ventes.js"></script>
+<script src="nf-vues-compta.js"></script>
+<script src="nf-vues-rh.js"></script>
+<script src="nf-contrats.js"></script>
+<script src="nf-paie.js"></script>
+<script src="nf-app.js"></script>
+</body>
+</html>

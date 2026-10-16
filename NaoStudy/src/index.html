@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naostudy"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naostudy"></script>
+<script src="../naogroup-logos.js"></script>
+<title>NaoStudy — Apprendre, s’organiser, avancer</title>
+<meta name="description" content="NaoStudy, l'outil de NaoGroup pour les emplois du temps, révisions et devoirs de toute la famille.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%234B34C8'/><stop offset='.5' stop-color='%237A7CF0'/><stop offset='1' stop-color='%23CDB4F8'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M20 8.1C17.6 6.5 14.7 6 11.8 6.4V14.4C14.7 14 17.6 14.5 20 16.1Z' fill='%23fff'/><path d='M20 8.1C22.4 6.5 25.3 6 28.2 6.4V14.4C25.3 14 22.4 14.5 20 16.1Z' fill='%23fff' opacity='.78'/><path d='M20 1.4Q20.3 3.3 22 3.6Q20.3 3.9 20 5.8Q19.7 3.9 18 3.6Q19.7 3.3 20 1.4Z' fill='%23fff'/><path d='M12 31.5V19.5L28 31.5V19.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { var r = document.documentElement; r.dataset.theme = localStorage.getItem('naostudy.theme') || 'dark'; if (localStorage.getItem('naostudy.calme') === '1') r.classList.add('calme'); if (localStorage.getItem('naostudy.grand') === '1') r.classList.add('grand'); } catch (e) {}</script>
+<link rel="stylesheet" href="naostudy.css">
+</head>
+<body class="entree">
+
+<!-- Le décor : halos, ciel étoilé, et de petites choses de l'école — livres qui s'ouvrent,
+     crayons qui écrivent, toques qui s'envolent, ampoules d'idées, lettres et chiffres qui montent. -->
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<svg class="motifs" id="motifs" aria-hidden="true"></svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- NaoStudy : au-dessus du N, un livre ouvert — une page en blanc plein, l'autre à demi transparente,
+       la reliure lavande — et, au-dessus, une petite étoile de connaissance qui s'en élève. -->
+  <linearGradient id="gst" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4B34C8"/><stop offset=".5" stop-color="#7A7CF0"/><stop offset="1" stop-color="#CDB4F8"/></linearGradient>
+  <radialGradient id="gst-lueur"><stop offset="0" stop-color="#EFE6FF" stop-opacity=".95"/><stop offset="1" stop-color="#EFE6FF" stop-opacity="0"/></radialGradient>
+  <symbol id="l-st" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gst)"/>
+    <circle cx="20" cy="9.6" r="9.4" fill="url(#gst-lueur)" opacity=".55"/>
+    <path d="M20 8.1C17.6 6.5 14.7 6 11.8 6.4V14.4C14.7 14 17.6 14.5 20 16.1Z" fill="#fff"/>
+    <path d="M20 8.1C22.4 6.5 25.3 6 28.2 6.4V14.4C25.3 14 22.4 14.5 20 16.1Z" fill="#fff" opacity=".78"/>
+    <path d="M14 9.4Q16.4 9.3 18.2 10.3" fill="none" stroke="#A89BF2" stroke-width=".8" stroke-linecap="round"/>
+    <path d="M20 8.1V16.1" stroke="#8A7CEE" stroke-width=".9" stroke-linecap="round"/>
+    <path d="M20 1.4Q20.3 3.3 22 3.6Q20.3 3.9 20 5.8Q19.7 3.9 18 3.6Q19.7 3.3 20 1.4Z" fill="#fff"/>
+    <circle cx="31.6" cy="6.2" r="1.05" fill="#fff" opacity=".8"/>
+    <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
+
+<!-- l'entrée dans l'outil : le cahier s'ouvre, les pages tournent et la semaine se remplit -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="signes" id="introSignes" aria-hidden="true"></div>
+  <div class="passer">Cliquer pour entrer</div>
+  <div class="scene">
+    <div class="cahier">
+      <div class="ombre-sol"></div>
+      <div class="interieur">
+        <h4>Nao<span>Study</span></h4>
+        <p>Ma semaine</p>
+        <div class="semaine" id="introSemaine"></div>
+        <div class="coches">
+          <div><svg viewBox="0 0 14 14" aria-hidden="true"><rect x=".7" y=".7" width="12.6" height="12.6" rx="3.5" fill="none" stroke="#B9A8F0" stroke-width="1.2"/><path d="M3.6 7.2L6 9.6L10.6 4.6" fill="none" stroke="#1E7F53" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Devoir de maths rendu</div>
+          <div><svg viewBox="0 0 14 14" aria-hidden="true"><rect x=".7" y=".7" width="12.6" height="12.6" rx="3.5" fill="none" stroke="#B9A8F0" stroke-width="1.2"/><path d="M3.6 7.2L6 9.6L10.6 4.6" fill="none" stroke="#1E7F53" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Fiche d’histoire révisée</div>
+          <!-- le crayon qui vient cocher les deux lignes -->
+          <svg class="crayon" viewBox="0 0 34 34" aria-hidden="true"><g transform="rotate(-45 17 17)"><path d="M4 17L9 14.5H28V19.5H9Z" fill="#F6C760"/><path d="M9 17H28" stroke="#E0A93A" stroke-width=".8"/><path d="M28 14.5H31.5Q33 14.5 33 16V18Q33 19.5 31.5 19.5H28Z" fill="#F2A0B8"/><path d="M4 17L9 14.5V19.5Z" fill="#F3E2C4"/><path d="M4 17L5.7 16.15V17.85Z" fill="#3A2C78"/></g></svg>
+        </div>
+        <svg class="etoile-i" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 1Q14 11 25 13Q14 15 13 25Q12 15 1 13Q12 11 13 1Z" fill="#E0B84F"/></svg>
+        <div class="eclats" aria-hidden="true"><i style="--a:0deg"></i><i style="--a:45deg"></i><i style="--a:90deg"></i><i style="--a:135deg"></i><i style="--a:180deg"></i><i style="--a:225deg"></i><i style="--a:270deg"></i><i style="--a:315deg"></i></div>
+        <div class="intercal" id="introOnglets"></div>
+      </div>
+      <div class="feuille f3"></div><div class="feuille f2"></div><div class="feuille f1"></div>
+      <div class="couverture">
+        <div class="face avant">
+          <span class="reflet" aria-hidden="true"></span>
+          <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-st"/></svg>
+          <div class="titre">Nao<span>Study</span></div>
+          <div class="etiq">Cahier de la famille</div>
+        </div>
+        <div class="face arriere"><small>Ce cahier appartient à</small><b>celles et ceux qui apprennent.</b></div>
+      </div>
+    </div>
+    <div class="phrase" id="introPhrase">Apprendre, <span>s’organiser</span>, avancer.</div>
+  </div>
+</div>
+
+<div class="page">
+  <header class="bar">
+    <a class="mark" href="../NaoGroup.html" title="Revenir à NaoGroup" aria-label="NaoStudy — revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoStudy"><use href="#l-st"/></svg>
+      <div><h1 class="nom-outil">Nao<span>Study</span></h1><div class="sub">Apprendre, s’organiser, avancer</div></div>
+    </a>
+    <div class="outils-haut">
+      <a class="pastille" href="../NaoGroup.html" title="Revenir à l'accueil NaoGroup"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg> NaoGroup</a>
+      <button class="pastille icone" type="button" data-vue-aller="guide" title="Comment ça marche ?" aria-label="Comment ça marche ?">❓</button>
+      <button class="pastille icone" type="button" data-act="reglages" title="Profils, matières et contrôle parental" aria-label="Profils et contrôle parental">⚙️</button>
+      <button class="pastille icone" type="button" data-act="sauvegarder" title="Sauvegarder NaoStudy dans un fichier" aria-label="Sauvegarder">💾</button>
+      <button class="pastille icone" type="button" data-act="recharger" title="Recharger une sauvegarde" aria-label="Recharger une sauvegarde">📂</button>
+      <button class="pastille icone" type="button" data-act="grand" id="btnGrand" title="Agrandir le texte">A+</button>
+      <button class="pastille icone" type="button" data-act="calme" id="btnCalme" title="Mettre les animations en pause">🕊️</button>
+      <button class="pastille reset" type="button" data-act="reinitialiser" title="Réinitialiser NaoStudy (repartir de zéro)">♻️ <span class="lib-r">Réinitialiser</span></button>
+      <button class="theme-switch" type="button" data-act="theme" id="btnTheme" role="switch" aria-checked="true" aria-label="Thème sombre" title="Basculer clair / sombre"><span class="thumb" aria-hidden="true">🌙</span></button>
+    </div>
+  </header>
+
+  <div class="profils-sel" id="profilsSel" role="group" aria-label="Choisir un profil" style="margin:10px 0 0"></div>
+
+  <nav class="onglets" id="onglets" aria-label="Espaces de NaoStudy"></nav>
+
+  <main id="contenu" tabindex="-1"></main>
+
+  <footer class="pied">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-st"/></svg>
+    <div>Un outil de la maison <a href="../NaoGroup.html">NaoGroup</a> · NaoStudy est un outil d'organisation et d'accompagnement :
+      il ne remplace ni l'enseignant, ni l'établissement, ni les professionnels de l'orientation ou de la santé. Les moyennes affichées sont des estimations personnelles.</div>
+  </footer>
+</div>
+
+<div class="voile" id="modale" role="dialog" aria-modal="true" aria-labelledby="modaleTitre"><div class="fen" id="modaleFen"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="fichierSauvegarde" accept="application/json,.json,.naostudy" hidden>
+
+<script src="ns-core.js"></script>
+<script src="ns-vues.js"></script>
+<script src="ns-app.js"></script>
+</body>
+</html>

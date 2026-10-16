@@ -1,0 +1,630 @@
+/* ============================================================
+   NaoBaby — charte NaoGroup
+   Thème sombre (par défaut) : nuit violette étoilée, jamais de noir.
+   Thème clair : le lilas pâle de la maison.
+   Quand le sexe de bébé est connu (et révélé), l'accent prend
+   une touche de rose, de bleu, ou les deux pour des jumeaux mixtes.
+   ============================================================ */
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+  --fond:radial-gradient(1250px 900px at 50% 16%, #6A59BC 0%, #3B2E7E 42%, #161129 100%);
+  --fond-uni:#171230;
+  --grille:rgba(255,255,255,.12);
+  --halo-1:#B9A8F0; --halo-2:#60ccc1; --halo-3:#ed7483; --ho1:.34; --ho2:.15; --ho3:.16;
+  --etoile:#FFFFFF; --ciel-o:1; --motif:#DCD2FB; --motif-o:.2;
+  --titre:#FFFFFF; --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --creux:rgba(0,0,0,.2); --trait:rgba(255,255,255,.09); --trait-2:rgba(255,255,255,.05);
+  --surface:rgba(30,23,60,.88); --champ:rgba(0,0,0,.24); --option:#2A2249;
+  --fenetre:linear-gradient(160deg, rgba(64,50,128,.97), rgba(34,26,70,.98));
+  --voile:rgba(16,11,36,.58);
+  --or:#F3C969; --doux:#F0919F; --vert:#7FD4B0;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+
+  /* l'accent — neutre : le lilas de la maison */
+  --acc:#C9B7F5; --acc-fort:#B9A8F0;
+  --grad:linear-gradient(135deg,#8E7BD4,#C39BF3);
+  --grad-txt:#1C1636;
+  --acc-lueur:rgba(185,168,240,.55);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --fond:radial-gradient(1400px 900px at 50% -8%, #F1EBFE 0%, #E7E0FB 44%, #F5F1FD 100%);
+  --fond-uni:#F5F1FD;
+  --grille:rgba(114,87,207,.15);
+  --halo-1:#C9B7F5; --halo-2:#8FD8D2; --halo-3:#F3AEC0; --ho1:.45; --ho2:.22; --ho3:.24;
+  --etoile:#9B82E8; --ciel-o:.5; --motif:#7257CF; --motif-o:.16;
+  --titre:#241F33; --ink:#2E2842; --ink-2:#635C7B; --ink-3:#958DAE;
+  --verre:rgba(255,255,255,.62); --verre-2:rgba(255,255,255,.9);
+  --bord:#E3D9F5; --bord-2:#CFC0EE;
+  --creux:rgba(114,87,207,.06); --trait:rgba(114,87,207,.14); --trait-2:rgba(114,87,207,.07);
+  --surface:#FFFFFF; --champ:#FFFFFF; --option:#FFFFFF;
+  --fenetre:linear-gradient(160deg, #FFFFFF, #F4EEFD);
+  --voile:rgba(70,52,140,.24);
+  --or:#B8862A; --doux:#C24B63; --vert:#2F8F63;
+  --ombre:0 1px 2px rgba(36,31,51,.04), 0 14px 34px -18px rgba(114,87,207,.45);
+  --acc:#7257CF; --acc-fort:#6247C4; --acc-lueur:rgba(114,87,207,.4);
+  color-scheme:light;
+}
+/* --- touches selon le sexe de bébé (seulement une fois révélé) --- */
+:root[data-sexe="fille"]{--acc:#F4B6D2;--acc-fort:#EE9DC2;--grad:linear-gradient(135deg,#A57CDC,#F2A7C9);--acc-lueur:rgba(242,167,201,.55);
+  --halo-2:#F3AEC8;--ho2:.2;--motif:#F7D3E4}
+:root[data-sexe="garcon"]{--acc:#A9C8F7;--acc-fort:#8FB6F2;--grad:linear-gradient(135deg,#7582E0,#9DC6F4);--acc-lueur:rgba(157,198,244,.55);
+  --halo-2:#8FB8F2;--halo-3:#9DA8F5;--ho2:.22;--motif:#D3E2FB}
+:root[data-sexe="mixte"]{--acc:#E3BCEB;--acc-fort:#D7A8E6;--grad:linear-gradient(135deg,#F2A7C9,#B69CF0 52%,#9DC6F4);--acc-lueur:rgba(214,170,236,.55);
+  --halo-2:#9DC0F4;--halo-3:#F3AEC8;--ho2:.2;--ho3:.2}
+:root[data-theme="light"][data-sexe="fille"]{--acc:#C2508A;--acc-fort:#B03F79;--acc-lueur:rgba(194,80,138,.35);--motif:#C2508A;--halo-2:#F6BCD3}
+:root[data-theme="light"][data-sexe="garcon"]{--acc:#3F6FCB;--acc-fort:#325FB8;--acc-lueur:rgba(63,111,203,.35);--motif:#3F6FCB;--halo-2:#B9D2F7}
+:root[data-theme="light"][data-sexe="mixte"]{--acc:#8A4FC0;--acc-fort:#7A40AF;--acc-lueur:rgba(138,79,192,.35);--motif:#8A4FC0}
+/* --- le mode souvenir (grossesse arrêtée) : tout se fait plus doux --- */
+:root[data-mode="perte"]{--grad:linear-gradient(135deg,#9C8FD0,#CDBFEF);--halo-2:#B9A8F0;--halo-3:#C9B7F5;--ho3:.12;--motif-o:.12}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;padding:0}
+body{min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;font-size:14.5px;line-height:1.55;
+  background:var(--fond-uni);overflow-x:hidden;transition:background-color .3s}
+input,select,button,textarea{font-family:var(--ui);font-style:normal;color:inherit}
+button{cursor:pointer}
+a{color:var(--acc)}
+h1,h2,h3,h4{margin:0;font-weight:600;color:var(--titre)}
+
+/* ---------- Le fond : nuit douce, étoiles et petits motifs de bébé ---------- */
+.fond{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--fond)}
+.fond::before{content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle, var(--grille) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 26%, #000 0 30%, transparent 74%);
+  mask-image:radial-gradient(circle at 50% 26%, #000 0 30%, transparent 74%)}
+.fond>i{position:absolute;border-radius:50%;filter:blur(70px);animation:flotte 16s ease-in-out infinite alternate;transition:background 1.2s}
+.fond>i:nth-child(1){width:480px;height:480px;background:var(--halo-1);left:4%;top:4%;opacity:var(--ho1)}
+.fond>i:nth-child(2){width:420px;height:420px;background:var(--halo-2);right:5%;bottom:4%;opacity:var(--ho2);animation-duration:19s}
+.fond>i:nth-child(3){width:360px;height:360px;background:var(--halo-3);right:26%;top:-9%;opacity:var(--ho3);animation-duration:23s}
+.ciel{position:absolute;inset:0;opacity:var(--ciel-o)}
+.ciel b{position:absolute;border-radius:50%;background:var(--etoile);animation:scintille ease-in-out infinite}
+.ciel b.gros{box-shadow:0 0 6px 1px color-mix(in srgb, var(--etoile) 80%, transparent)}
+.motifs{position:absolute;inset:0;overflow:hidden}
+.motifs svg{position:absolute;color:var(--motif);opacity:0;animation:derive linear infinite;will-change:transform;transition:color 1.2s}
+@keyframes flotte{from{transform:translate(0,0) scale(1)}to{transform:translate(46px,-34px) scale(1.18)}}
+@keyframes scintille{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:.95;transform:scale(1)}}
+@keyframes derive{
+  0%{opacity:0;transform:translate3d(0,40px,0) rotate(var(--r0)) scale(.9)}
+  12%{opacity:var(--o)}
+  88%{opacity:var(--o)}
+  100%{opacity:0;transform:translate3d(var(--dx),-140px,0) rotate(var(--r1)) scale(1.05)}}
+@keyframes monte{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes berce{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes respire{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+@keyframes miroite{0%{background-position:-160% 0}100%{background-position:260% 0}}
+@keyframes ouvre{0%{opacity:0;transform:perspective(900px) rotateX(30deg) translateY(30px) scale(.92)}100%{opacity:1;transform:none}}
+
+/* ---------- L'entrée : une étoile tombe dans le berceau de lune ----------
+   Le logo de NaoBaby prend vie : le croissant arrive et se met à bercer,
+   une petite étoile tombe du ciel et s'y dépose dans un éclat de lumière,
+   et les 40 perles des semaines s'allument jusqu'à la semaine en cours. */
+.intro{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:var(--fond);background-color:var(--fond-uni);
+  cursor:pointer;animation:introSort .75s 3.3s cubic-bezier(.6,0,.3,1) forwards}
+.intro::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle, var(--grille) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 45%, #000 0 26%, transparent 66%);mask-image:radial-gradient(circle at 50% 45%, #000 0 26%, transparent 66%)}
+@keyframes introSort{to{opacity:0;visibility:hidden;transform:scale(1.08)}}
+.intro .scene{position:relative;display:flex;flex-direction:column;align-items:center;gap:18px}
+.berceau{position:relative;width:280px;height:280px}
+.berceau .lueur{position:absolute;inset:40px;border-radius:50%;background:radial-gradient(circle, var(--acc-lueur), transparent 68%);
+  opacity:0;animation:lueurIn 1.4s 1.3s ease-out forwards}
+@keyframes lueurIn{to{opacity:.85}}
+.berceau .anneau{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.berceau .anneau circle{fill:var(--bord);opacity:0;animation:perleIn .3s ease forwards;animation-delay:calc(.25s + var(--i) * .012s)}
+.berceau .anneau circle.on{animation:perleIn .3s ease forwards, allume .45s ease forwards;animation-delay:calc(.25s + var(--i) * .012s), calc(1.05s + var(--i) * .03s)}
+.berceau .anneau circle.now{animation:perleIn .3s ease forwards, allume .45s ease forwards, bat 1.3s ease-in-out infinite;
+  animation-delay:calc(.25s + var(--i) * .012s), calc(1.05s + var(--i) * .03s), calc(1.5s + var(--i) * .03s);transform-box:fill-box;transform-origin:center}
+@keyframes perleIn{to{opacity:.55}}
+@keyframes allume{to{fill:var(--acc);opacity:1;filter:drop-shadow(0 0 3px var(--acc))}}
+@keyframes bat{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
+.berceau .lune{position:absolute;left:65px;top:112px;width:150px;height:120px;transform-origin:50% 8%;
+  animation:luneArrive .9s cubic-bezier(.2,.8,.2,1) both, berceIntro 2.6s .9s ease-in-out infinite}
+@keyframes luneArrive{from{opacity:0;transform:translateY(70px) scale(.7)}}
+@keyframes berceIntro{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+.berceau .lune svg.croissant{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 18px var(--acc-lueur)) drop-shadow(0 12px 20px rgba(20,10,60,.4))}
+/* l'étoile filante : le conteneur glisse en ligne droite (la traînée suit, orientée vers le ciel),
+   l'étoile, elle, tourne sur elle-même en grandissant */
+.berceau .etoile-bb{position:absolute;left:53px;top:34px;width:44px;height:44px;
+  animation:chute 1s .4s cubic-bezier(.55,0,.35,1.15) both}
+@keyframes chute{0%{opacity:0;transform:translate(-150px,-312px)}12%{opacity:1}100%{opacity:1;transform:none}}
+.berceau .etoile-bb svg{position:relative;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px var(--acc));
+  animation:vrille 1s .4s cubic-bezier(.4,0,.3,1) both}
+@keyframes vrille{from{transform:rotate(-300deg) scale(.45)}to{transform:none}}
+.berceau .traine{position:absolute;left:22px;top:22px;width:230px;height:3px;margin-top:-1.5px;border-radius:3px;transform-origin:0 50%;
+  background:linear-gradient(90deg,#fff 0%,color-mix(in srgb, var(--acc) 70%, transparent) 28%,transparent 100%);filter:drop-shadow(0 0 5px #fff);
+  opacity:0;transform:rotate(244.3deg) scaleX(.3);animation:traine 1.25s .4s ease-out forwards}
+@keyframes traine{0%{opacity:0}12%{opacity:.95;transform:rotate(244.3deg) scaleX(1)}78%{opacity:.9;transform:rotate(244.3deg) scaleX(.85)}100%{opacity:0;transform:rotate(244.3deg) scaleX(0)}}
+/* l'arrivée : ondes de lumière et gerbe d'étincelles */
+.berceau .onde{position:absolute;left:75px;top:56px;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;
+  border:2px solid var(--acc);opacity:0;transform:scale(0);animation:onde 1.3s 1.38s cubic-bezier(.2,.7,.3,1) forwards}
+.berceau .onde.o2{animation-delay:1.58s;border-width:1px}
+@keyframes onde{0%{opacity:.9;transform:scale(.1)}100%{opacity:0;transform:scale(1.6)}}
+.berceau .part{position:absolute;left:75px;top:56px;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:#fff;
+  box-shadow:0 0 6px var(--acc);opacity:0;animation:gerbe .9s 1.38s cubic-bezier(.15,.7,.3,1) forwards}
+.berceau .part:nth-child(even){background:var(--acc)}
+@keyframes gerbe{0%{opacity:1;transform:rotate(var(--a)) translateX(4px) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d,58px)) scale(.3)}}
+/* un tour de lumière autour de l'anneau des semaines */
+.berceau .anneau circle.tour{fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round;stroke-dasharray:9 91;stroke-dashoffset:0;opacity:0;
+  transform:rotate(-90deg);transform-origin:140px 140px;filter:drop-shadow(0 0 5px var(--acc));animation:tourLumiere 1.1s 2.25s ease-in-out forwards}
+@keyframes tourLumiere{0%{opacity:0;stroke-dashoffset:0}15%{opacity:1}85%{opacity:1}100%{opacity:0;stroke-dashoffset:-100}}
+/* le ciel de l'entrée : étoiles qui s'éveillent, nuages qui passent */
+.intro .ciel-i{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.intro .ciel-i b{position:absolute;border-radius:50%;background:var(--etoile);opacity:0;animation:eveil 2.8s ease-in-out infinite}
+@keyframes eveil{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:.85;transform:scale(1)}}
+.intro .nuage-i{position:absolute;pointer-events:none;color:#fff;opacity:0;animation:nuagePasse var(--t,10s) linear forwards}
+@keyframes nuagePasse{0%{opacity:0;transform:translateX(0)}18%{opacity:var(--o,.14)}100%{opacity:var(--o,.14);transform:translateX(var(--dx,120px))}}
+.lune-vol{pointer-events:none;will-change:transform,opacity}
+.berceau .eclat{position:absolute;left:75px;top:56px;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;
+  background:radial-gradient(circle, #fff, var(--acc) 40%, transparent 70%);opacity:0;animation:eclat 1s 1.38s ease-out forwards}
+@keyframes eclat{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(26)}}
+.berceau .scint{position:absolute;color:#fff;font-size:14px;opacity:0;animation:scintIntro 1.6s ease-in-out infinite;text-shadow:0 0 8px var(--acc)}
+@keyframes scintIntro{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1)}}
+.intro .nom{font-family:var(--sans);font-style:italic;font-size:44px;font-weight:600;color:var(--titre);letter-spacing:-.02em;line-height:1}
+.intro .nom span{display:inline-block;opacity:0;animation:lettre .5s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(1.55s + var(--i) * .06s)}
+.intro .nom span.acc{color:var(--acc)}
+.intro .nom{animation:nomLueur 1.4s 2.35s ease-in-out}
+@keyframes nomLueur{50%{text-shadow:0 0 18px var(--acc-lueur), 0 0 40px var(--acc-lueur)}}
+@keyframes lettre{from{opacity:0;transform:translateY(14px) rotate(-6deg)}to{opacity:1;transform:none}}
+.intro .phrase{font-family:var(--sans);font-style:italic;font-size:18px;color:var(--ink-2);text-align:center;max-width:90vw;animation:monte .8s 2.1s ease both}
+.intro .phrase b{color:var(--acc);font-weight:600}
+.intro .passer{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-family:var(--ui);font-style:normal;font-size:11px;color:var(--ink-3);letter-spacing:.08em;animation:monte .6s 1s ease both}
+/* la page apparaît sans bouger : le croissant s'envole vers le logo, qui doit rester à sa place */
+body.entree .shell{animation:apparait .9s 3.15s ease both}
+@keyframes apparait{from{opacity:0}}
+@keyframes emerge{from{opacity:0;transform:translateY(22px) scale(.985)}}
+@media (max-width:560px){.berceau{transform:scale(.8)}.intro .nom{font-size:36px}.intro .phrase{font-size:16px;padding:0 16px}}
+@media (max-height:620px){.intro .scene{gap:6px}.berceau{transform:scale(.72);margin:-38px 0}.intro .nom{font-size:34px}.intro .phrase{font-size:15px}.intro .passer{bottom:10px}}
+
+/* ---------- En-tête ---------- */
+.shell{max-width:1320px;margin:0 auto;padding:20px 24px 50px}
+.entete{display:flex;align-items:center;gap:16px;flex-wrap:wrap;animation:monte .6s ease both}
+.marque{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
+.marque svg{width:56px;height:56px;border-radius:18px;flex:none;box-shadow:0 14px 30px -14px rgba(40,20,90,.8), 0 0 30px -8px var(--acc-lueur);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.marque:hover svg{transform:rotate(-6deg) scale(1.05)}
+.marque h1{font-size:28px;letter-spacing:-.02em;line-height:1.1}
+.marque h1 span{color:var(--acc);transition:color .8s}
+.slogan{font-size:14px;color:var(--ink-2)}
+.semaine-pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--ui);font-style:normal;font-size:13px;font-weight:700;
+  padding:8px 15px;border-radius:999px;background:var(--verre);border:1px solid var(--bord);color:var(--titre);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.semaine-pill i{width:9px;height:9px;border-radius:50%;background:var(--grad);box-shadow:0 0 10px var(--acc-lueur);animation:respire 2.6s ease-in-out infinite}
+.semaine-pill small{font-weight:600;color:var(--ink-3)}
+.spacer{flex:1}
+.outils-mini{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rond{width:40px;height:40px;border-radius:50%;border:1px solid var(--bord);background:var(--verre);display:grid;place-items:center;
+  font-size:16px;transition:.2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:0}
+.rond:hover{background:var(--verre-2);border-color:var(--bord-2);transform:translateY(-1px)}
+.rond.petit{width:30px;height:30px;font-size:12.5px}
+.theme{position:relative;width:62px;height:34px;border-radius:999px;border:1px solid var(--bord);background:var(--creux);padding:0;transition:.3s}
+.theme .pouce{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;
+  background:var(--grad);box-shadow:0 4px 12px -4px rgba(114,87,207,.9);transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
+:root[data-theme="light"] .theme .pouce{transform:translateX(28px);background:linear-gradient(135deg,#F3C969,#F3AEC0)}
+
+/* navigation principale : les trois temps, et l'accueil */
+.pages{display:flex;gap:4px;padding:5px;border-radius:999px;background:var(--creux);border:1px solid var(--bord);margin:18px 0 6px;
+  width:max-content;max-width:100%;overflow-x:auto;scrollbar-width:none;animation:monte .6s .05s ease both}
+.pages button{border:0;background:transparent;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:650;color:var(--ink-2);
+  display:inline-flex;align-items:center;gap:8px;transition:.2s;white-space:nowrap}
+.pages button:hover{color:var(--titre)}
+.pages button.on{background:var(--grad);color:var(--grad-txt);box-shadow:0 8px 20px -10px var(--acc-lueur)}
+.sous-pages{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 18px}
+.sous-pages button{border:1px solid var(--bord);background:var(--verre);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;color:var(--ink-2);
+  transition:.2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.sous-pages button:hover{color:var(--titre);border-color:var(--bord-2)}
+.sous-pages button.on{color:var(--titre);border-color:var(--acc);background:color-mix(in srgb, var(--acc) 18%, transparent);box-shadow:0 0 16px -6px var(--acc-lueur)}
+
+/* ---------- Boutons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:10px 18px;font-size:13.5px;font-weight:650;text-decoration:none;
+  border:1px solid var(--bord);background:var(--verre);color:var(--ink);transition:.2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.btn:hover{background:var(--verre-2);border-color:var(--bord-2);transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn.plein{background:var(--grad);color:var(--grad-txt);border-color:transparent;box-shadow:0 10px 26px -12px var(--acc-lueur)}
+.btn.plein:hover{filter:brightness(1.06);box-shadow:0 12px 30px -10px var(--acc-lueur)}
+.btn .plus{font-size:17px;line-height:1;font-weight:500}
+.btn.petit{padding:6px 12px;font-size:12.5px}
+.btn.danger{color:var(--doux);border-color:color-mix(in srgb, var(--doux) 40%, transparent)}
+.actions-rapides{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 18px;animation:monte .6s .08s ease both}
+
+/* ---------- Cartes ---------- */
+.carte{position:relative;background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:18px 20px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .5s ease both;min-width:0}
+.carte::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(140deg, rgba(255,255,255,.1), transparent 36%);opacity:.8}
+:root[data-theme="light"] .carte::after{opacity:.5}
+.carte.cliquable{cursor:pointer;transition:transform .25s, border-color .25s, background .25s}
+.carte.cliquable:hover{transform:translateY(-3px);border-color:var(--bord-2);background:var(--verre-2)}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+.grille-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.grille>.carte:nth-child(2){animation-delay:.04s}.grille>.carte:nth-child(3){animation-delay:.08s}.grille>.carte:nth-child(4){animation-delay:.12s}
+.grille>.carte:nth-child(5){animation-delay:.16s}.grille>.carte:nth-child(6){animation-delay:.2s}.grille>.carte:nth-child(7){animation-delay:.24s}
+.carte-t{display:flex;align-items:center;gap:9px;margin-bottom:12px;position:relative;z-index:1}
+.carte-t h2{font-size:18.5px;letter-spacing:-.01em}
+.carte-t .em{font-size:20px}
+.carte-t .compte{margin-left:auto;font-family:var(--ui);font-style:normal;font-size:11.5px;font-weight:700;color:var(--ink-2);
+  background:var(--creux);border:1px solid var(--bord);padding:2px 9px;border-radius:999px;white-space:nowrap}
+.carte>*{position:relative;z-index:1}
+.sous{font-size:13px;color:var(--ink-3);margin:-6px 0 12px}
+.vide{font-size:14px;color:var(--ink-3);padding:6px 0 2px}
+.lien-carte{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:var(--ui);font-style:normal;font-size:12.5px;font-weight:650;
+  color:var(--acc);background:none;border:0;padding:0}
+.lien-carte:hover{text-decoration:underline}
+.titre-page{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:6px 0 4px}
+.titre-page h2{font-size:26px;letter-spacing:-.02em}
+.titre-page h2 span{color:var(--acc)}
+.chapo{font-size:15px;color:var(--ink-2);margin:0 0 16px;max-width:80ch}
+
+/* ---------- Le grand calendrier de grossesse ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:center;padding:24px 26px;margin-bottom:16px}
+.hero h2{font-size:22px}
+.hero .sem{font-size:46px;line-height:1.05;letter-spacing:-.03em;color:var(--titre);margin:8px 0 2px}
+.hero .sem span{color:var(--acc)}
+.hero .sa{font-family:var(--ui);font-style:normal;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.perles{display:grid;grid-template-columns:repeat(20,1fr);gap:6px;margin:18px 0 8px}
+.perle{aspect-ratio:1;border-radius:50%;background:var(--creux);border:1px solid var(--bord);position:relative;transition:.3s}
+.perle.faite{background:var(--grad);border-color:transparent;box-shadow:0 0 8px -2px var(--acc-lueur)}
+.perle.now{box-shadow:0 0 0 3px color-mix(in srgb, var(--acc) 40%, transparent), 0 0 16px var(--acc-lueur);animation:respire 2.4s ease-in-out infinite}
+.perle.tri{margin-left:0}
+.trimestres{display:flex;justify-content:space-between;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3)}
+.barre-prog{height:10px;border-radius:999px;background:var(--creux);border:1px solid var(--bord);overflow:hidden;margin-top:12px}
+.barre-prog i{display:block;height:100%;background:var(--grad);border-radius:inherit;box-shadow:0 0 14px var(--acc-lueur);transition:width 1s}
+.rebours{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.compteur{text-align:center;padding:12px 6px;border-radius:18px;background:var(--creux);border:1px solid var(--bord)}
+.compteur b{display:block;font-size:30px;line-height:1.1;color:var(--titre);font-variant-numeric:tabular-nums}
+.compteur span{font-family:var(--ui);font-style:normal;font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em}
+.bulle-bebe{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.bulle-bebe .orbe{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.32), transparent 55%), var(--grad);
+  box-shadow:0 30px 60px -25px var(--acc-lueur), inset 0 -10px 30px rgba(40,20,90,.25);animation:respire 5s ease-in-out infinite}
+.bulle-bebe .orbe::before{content:'';position:absolute;inset:-14px;border-radius:50%;border:1px dashed var(--bord-2);animation:tourne 60s linear infinite}
+@keyframes tourne{to{transform:rotate(360deg)}}
+.bulle-bebe .fruit{font-size:78px;filter:drop-shadow(0 8px 14px rgba(40,20,90,.35));animation:berce 5s ease-in-out infinite}
+.bulle-bebe p{margin:0;font-size:15px;color:var(--ink-2);max-width:32ch}
+.bulle-bebe p b{color:var(--titre);font-weight:600}
+.idee{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--creux);border:1px solid var(--bord);font-size:14px;color:var(--ink-2)}
+.idee .em{font-size:18px}
+
+/* ---------- Lignes de liste ---------- */
+.ligne{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;transition:background .2s;min-width:0}
+.ligne:hover{background:var(--trait-2)}
+.ligne .em{font-size:18px;flex:none;width:26px;text-align:center}
+.ligne .txt{flex:1;min-width:0}
+.ligne .txt b{display:block;font-weight:600;color:var(--titre);overflow:hidden;text-overflow:ellipsis}
+.ligne .txt span{display:block;font-size:12.5px;color:var(--ink-3)}
+.ligne .meta{flex:none;font-family:var(--ui);font-style:normal;font-size:11.5px;font-weight:700;color:var(--acc);
+  background:color-mix(in srgb, var(--acc) 14%, transparent);border-radius:999px;padding:2px 9px;white-space:nowrap}
+.ligne .act{display:flex;gap:4px;flex:none;opacity:.5;transition:.2s}
+.ligne:hover .act{opacity:1}
+.ligne.fait .txt b{text-decoration:line-through;opacity:.6}
+.coche{flex:none;width:22px;height:22px;border-radius:8px;border:1.6px solid var(--bord-2);background:var(--champ);display:grid;place-items:center;padding:0;
+  font-size:13px;color:transparent;transition:.2s}
+.coche.on{background:var(--grad);border-color:transparent;color:var(--grad-txt);animation:pop .25s ease}
+.groupe-t{display:flex;align-items:center;gap:8px;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);margin:14px 0 4px;padding:0 10px}
+.groupe-t .compte{margin-left:auto;font-weight:700;letter-spacing:0}
+.ajout-ligne{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ajout-ligne input,.ajout-ligne select{flex:1;min-width:120px}
+.jauge{height:7px;border-radius:999px;background:var(--creux);overflow:hidden;margin:4px 0 10px}
+.jauge i{display:block;height:100%;background:var(--grad);border-radius:inherit;transition:width .6s}
+.mini-stat{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;font-size:13.5px;color:var(--ink-2)}
+.mini-stat b{color:var(--titre);font-size:17px}
+.pastille{display:inline-flex;align-items:center;gap:5px;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;
+  padding:2px 9px;border-radius:999px;background:var(--creux);border:1px solid var(--bord);color:var(--ink-2);white-space:nowrap}
+.pastille.ok{color:var(--vert);border-color:color-mix(in srgb, var(--vert) 45%, transparent)}
+.pastille.att{color:var(--or);border-color:color-mix(in srgb, var(--or) 45%, transparent)}
+.pastille.non{color:var(--doux);border-color:color-mix(in srgb, var(--doux) 45%, transparent)}
+.pastille.acc{color:var(--acc);border-color:color-mix(in srgb, var(--acc) 45%, transparent)}
+
+/* ---------- Frise (jalons, planning, premières fois) ---------- */
+.frise{position:relative;padding-left:26px}
+.frise::before{content:'';position:absolute;left:9px;top:6px;bottom:6px;width:2px;border-radius:2px;background:linear-gradient(var(--acc), transparent)}
+.etape{position:relative;padding:8px 10px 10px;border-radius:14px;margin-bottom:4px;transition:background .2s}
+.etape:hover{background:var(--trait-2)}
+.etape::before{content:'';position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--fond-uni);border:2px solid var(--bord-2)}
+.etape.faite::before{background:var(--acc);border-color:var(--acc);box-shadow:0 0 10px var(--acc-lueur)}
+.etape.proche::before{border-color:var(--or);box-shadow:0 0 10px color-mix(in srgb, var(--or) 60%, transparent)}
+.etape-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.etape-h b{font-weight:600;color:var(--titre)}
+.etape-h .quand{font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.etape p{margin:4px 0 0;font-size:13.5px;color:var(--ink-2)}
+.etape .photo-mini{margin-top:8px}
+
+/* ---------- Photos ---------- */
+.photo-mini{width:84px;height:84px;border-radius:14px;object-fit:cover;border:1px solid var(--bord);display:block}
+.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.photo-grande{width:100%;max-height:320px;object-fit:cover;border-radius:18px;border:1px solid var(--bord);display:block;margin:8px 0}
+.depot{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;border:1.5px dashed var(--bord-2);background:var(--creux);cursor:pointer}
+.depot img{width:64px;height:64px;border-radius:12px;object-fit:cover}
+.depot span{font-size:13px;color:var(--ink-2)}
+
+/* ---------- Journal ---------- */
+.souvenir{padding:14px 16px;border-radius:18px;background:var(--creux);border:1px solid var(--bord);margin-bottom:10px;animation:monte .4s ease both}
+.souvenir.important{border-color:color-mix(in srgb, var(--or) 55%, transparent);box-shadow:0 0 22px -12px var(--or)}
+.souvenir-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.souvenir-h b{color:var(--titre);font-weight:600;font-size:15.5px}
+.souvenir-h .quand{font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.souvenir-h .act{margin-left:auto;display:flex;gap:4px}
+.souvenir p{margin:0;white-space:pre-wrap;color:var(--ink)}
+.souvenir .envie{margin-top:6px;font-size:13px;color:var(--ink-2)}
+.souvenir .envie b{color:var(--acc);font-weight:600}
+
+/* ---------- Prénoms ---------- */
+.prenom{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--creux);border:1px solid var(--bord);margin-bottom:8px;transition:.2s}
+.prenom:hover{border-color:var(--bord-2)}
+.prenom.favori{border-color:var(--acc);box-shadow:0 0 18px -8px var(--acc-lueur)}
+.prenom .nom{font-size:22px;color:var(--titre);min-width:120px}
+.prenom .nom small{display:block;font-size:12.5px;color:var(--ink-3)}
+.prenom .notes{display:flex;flex-direction:column;gap:2px;font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.etoiles{display:inline-flex;gap:1px}
+.etoiles button{border:0;background:none;padding:0 1px;font-size:15px;line-height:1;color:var(--bord-2);transition:.15s}
+.etoiles button.on{color:var(--or)}
+.prenom .total{margin-left:auto;text-align:center;font-family:var(--ui);font-style:normal}
+.prenom .total b{display:block;font-size:20px;color:var(--acc)}
+.prenom .total span{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.comparer{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.comparer .c{text-align:center;padding:18px 12px;border-radius:20px;background:var(--creux);border:1px solid var(--bord)}
+.comparer .c .n{font-size:28px;color:var(--titre)}
+.comparer .c .f{font-size:14px;color:var(--ink-2);margin-top:2px}
+
+/* ---------- Chambre ---------- */
+.nuancier{display:flex;gap:10px;flex-wrap:wrap}
+.nuance{display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--ui);font-style:normal;font-size:11px;color:var(--ink-3)}
+.nuance input[type=color]{width:54px;height:54px;border:0;border-radius:16px;padding:0;background:none;cursor:pointer;box-shadow:0 8px 18px -10px rgba(0,0,0,.6)}
+.nuance input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.nuance input[type=color]::-webkit-color-swatch{border:2px solid var(--bord-2);border-radius:16px}
+.nuance input[type=color]::-moz-color-swatch{border:2px solid var(--bord-2);border-radius:16px}
+.inspis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.inspi{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--bord);background:var(--creux)}
+.inspi img{width:100%;height:120px;object-fit:cover;display:block}
+.inspi span{display:block;padding:6px 9px;font-size:12.5px;color:var(--ink-2)}
+.inspi .rond{position:absolute;top:6px;right:6px}
+
+/* ---------- Événements & invitations ---------- */
+.onglets-ev{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.ev-tuile{flex:1;min-width:240px;display:flex;gap:14px;align-items:center;text-align:left;padding:16px 18px;border-radius:22px;border:1px solid var(--bord);
+  background:var(--verre);color:var(--ink);transition:.25s;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.ev-tuile:hover{border-color:var(--bord-2);transform:translateY(-2px)}
+.ev-tuile.on{border-color:var(--acc);box-shadow:0 0 24px -10px var(--acc-lueur);background:color-mix(in srgb, var(--acc) 12%, var(--verre))}
+.ev-tuile .em{font-size:30px}
+.ev-tuile b{display:block;font-family:var(--sans);font-style:italic;font-size:18px;color:var(--titre);font-weight:600}
+.ev-tuile span{font-size:12.5px;color:var(--ink-3)}
+.securite{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:14px;font-size:13.5px;color:var(--ink);
+  background:color-mix(in srgb, var(--or) 12%, transparent);border:1px solid color-mix(in srgb, var(--or) 40%, transparent);margin-top:8px}
+
+.atelier{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.invit-scene{position:relative;display:grid;place-items:center;padding:18px;border-radius:24px;background:var(--creux);border:1px solid var(--bord);min-height:520px;overflow:hidden}
+.galerie-inv{display:flex;gap:12px;overflow-x:auto;padding:8px 2px 14px;margin-bottom:12px;scrollbar-width:thin}
+.mini-inv{flex:none;display:flex;flex-direction:column;align-items:center;gap:7px;border:2px solid transparent;background:var(--creux);
+  border-radius:18px;padding:8px 8px 10px;font-size:12px;font-weight:650;color:var(--ink-2);transition:.2s}
+.mini-inv:hover{border-color:var(--bord-2);transform:translateY(-3px)}
+.mini-inv.on{border-color:var(--acc);color:var(--titre);box-shadow:0 0 18px -6px var(--acc-lueur)}
+.mini-cadre{width:114px;height:160px;overflow:hidden;border-radius:12px;pointer-events:none}
+.mini-cadre .invit{width:380px;max-width:none;transform:scale(.3);transform-origin:0 0;animation:none;box-shadow:none}
+.emojis{display:flex;flex-wrap:wrap;gap:6px}.emojis .rond.on{border-color:var(--acc);background:color-mix(in srgb, var(--acc) 22%, transparent)}
+.palettes{display:flex;gap:8px;flex-wrap:wrap}
+.palettes label{cursor:pointer}
+.palettes input{position:absolute;opacity:0;pointer-events:none}
+.palettes span{display:block;width:40px;height:40px;border-radius:14px;border:2px solid var(--bord);transition:.2s}
+.palettes input:checked+span{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb, var(--acc) 35%, transparent);transform:scale(1.06)}
+
+/* ---------- Fenêtres ---------- */
+.voile{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;background:var(--voile);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:pop .2s ease both}
+.fenetre{width:min(600px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:26px;padding:22px 24px;
+  background:var(--fenetre);border:1px solid var(--bord-2);box-shadow:0 40px 90px -30px rgba(20,10,50,.8), 0 0 60px -30px var(--acc-lueur);
+  animation:pop .28s cubic-bezier(.2,.8,.2,1) both;scrollbar-width:thin}
+.fenetre.etroite{width:min(460px,100%)}
+.fenetre.large{width:min(820px,100%)}
+.fenetre h2{font-size:22px;margin-bottom:4px}
+.fenetre .chapo{font-size:14px;color:var(--ink-3);margin:0 0 16px}
+.champs{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.champ{display:flex;flex-direction:column;gap:5px;min-width:0}
+.champ.large{grid-column:1/-1}
+.champ>label,.champ .lab{font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.champ .aide{font-size:12.5px;color:var(--ink-3)}
+input[type=text],input[type=date],input[type=time],input[type=number],input[type=email],input[type=tel],input[type=url],input[type=password],select,textarea{
+  width:100%;background:var(--champ);border:1px solid var(--bord);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--ink);outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb, var(--acc) 25%, transparent)}
+select option{background:var(--option);color:var(--ink)}
+textarea{resize:vertical;min-height:70px;font-family:var(--sans);font-style:italic;font-size:14.5px}
+.choix{display:flex;flex-wrap:wrap;gap:7px}
+.choix label{cursor:pointer;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600;color:var(--ink)}
+.choix input{position:absolute;opacity:0;pointer-events:none}
+.choix span{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--bord);background:var(--creux);transition:.2s;font-family:var(--ui);font-style:normal}
+.choix input:checked+span{background:color-mix(in srgb, var(--acc) 22%, transparent);border-color:var(--acc);color:var(--titre);box-shadow:0 0 14px -4px var(--acc-lueur)}
+.choix input:focus-visible+span{outline:2px solid var(--acc)}
+.case{display:flex;align-items:center;gap:9px;font-family:var(--ui);font-style:normal;font-size:13.5px;color:var(--ink);cursor:pointer}
+.case input{width:17px;height:17px;accent-color:#9B82E8;flex:none}
+.pied{display:flex;gap:9px;align-items:center;margin-top:20px;flex-wrap:wrap}
+.pied .spacer{flex:1}
+.note-douce{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;font-size:13.5px;color:var(--ink);
+  background:color-mix(in srgb, var(--acc) 10%, transparent);border:1px solid color-mix(in srgb, var(--acc) 35%, transparent);margin:10px 0}
+.note-douce .em{font-size:18px}
+.note-douce b{color:var(--titre)}
+
+/* ---------- « Comment ça marche » : sommaire à gauche, fiche à droite ---------- */
+.fenetre.aide{width:min(1000px,100%);height:min(720px, calc(100vh - 40px));padding:0;display:flex;flex-direction:column;overflow:hidden}
+.aide-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 20px 14px;border-bottom:1px solid var(--bord)}
+.aide-h h2{margin:0;font-size:20px}
+.aide-h input[type=search]{width:min(260px,100%);background:var(--champ);border:1px solid var(--bord);border-radius:999px;
+  padding:9px 14px;font-size:13px;color:var(--ink);outline:none;transition:.2s}
+.aide-h input[type=search]:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb, var(--acc) 25%, transparent)}
+.aide-corps{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr)}
+.aide-nav{border-right:1px solid var(--bord);padding:12px;overflow:auto;scrollbar-width:thin;display:flex;flex-direction:column;gap:3px;background:var(--creux)}
+.aide-n{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border-radius:13px;border:1px solid transparent;
+  background:none;color:var(--ink-2);font-size:13px;font-weight:600;text-align:left;transition:.15s}
+.aide-n b{font-size:15px;font-weight:400;line-height:1}
+.aide-n:hover{background:var(--verre);color:var(--ink)}
+.aide-n.on{color:var(--titre);border-color:color-mix(in srgb, var(--acc) 50%, transparent);background:color-mix(in srgb, var(--acc) 18%, transparent)}
+.aide-p{padding:20px 26px 28px;overflow:auto;scrollbar-width:thin;outline:none}
+.aide-fiche{animation:pop .28s ease both}
+.aide-fiche h3{display:flex;align-items:center;gap:10px;margin:0 0 4px;font-size:21px;color:var(--titre)}
+.aide-em{width:38px;height:38px;flex:none;border-radius:13px;display:grid;place-items:center;font-size:19px;background:var(--grad);box-shadow:0 8px 20px -12px var(--acc-lueur)}
+.aide-chapo{margin:0 0 16px;font-size:14px;color:var(--ink-3)}
+.aide-p p{margin:0 0 12px;font-size:14px;line-height:1.6;color:var(--ink)}
+.aide-p h4{margin:20px 0 9px;font-family:var(--ui);font-style:normal;font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.aide-etapes{counter-reset:ae;list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:9px}
+.aide-etapes li{counter-increment:ae;position:relative;padding:9px 13px 9px 44px;border-radius:14px;font-size:13.5px;line-height:1.55;
+  color:var(--ink);background:var(--verre);border:1px solid var(--trait)}
+.aide-etapes li::before{content:counter(ae);position:absolute;left:11px;top:9px;width:23px;height:23px;border-radius:50%;
+  display:grid;place-items:center;font-family:var(--ui);font-style:normal;font-size:12px;font-weight:800;color:var(--grad-txt);background:var(--grad)}
+.aide-liste{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:7px}
+.aide-liste li{position:relative;padding-left:16px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.aide-liste li::before{content:'';position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%;background:var(--acc);opacity:.85}
+.aide-liste b{color:var(--titre)}
+.aide-astuce,.aide-ex{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;padding:11px 14px;border-radius:15px;font-size:13.5px;line-height:1.55;color:var(--ink)}
+.aide-astuce{background:color-mix(in srgb, var(--or) 14%, transparent);border:1px solid color-mix(in srgb, var(--or) 38%, transparent)}
+.aide-ex{background:color-mix(in srgb, var(--acc) 14%, transparent);border:1px solid color-mix(in srgb, var(--acc) 38%, transparent);font-style:italic}
+.aide-astuce span,.aide-ex span{font-size:16px;line-height:1.2;font-style:normal}
+@media (max-width:760px){
+  .fenetre.aide{height:calc(100vh - 24px)}
+  .aide-corps{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .aide-nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--bord);padding:9px}
+  .aide-n{width:auto;white-space:nowrap;flex:none}
+  .aide-p{padding:16px 16px 22px}
+}
+
+/* ---------- Bandeau de rappels ---------- */
+.rappels{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.rappel{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:18px;font-size:14px;animation:monte .5s ease both;position:relative;overflow:hidden;
+  background:linear-gradient(100deg, color-mix(in srgb, var(--acc) 18%, transparent), color-mix(in srgb, var(--or) 12%, transparent));
+  border:1px solid color-mix(in srgb, var(--acc) 40%, transparent)}
+.rappel::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg, transparent 30%, rgba(255,255,255,.2) 50%, transparent 70%);
+  background-size:60% 100%;background-repeat:no-repeat;animation:miroite 4.5s ease-in-out infinite}
+.rappel .em{font-size:19px}
+.rappel b{color:var(--titre);font-weight:600}
+.rappel .spacer{flex:1}
+
+/* ---------- La révélation ---------- */
+.voile.revel{background:radial-gradient(circle at 50% 40%, rgba(90,70,170,.62), rgba(16,11,36,.88))}
+#confettis{position:fixed;inset:0;z-index:60;pointer-events:none}
+.revelation{--titre:#fff;--ink:#F3EFFB;--ink-2:rgba(243,239,251,.76);--ink-3:rgba(243,239,251,.52);--bord:rgba(255,255,255,.18);--bord-2:rgba(255,255,255,.3);
+  --verre:rgba(255,255,255,.08);--verre-2:rgba(255,255,255,.14);--creux:rgba(0,0,0,.22);--champ:rgba(0,0,0,.24);--option:#2A2249;
+  position:relative;z-index:61;width:min(500px,100%);max-height:calc(100vh - 40px);overflow:auto;text-align:center;border-radius:32px;padding:30px 28px 24px;color:var(--ink);
+  background:linear-gradient(165deg, rgba(86,66,168,.97), rgba(40,30,82,.98));border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.95), 0 0 80px -20px rgba(201,183,245,.5);animation:ouvre .8s cubic-bezier(.2,.9,.25,1.15) both}
+.revelation .sur{font-family:var(--ui);font-style:normal;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#C9B7F5}
+.revelation h2{font-size:30px;margin:8px 0 4px;line-height:1.15}
+.revelation p{color:var(--ink-2);margin:6px 0 14px}
+.enveloppe{width:190px;height:150px;margin:56px auto 18px;position:relative;cursor:pointer;animation:berce 3.5s ease-in-out infinite}
+.enveloppe svg{width:100%;height:100%;overflow:visible}
+.enveloppe .rabat{transform-origin:50% 0;transition:transform .8s cubic-bezier(.3,1.3,.5,1)}
+.enveloppe.ouverte .rabat{transform:scaleY(-1)}
+.enveloppe .lettre{transition:transform .9s .35s cubic-bezier(.2,.9,.3,1.2)}
+.enveloppe.ouverte .lettre{transform:translateY(-70px)}
+.ruban{height:12px;border-radius:999px;margin:10px auto 0;width:0;transition:width 1.2s .3s cubic-bezier(.2,.8,.2,1)}
+.ruban.on{width:78%}
+.resultat{font-size:38px;line-height:1.15;color:#fff;margin:10px 0 4px;animation:pop .6s .2s ease both}
+.resultat small{display:block;font-size:16px;color:var(--ink-2);margin-top:6px}
+
+/* ---------- Bébé ---------- */
+.bebe-choix{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.bebe-choix button{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--bord);background:var(--verre);border-radius:999px;padding:7px 14px 7px 8px;
+  font-size:13px;font-weight:650;color:var(--ink-2);transition:.2s}
+.bebe-choix button.on{border-color:var(--acc);color:var(--titre);background:color-mix(in srgb, var(--acc) 16%, transparent)}
+.bebe-choix .av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;background:var(--grad);overflow:hidden}
+.bebe-choix .av img{width:100%;height:100%;object-fit:cover}
+.fiche-naissance{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.fiche-naissance .ph{width:150px;height:150px;border-radius:50%;object-fit:cover;border:4px solid var(--bord-2);box-shadow:0 18px 40px -18px var(--acc-lueur)}
+.fiche-naissance .ph.vide{display:grid;place-items:center;font-size:56px;background:var(--grad)}
+.infos-n{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:10px}
+.infos-n div{padding:10px 12px;border-radius:14px;background:var(--creux);border:1px solid var(--bord)}
+.infos-n span{display:block;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.infos-n b{font-size:17px;color:var(--titre);font-weight:600}
+.courbe{width:100%;height:auto;display:block}
+.courbe .axe{stroke:var(--trait);stroke-width:1}
+.courbe .lbl{font-family:var(--ui);font-style:normal;font-size:10.5px;fill:var(--ink-3)}
+.courbe .trace{fill:none;stroke:var(--acc);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.courbe .aire{fill:var(--acc);opacity:.12}
+.courbe .pt{fill:var(--fond-uni);stroke:var(--acc);stroke-width:2.4}
+.aliments{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.aliment{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;background:var(--creux);border:1px solid var(--bord);font-size:13.5px;cursor:pointer;transition:.2s}
+.aliment:hover{border-color:var(--bord-2)}
+.aliment b{font-weight:600;color:var(--titre);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.carte-apercu{display:grid;place-items:center;padding:14px;border-radius:22px;background:var(--creux);border:1px solid var(--bord)}
+.carte-apercu canvas{width:100%;max-width:420px;height:auto;border-radius:18px;box-shadow:0 26px 60px -26px rgba(20,10,50,.8)}
+
+/* ---------- Mode souvenir ---------- */
+.bougie-zone{display:flex;flex-direction:column;align-items:center;text-align:center;padding:26px 20px}
+.bougie{width:90px;height:150px;position:relative;margin-bottom:10px}
+.bougie .cire{position:absolute;left:28px;bottom:0;width:34px;height:84px;border-radius:10px 10px 6px 6px;background:linear-gradient(90deg,#EDE6FB,#FFFFFF 45%,#DCD2F5)}
+.bougie .meche{position:absolute;left:44px;bottom:84px;width:2px;height:9px;background:#5a4a3a;border-radius:1px}
+.bougie .flamme{position:absolute;left:34px;bottom:90px;width:22px;height:40px;border-radius:50% 50% 45% 45%/60% 60% 40% 40%;
+  background:radial-gradient(ellipse at 50% 70%, #FFF7D6 0%, #F7D27A 45%, rgba(243,170,90,.0) 75%);transform-origin:50% 90%;animation:flammeD 2.6s ease-in-out infinite alternate}
+.bougie .halo{position:absolute;left:0;bottom:60px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle, rgba(247,210,122,.45), transparent 70%);animation:respire 3.2s ease-in-out infinite}
+@keyframes flammeD{0%{transform:scale(1,1) rotate(-2deg)}100%{transform:scale(.92,1.08) rotate(2deg)}}
+.etoile-bebe{color:var(--or)}
+
+/* ---------- Toasts ---------- */
+.toasts{position:fixed;right:18px;bottom:18px;z-index:95;display:flex;flex-direction:column;gap:9px;align-items:flex-end;pointer-events:none}
+.toast{pointer-events:auto;max-width:390px;display:flex;gap:10px;align-items:center;padding:12px 14px 12px 16px;border-radius:16px;font-size:14px;color:var(--ink);
+  background:var(--fenetre);border:1px solid var(--bord-2);box-shadow:0 18px 40px -16px rgba(20,10,50,.8), 0 0 30px -14px var(--acc-lueur);animation:monte .35s ease both}
+.toast .em{font-size:18px}
+.toast b{color:var(--titre)}
+.toast span{display:block;font-size:12.5px;color:var(--ink-2)}
+.toast.sort{animation:pop .25s ease reverse both}
+
+.pied-page{margin-top:28px;text-align:center;font-size:13px;color:var(--ink-3)}
+.pied-page a{color:var(--acc)}
+.avert{font-size:12.5px;color:var(--ink-3);margin-top:10px}
+
+/* ---------- Impression : le PDF souvenir ---------- */
+#impression{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff!important;color:#2E2842}
+  body>*:not(#impression){display:none!important}
+  #impression{display:block!important;font-family:Georgia,serif;font-style:italic;color:#2E2842}
+  .pdf-page{page-break-after:always;break-after:page;min-height:250mm;position:relative}
+  .pdf-page:last-child{page-break-after:auto;break-after:auto}
+  .pdf-couv{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    background:linear-gradient(165deg,var(--p1,#EFE7FD),var(--p2,#D9CCF8));border-radius:10mm;padding:20mm;min-height:255mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pdf-couv img.ph{width:70mm;height:70mm;border-radius:50%;object-fit:cover;border:3mm solid #fff;margin:8mm 0}
+  .pdf-couv h1{font-size:34pt;margin:4mm 0;color:var(--pi,#3B2E6E)}
+  .pdf-couv .sur{font-family:Arial,sans-serif;font-style:normal;font-size:9pt;letter-spacing:.25em;text-transform:uppercase;color:var(--pa,#7F63D6)}
+  #impression h2{font-size:20pt;color:var(--pi,#3B2E6E);margin:0 0 5mm;border-bottom:.4mm solid #DCD2F5;padding-bottom:2mm}
+  #impression h3{font-size:13pt;margin:5mm 0 2mm;color:var(--pa,#7F63D6)}
+  #impression p{font-size:11pt;line-height:1.55;margin:0 0 3mm}
+  #impression table{width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-style:normal;font-size:10pt}
+  #impression td,#impression th{border-bottom:.3mm solid #E3D9F5;padding:2mm 3mm;text-align:left}
+  #impression th{color:var(--pa,#7F63D6);font-size:8.5pt;text-transform:uppercase;letter-spacing:.08em}
+  .pdf-souv{break-inside:avoid;margin-bottom:5mm;padding:4mm 5mm;border-radius:4mm;background:#F8F4FE;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pdf-souv img{max-width:60mm;max-height:60mm;border-radius:3mm;float:right;margin:0 0 3mm 4mm}
+  .pdf-souv .q{font-family:Arial,sans-serif;font-style:normal;font-size:8.5pt;color:#958DAE}
+  .pdf-infos{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin:6mm 0}
+  .pdf-infos div{padding:4mm;border-radius:4mm;background:#F8F4FE;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pdf-infos span{display:block;font-family:Arial,sans-serif;font-style:normal;font-size:8pt;letter-spacing:.1em;text-transform:uppercase;color:#958DAE}
+  .pdf-infos b{font-size:15pt}
+  .pdf-pied{position:absolute;bottom:0;left:0;right:0;text-align:center;font-family:Arial,sans-serif;font-style:normal;font-size:8pt;color:#B0A8C8}
+}
+
+@media (max-width:980px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .atelier,.grille-2{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:760px){
+  .shell{padding:14px 14px 44px}
+  .marque h1{font-size:23px}.marque svg{width:46px;height:46px;border-radius:15px}
+  .slogan{font-size:12.5px}
+  .pages{width:100%;display:grid;grid-template-columns:repeat(2,1fr);border-radius:22px}
+  .pages button{padding:9px 10px;font-size:13px;justify-content:center}
+  .rappel{flex-wrap:wrap}.rappel>div:nth-child(2){flex:1 1 180px}
+  .hero{padding:18px}
+  .hero .sem{font-size:36px}
+  .perles{grid-template-columns:repeat(10,1fr)}
+  .champs{grid-template-columns:1fr}
+  .grille{grid-template-columns:minmax(0,1fr)}
+  .actions-rapides .btn{flex:1 1 auto;justify-content:center}
+  .fiche-naissance{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .prenom{flex-wrap:wrap}.prenom .total{margin-left:0}
+  .toasts{left:14px;right:14px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

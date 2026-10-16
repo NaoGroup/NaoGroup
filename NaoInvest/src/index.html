@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naoinvest"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naoinvest"></script>
+<script src="../naogroup-logos.js"></script>
+<title>NaoInvest — Comprendre avant de placer</title>
+<meta name="description" content="NaoInvest, l'espace d'éducation financière de NaoGroup : budget, épargne, Bourse, portefeuille fictif en NaoCoins, actualités expliquées et prévention des arnaques. Aucun argent réel, aucun conseil personnalisé.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%233F2CB9'/><stop offset='.5' stop-color='%236C78EE'/><stop offset='1' stop-color='%23CDB3F8'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><g fill='%23fff' opacity='.55'><rect x='8' y='12.2' width='2.8' height='3.8' rx='1.1'/><rect x='12.4' y='10' width='2.8' height='6' rx='1.1'/><rect x='16.8' y='7.8' width='2.8' height='8.2' rx='1.1'/></g><path d='M26.4 3.4Q26.9 8 31.4 8.6Q26.9 9.2 26.4 13.8Q25.9 9.2 21.4 8.6Q25.9 8 26.4 3.4Z' fill='%23fff'/><path d='M12 31.5V19.5L28 31.5V19.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { var r = document.documentElement; r.dataset.theme = localStorage.getItem('naoinvest.theme') || 'dark'; if (localStorage.getItem('naoinvest.calme') === '1') r.classList.add('calme'); } catch (e) {}</script>
+<link rel="stylesheet" href="naoinvest.css">
+</head>
+<body class="ouverture">
+
+<!-- L'entrée dans l'outil : sur un petit tableau, des pièces s'empilent, les barres montent une à une,
+     une courbe se dessine et l'étoile du logo s'allume au bout. Un clic permet de passer. -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="scene">
+    <div class="tableau-intro">
+      <svg viewBox="0 0 300 170" aria-hidden="true">
+        <g class="grille-i"><path d="M20 40H280M20 80H280M20 120H280"/></g>
+        <path class="axe-i" d="M20 150H280"/>
+        <g class="pieces-i">
+          <g style="--i:0"><path d="M31 143v5a17 5.5 0 0 0 34 0v-5"/><ellipse cx="48" cy="143" rx="17" ry="5.5"/></g>
+          <g style="--i:1"><path d="M31 135v5a17 5.5 0 0 0 34 0v-5"/><ellipse cx="48" cy="135" rx="17" ry="5.5"/></g>
+          <g style="--i:2"><path d="M31 127v5a17 5.5 0 0 0 34 0v-5"/><ellipse cx="48" cy="127" rx="17" ry="5.5"/></g>
+          <g style="--i:3"><path d="M31 119v5a17 5.5 0 0 0 34 0v-5"/><ellipse cx="48" cy="119" rx="17" ry="5.5"/></g>
+        </g>
+        <g class="barres-i">
+          <rect style="--i:0" x="90" y="112" width="24" height="38" rx="5"/>
+          <rect style="--i:1" x="128" y="96" width="24" height="54" rx="5"/>
+          <rect style="--i:2" x="166" y="104" width="24" height="46" rx="5"/>
+          <rect style="--i:3" x="204" y="78" width="24" height="72" rx="5"/>
+          <rect style="--i:4" x="242" y="60" width="24" height="90" rx="5"/>
+        </g>
+        <path class="courbe-i" d="M36 96C70 92 84 70 108 76S150 64 172 70S220 42 254 34"/>
+        <g transform="translate(262 28)"><g class="etoile-i"><circle r="14" class="halo-i"/><path d="M0 -11Q1.2 -1.2 11 0Q1.2 1.2 0 11Q-1.2 1.2 -11 0Q-1.2 -1.2 0 -11Z"/></g></g>
+      </svg>
+    </div>
+    <div class="marque-intro">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-in"/></svg>
+      <div class="titre">Nao<span>Invest</span></div>
+    </div>
+    <div class="phrase">Comprendre <span>avant de placer</span>.</div>
+    <div class="passer">Toucher pour entrer</div>
+  </div>
+</div>
+
+<!-- Le décor : halos, ciel étoilé, et la Bourse en douceur — chandeliers qui respirent,
+     courbes qui se tracent, pièces qui tournent, histogrammes qui poussent. -->
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<svg class="motifs" id="motifs" aria-hidden="true"></svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- NaoInvest : au-dessus du N, trois petites barres qui montent doucement — un graphique discret,
+       la progression pas à pas — et une étoile qui s'élève dans une lueur lavande : comprendre, puis avancer. -->
+  <linearGradient id="gin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3F2CB9"/><stop offset=".5" stop-color="#6C78EE"/><stop offset="1" stop-color="#CDB3F8"/></linearGradient>
+  <radialGradient id="gin-lueur"><stop offset="0" stop-color="#EFE6FF" stop-opacity=".95"/><stop offset="1" stop-color="#EFE6FF" stop-opacity="0"/></radialGradient>
+  <symbol id="l-in" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gin)"/>
+    <circle cx="26.4" cy="8.6" r="8" fill="url(#gin-lueur)" opacity=".6"/>
+    <g fill="#fff" opacity=".55"><rect x="8" y="12.2" width="2.8" height="3.8" rx="1.1"/><rect x="12.4" y="10" width="2.8" height="6" rx="1.1"/><rect x="16.8" y="7.8" width="2.8" height="8.2" rx="1.1"/></g>
+    <path d="M26.4 3.4Q26.9 8 31.4 8.6Q26.9 9.2 26.4 13.8Q25.9 9.2 21.4 8.6Q25.9 8 26.4 3.4Z" fill="#fff"/>
+    <circle cx="33.2" cy="4.4" r="1" fill="#fff" opacity=".75"/>
+    <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
+
+<div class="page">
+  <header class="bar">
+    <a class="mark" href="../NaoGroup.html" title="Revenir à NaoGroup" aria-label="NaoInvest — revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoInvest"><use href="#l-in"/></svg>
+      <div><h1 class="nom-outil">Nao<span>Invest</span></h1><div class="sub">Comprendre avant de placer</div></div>
+    </a>
+    <div class="outils-haut">
+      <a class="pastille" href="../NaoGroup.html" title="Revenir à l'accueil NaoGroup"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg> NaoGroup</a>
+      <button class="pastille icone" type="button" data-vue="progression" id="btnProgression" title="Ma progression : notions, badges, attestations" aria-label="Ma progression">⭐</button>
+      <button class="pastille icone" type="button" data-vue="dico" title="Le dictionnaire" aria-label="Dictionnaire">📖</button>
+      <button class="pastille icone" type="button" data-act="calme" id="btnCalme" title="Mettre les animations en pause">🕊️</button>
+      <button class="pastille reset" type="button" data-act="reinitialiser" title="Réinitialiser NaoInvest (repartir de zéro)">♻️ <span class="lib-r">Réinitialiser</span></button>
+      <button class="theme-switch" type="button" data-act="theme" id="btnTheme" role="switch" aria-checked="true" aria-label="Passer en thème clair" title="Basculer clair / sombre"><span class="thumb" id="themeIcone">🌙</span></button>
+    </div>
+  </header>
+
+  <nav class="onglets" id="onglets" aria-label="Navigation de NaoInvest"></nav>
+
+  <main id="contenu" tabindex="-1"></main>
+
+  <footer class="pied">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-in"/></svg>
+    <div>Un outil de la maison <a href="../NaoGroup.html">NaoGroup</a> · NaoInvest est un outil pédagogique : il ne recommande l’achat, la vente ou la conservation d’aucun titre,
+      ne promet aucun rendement et ne permet aucune opération réelle. Tout investissement comporte des risques, dont un risque de perte en capital ;
+      les performances passées ne préjugent pas des performances futures. Avant toute décision, consultez une source officielle ou un professionnel compétent. Les fiches de vie pratique donnent des repères généraux et ne remplacent pas un avis médical ou professionnel.</div>
+  </footer>
+</div>
+
+<div class="voile" id="modale" role="dialog" aria-modal="true" aria-labelledby="modaleTitre"><div class="fen" id="modaleFen"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="ni-contenu.js"></script>
+<script src="ni-impots.js"></script>
+<script src="ni-placements.js"></script>
+<script src="ni-conseils.js"></script>
+<script src="ni-vie.js"></script>
+<script src="ni-paie.js"></script>
+<script src="ni-core.js"></script>
+<script src="ni-vues.js"></script>
+<script src="ni-docs-impots.js"></script>
+<script src="ni-cours-impots.js"></script>
+<script src="ni-app.js"></script>
+</body>
+</html>

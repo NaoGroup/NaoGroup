@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — profils de test (local)</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="naogroup-local-auth.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236F55D0'/><stop offset='1' stop-color='%23C39BF3'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5; --vert:#6FCB9C; --rose:#E58BA0; --ambre:#E3B872;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 18%, #7564C2 0%, #43358A 42%, #1C1636 100%);background-attachment:fixed;
+  padding:22px 22px 80px;overflow-x:hidden}
+[hidden]{display:none!important}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto}
+.haut{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.haut .jeton{width:44px;height:44px;border-radius:15px;box-shadow:0 10px 24px -10px rgba(0,0,0,.7)}
+h1{margin:0;font-size:25px;letter-spacing:-.02em;color:#fff}
+h1 span{color:var(--lilas)}
+.badge{font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--lilas);border:1px solid var(--bord);border-radius:999px;padding:5px 12px}
+.haut .sp{flex:1}
+.btn{font-family:var(--ui);font-style:normal;font-size:12.5px;font-weight:600;color:#fff;background:var(--verre);
+  border:1px solid var(--bord);border-radius:999px;padding:9px 16px;cursor:pointer;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--verre-2);border-color:var(--bord-2)}
+.btn.plein{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#EBDFFD);border-color:transparent}
+.btn.plein:hover{filter:brightness(1.06)}
+.btn.petit{padding:6px 11px;font-size:11.5px}
+.btn.danger{color:var(--rose);border-color:rgba(229,139,160,.4)}
+.btn.danger:hover{background:rgba(229,139,160,.12)}
+.lead{font-size:14.5px;color:var(--ink-2);margin:6px 0 22px;max-width:78ch}
+.att{border-left:3px solid var(--ambre);background:rgba(196,144,63,.1);border-radius:0 14px 14px 0;padding:12px 16px;
+  font:13.5px/1.6 var(--ui);font-style:normal;color:var(--ink-2);margin-bottom:20px}
+.att b{color:var(--ambre)}
+.panneau{background:var(--verre);border:1px solid var(--bord);border-radius:22px;padding:22px;margin-bottom:20px;
+  backdrop-filter:blur(14px);box-shadow:var(--ombre)}
+.panneau h2{margin:0 0 4px;font-size:18px;color:#fff}
+.panneau .aide{margin:0 0 16px;font-size:13px;color:var(--ink-3);max-width:80ch}
+label{display:block;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+input,textarea{width:100%;font-family:var(--ui);font-style:normal;font-size:13.5px;color:#fff;background:rgba(0,0,0,.22);
+  border:1px solid var(--bord);border-radius:12px;padding:10px 13px;outline:none}
+input:focus,textarea:focus{border-color:var(--bord-2);background:rgba(0,0,0,.3)}
+::placeholder{color:var(--ink-3);font-style:italic}
+.grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:14px}
+.tuiles{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.tuile{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.2);border:1px solid var(--bord);border-radius:999px;
+  padding:8px 14px;cursor:pointer;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2)}
+.tuile.oui{background:rgba(139,116,212,.24);border-color:var(--lilas);color:#fff}
+.tuile input{width:auto}
+.bas{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.msg{margin-top:10px;font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--rose);display:none}
+.msg.visible{display:block}
+.tableau{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:var(--ui);font-style:normal;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:0 10px 10px;border-bottom:1px solid var(--bord);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle;color:var(--ink-2)}
+tr:hover td{background:rgba(255,255,255,.035)}
+td b{color:#fff;font-weight:600;display:block}
+td small{display:block;color:var(--ink-3);font-family:var(--ui);font-style:normal;font-size:11px}
+.vide{text-align:center;color:var(--ink-3);padding:30px 10px;font-size:14px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.pastille{display:inline-flex;align-items:center;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.p-actif{background:rgba(47,143,99,.2);color:var(--vert)}
+.p-suspendu{background:rgba(196,144,63,.2);color:var(--ambre)}
+.p-bloque{background:rgba(194,75,99,.22);color:var(--rose)}
+.mini-outils{display:flex;gap:4px;flex-wrap:wrap;max-width:150px;font-family:var(--ui);font-style:normal;font-size:10.5px}
+.mo{border-radius:6px;padding:2px 6px;background:rgba(255,255,255,.08);color:var(--ink-3)}
+.mo.oui{background:rgba(139,116,212,.28);color:var(--lilas)}
+.voile{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;
+  background:rgba(20,14,44,.7);backdrop-filter:blur(6px)}
+.voile.ouvert{display:flex}
+.fen{width:100%;max-width:420px;background:linear-gradient(180deg,#43358A,#2A2160);border:1px solid var(--bord-2);border-radius:24px;padding:24px 26px;box-shadow:var(--ombre)}
+.fen h3{margin:0 0 4px;font-size:19px;color:#fff}
+.fen .sous{margin:0 0 16px;font-size:13px;color:var(--ink-3)}
+.remis{background:rgba(0,0,0,.28);border:1px dashed var(--bord-2);border-radius:14px;padding:14px 16px;margin:14px 0;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2)}
+.remis code{font-family:var(--mono);font-size:15px;color:#fff;background:rgba(255,255,255,.1);padding:3px 8px;border-radius:8px;user-select:all}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:90;background:#1C1636;border:1px solid var(--bord-2);color:#fff;
+  font-family:var(--ui);font-style:normal;font-size:13px;padding:11px 18px;border-radius:999px;box-shadow:var(--ombre);opacity:0;pointer-events:none;transition:.3s}
+.toast.on{opacity:1}
+.refus{max-width:460px;margin:90px auto;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="refus" class="refus" hidden>
+    <h2 style="color:#fff" id="refusTitre">Accès réservé</h2>
+    <p style="color:var(--ink-2)" id="refusTexte"></p>
+    <a class="btn" href="connexion-test.html">Se connecter</a>
+  </div>
+
+  <div id="app" hidden>
+    <div class="haut">
+      <svg class="jeton" viewBox="0 0 40 40" role="img" aria-label="NaoGroup">
+        <defs><linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient></defs>
+        <rect width="40" height="40" rx="13" fill="url(#ggr)"/><path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g>
+      </svg>
+      <h1>Profils de test <span>(local)</span></h1>
+      <span class="badge">Comptes de test — pas Supabase</span>
+      <span class="sp"></span>
+      <a class="btn" href="NaoGroup.html">← Le site</a>
+      <a class="btn" href="fiche-testeur.html" target="_blank">Voir la fiche testeur</a>
+      <button type="button" class="btn" id="btnSortir">Déconnexion</button>
+    </div>
+    <p class="lead">Des accès provisoires, sans serveur, pour faire tester les outils NaoGroup avant le vrai système de comptes
+      (Supabase). Créez un profil par testeur·se : un <b>lien d'invitation personnel</b> est généré, avec l'identifiant et le mot de
+      passe provisoire, prêt à envoyer par Gmail.</p>
+    <div class="att"><b>Comment ça marche.</b> Sans serveur, un profil créé ici n'existe que dans ce navigateur : c'est le <b>lien
+      personnel</b> qui l'enregistre sur l'appareil de la personne (ordinateur, tablette ou téléphone) quand elle l'ouvre. Sans ce lien,
+      son identifiant ne marche pas. Conséquences : <b>suspendre, bloquer ou changer les outils</b> ne prend effet sur son appareil
+      que lorsqu'elle ouvre le lien de <i>mise à jour</i> que cette page vous propose d'envoyer ; et la « dernière connexion » ne
+      concerne que cet appareil. Pour couper un accès à distance et suivre l'usage en vrai, il faut brancher Supabase.</div>
+
+    <div class="panneau">
+      <h2>Ajouter un profil de test</h2>
+      <p class="aide">L'identifiant se propose tout seul au format « nom_p », comme dans NaoFi. Vous choisissez les outils ouverts à cette personne.</p>
+      <div class="grille">
+        <div><label for="a-prenom">Prénom</label><input id="a-prenom" autocomplete="off"></div>
+        <div><label for="a-nom">Nom</label><input id="a-nom" autocomplete="off"></div>
+        <div><label for="a-ident">Identifiant</label><input id="a-ident" autocomplete="off" spellcheck="false"></div>
+        <div><label for="a-mdp">Mot de passe provisoire</label>
+          <div style="display:flex;gap:6px"><input id="a-mdp" autocomplete="off" spellcheck="false"><button type="button" class="btn petit" id="btnPropose">Proposer</button></div></div>
+        <div><label for="a-email">E-mail (facultatif)</label><input id="a-email" type="email" autocomplete="off" placeholder="pour lui envoyer ses accès"></div>
+        <div><label for="a-notes">Notes (facultatif)</label><input id="a-notes" autocomplete="off" placeholder="contexte, appareil, remarque…"></div>
+      </div>
+      <label>Outils ouverts à ce profil</label>
+      <div class="tuiles" id="tuilesAjout"></div>
+      <button type="button" class="btn petit" style="margin-top:8px" data-tout="tuilesAjout">Tout cocher / tout décocher</button>
+      <div class="bas" style="justify-content:flex-start"><button type="button" class="btn plein" id="btnAjouter">+ Ajouter le profil</button></div>
+      <div class="msg" id="msgAjout"></div>
+    </div>
+
+    <div class="panneau">
+      <h2>Profils <span id="nbProfils" style="color:var(--ink-3);font-size:13px"></span></h2>
+      <div class="tableau"><table>
+        <thead><tr><th>Profil</th><th>Outils</th><th>Statut</th><th>Dernière connexion (cet appareil)</th><th></th></tr></thead>
+        <tbody id="corpsProfils"></tbody>
+      </table><div class="vide" id="videProfils" hidden>Aucun profil de test pour l'instant.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Fenêtre : identifiants remis ============ -->
+<div class="voile" id="m-remis" role="dialog" aria-modal="true"><div class="fen">
+  <h3 id="rTitre">Profil créé</h3><p class="sous">Transmettez ces informations au testeur ou à la testeuse, hors de cette page.</p>
+  <div class="remis">Identifiant : <code id="rId"></code><span id="rMdpLigne"><br><br>Mot de passe provisoire : <code id="rMdp"></code></span><br><br>
+    <span style="color:var(--ink-3)">Lien personnel : <code id="rUrl" style="font-size:12px"></code></span></div>
+  <p class="msg visible" id="rEmailMsg" style="color:var(--ink-3)"></p>
+  <div class="bas"><button type="button" class="btn" id="btnCopierRemis">Copier le message</button>
+    <a class="btn plein" id="btnEnvoyerRemis" href="#" style="text-decoration:none">Ouvrir dans Gmail</a>
+    <button type="button" class="btn" data-ferme="m-remis">Terminé</button></div>
+</div></div>
+
+<!-- ============ Fenêtre : suspendre / bloquer ============ -->
+<div class="voile" id="m-statut" role="dialog" aria-modal="true"><div class="fen">
+  <h3 id="sTitre">Suspendre l'accès</h3><p class="sous" id="sSous"></p>
+  <div id="sMotifBloc"><label for="sMotif">Motif (affiché à la personne)</label><textarea id="sMotif" rows="2" placeholder="Ex. : pause du test, on reprend la semaine prochaine."></textarea></div>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-statut">Annuler</button><button type="button" class="btn plein" id="btnValiderStatut">Valider</button></div>
+</div></div>
+
+<!-- ============ Fenêtre : modifier le profil ============ -->
+<div class="voile" id="m-modifier" role="dialog" aria-modal="true"><div class="fen">
+  <h3>Modifier le profil</h3><p class="sous" id="mSous"></p>
+  <label for="m-email">E-mail (facultatif)</label><input id="m-email" type="email" autocomplete="off" style="margin-bottom:14px">
+  <label for="m-notes">Notes (facultatif)</label><input id="m-notes" autocomplete="off" style="margin-bottom:14px">
+  <label>Outils ouverts</label>
+  <div class="tuiles" id="tuilesModif"></div>
+  <button type="button" class="btn petit" style="margin-top:8px" data-tout="tuilesModif">Tout cocher / tout décocher</button>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-modifier">Annuler</button><button type="button" class="btn plein" id="btnValiderModif">Enregistrer</button></div>
+</div></div>
+
+<!-- ============ Fenêtre : nouveau mot de passe provisoire ============ -->
+<div class="voile" id="m-mdp" role="dialog" aria-modal="true"><div class="fen">
+  <h3>Nouveau mot de passe provisoire</h3><p class="sous" id="mdpSous"></p>
+  <div id="mdpForm"><div style="display:flex;gap:6px"><input id="mdpValeur" autocomplete="off" spellcheck="false"><button type="button" class="btn petit" id="btnProposeMdp">Proposer</button></div>
+    <div class="msg" id="mdpMsg"></div>
+    <div class="bas"><button type="button" class="btn" data-ferme="m-mdp">Annuler</button><button type="button" class="btn plein" id="btnValiderMdp">Enregistrer</button></div></div>
+</div></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var T = window.NaoTest, $ = function(s,el){ return (el||document).querySelector(s); };
+var esc = T.esc, MOI = null, PROFILS = [], cibleStatut = null, actionStatut = '', cibleModif = null, cibleMdp = null;
+
+function dateHeure(iso){ return iso ? new Date(iso).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'jamais'; }
+function nomComplet(c){ return [c.prenom, c.nom].filter(Boolean).join(' ') || c.identifiant; }
+function toast(t){ var e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(function(){ e.classList.remove('on'); },2600); }
+function ouvrir(id){ $('#'+id).classList.add('ouvert'); }
+function fermer(id){ $('#'+id).classList.remove('ouvert'); }
+function msg(id,t){ var e=$('#'+id); e.textContent=t||''; e.classList.toggle('visible',!!t); }
+
+function tuilesHtml(cochees){
+  return T.outils.map(function(o){
+    return '<label class="tuile'+(cochees.indexOf(o.id)>=0?' oui':'')+'"><input type="checkbox" data-o="'+o.id+'" '+(cochees.indexOf(o.id)>=0?'checked':'')+'>'+esc(o.nom)+'</label>';
+  }).join('');
+}
+document.addEventListener('change', function(e){
+  if (e.target.matches('input[data-o]')) e.target.closest('.tuile').classList.toggle('oui', e.target.checked);
+});
+function outilsCoches(conteneur){ return Array.prototype.map.call(conteneur.querySelectorAll('input[data-o]:checked'), function(i){ return i.getAttribute('data-o'); }); }
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-tout]'); if (!b) return;
+  var boites = $('#'+b.getAttribute('data-tout')).querySelectorAll('input[data-o]');
+  var toutCoche = Array.prototype.every.call(boites, function(i){ return i.checked; });
+  Array.prototype.forEach.call(boites, function(i){ i.checked = !toutCoche; i.closest('.tuile').classList.toggle('oui', !toutCoche); });
+});
+
+function charger(){ PROFILS = T.lireComptes().filter(function(c){ return c.role !== 'directrice'; }); }
+function rendre(){
+  $('#nbProfils').textContent = '(' + PROFILS.length + ')';
+  $('#videProfils').hidden = PROFILS.length > 0;
+  $('#corpsProfils').innerHTML = PROFILS.map(function(c){
+    var mini = T.outils.map(function(o){ return '<span class="mo'+((c.outils||[]).indexOf(o.id)>=0?' oui':'')+'">'+esc(o.nom.replace('Nao',''))+'</span>'; }).join('');
+    var statutTxt = {actif:'Actif', suspendu:'Suspendu', bloque:'Bloqué'}[c.statut];
+    var act = '<button class="btn petit" data-a="modifier" data-id="'+c.id+'">Outils</button>';
+    act += c.statut === 'actif'
+      ? '<button class="btn petit" data-a="suspendre" data-id="'+c.id+'">Suspendre</button><button class="btn petit danger" data-a="bloquer" data-id="'+c.id+'">Bloquer</button>'
+      : '<button class="btn petit" data-a="reactiver" data-id="'+c.id+'">Réactiver</button>';
+    act += '<button class="btn petit" data-a="maj" data-id="'+c.id+'" title="Lien à envoyer pour que ses outils et son statut soient pris en compte sur son appareil">Mise à jour</button>';
+    act += '<button class="btn petit" data-a="mdp" data-id="'+c.id+'">Mot de passe</button><button class="btn petit danger" data-a="supprimer" data-id="'+c.id+'">Supprimer</button>';
+    return '<tr><td><b>'+esc(nomComplet(c))+'</b><small>'+esc(c.identifiant)+(c.mdp_provisoire===false?'':'')+'</small>'+
+      (c.email ? '<small>'+esc(c.email)+'</small>' : '')+
+      (c.notes ? '<small>'+esc(c.notes)+'</small>' : '')+
+      (c.changerMdp ? '<small>mot de passe provisoire</small>' : '')+'</td>'+
+      '<td><div class="mini-outils">'+mini+'</div></td>'+
+      '<td><span class="pastille p-'+c.statut+'">'+statutTxt+'</span>'+(c.motif && c.statut!=='actif' ? '<small>'+esc(c.motif)+'</small>' : '')+'</td>'+
+      '<td>'+dateHeure(c.derniereConnexion)+'</td><td><div class="actions">'+act+'</div></td></tr>';
+  }).join('');
+}
+
+/* ---------- ajout ---------- */
+$('#tuilesAjout').innerHTML = tuilesHtml(T.outils.map(function(o){ return o.id; }));
+var identTouche = false;
+function proposer(){ if (!identTouche) $('#a-ident').value = T.identifiantPropose($('#a-prenom').value, $('#a-nom').value); }
+$('#a-prenom').addEventListener('input', proposer); $('#a-nom').addEventListener('input', proposer);
+$('#a-ident').addEventListener('input', function(){ identTouche = true; });
+$('#a-mdp').value = T.motDePasseProvisoire();
+$('#btnPropose').addEventListener('click', function(){ $('#a-mdp').value = T.motDePasseProvisoire(); });
+
+var LIGNE = '────────────────────────────';
+function texteBienvenue(prenom, ident, mdp, lien){
+  return '★ NAOGROUP — PHASE DE TEST ★\n' + LIGNE + '\n\n' +
+    'Bonjour ' + (prenom || '') + ',\n\nVous êtes invité·e à tester NaoGroup en avant-première. Voici votre accès personnel.\n\n' +
+    '1. Ouvrez ce lien SUR L\'APPAREIL où vous voulez tester (ordinateur, tablette ou téléphone) — il enregistre votre accès :\n' + lien + '\n\n' +
+    '2. Connectez-vous avec :\nIdentifiant : ' + ident + '\nMot de passe provisoire : ' + mdp + '\n\n' +
+    '(Vous choisirez votre propre mot de passe dès la première connexion. Pour tester sur un autre appareil, ouvrez de nouveau ce lien dessus.)\n\n' +
+    LIGNE + '\n\nVotre avis compte : merci de remplir la fiche testeur après chaque session, ici →\n' + T.url('fiche-testeur.html') + '\n\n' +
+    'Merci beaucoup pour votre aide !\nL\'équipe NaoGroup';
+}
+function texteMaj(prenom, lien){
+  return '★ NAOGROUP — PHASE DE TEST ★\n' + LIGNE + '\n\nBonjour ' + (prenom || '') + ',\n\nVotre accès NaoGroup a été mis à jour. ' +
+    'Ouvrez ce lien sur l\'appareil que vous utilisez pour que le changement soit pris en compte :\n' + lien + '\n\nL\'équipe NaoGroup';
+}
+function urlGmail(email, sujet, corps){
+  return 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(email) + '&su=' + encodeURIComponent(sujet) + '&body=' + encodeURIComponent(corps);
+}
+/* mode « inv » : invitation (avec le mot de passe provisoire) — mode « maj » : mise à jour des outils / du statut. */
+function ouvrirRemis(titre, c, mdp, mode){
+  mode = mode || 'inv';
+  var base = Object.assign({}, c, { mdpLe: c.mdpLe || Date.parse(c.creeLe) || 1 });
+  var lien = T.lienInvitation(base, mode === 'inv');
+  var corps = mode === 'inv' ? texteBienvenue(c.prenom, c.identifiant, mdp, lien) : texteMaj(c.prenom, lien);
+  var sujet = mode === 'inv' ? 'Votre accès de test NaoGroup' : 'Votre accès NaoGroup a été mis à jour';
+  $('#rTitre').textContent = titre;
+  $('#m-remis').dataset.corps = corps;
+  $('#rId').textContent = c.identifiant; $('#rMdp').textContent = mdp || '';
+  $('#rMdpLigne').hidden = mode !== 'inv';
+  $('#rUrl').textContent = lien.slice(0, 64) + '… (' + lien.length + ' caractères, dans le message)';
+  var lienEnvoyer = $('#btnEnvoyerRemis');
+  var precision = mode === 'inv' ? '' : ' Un blocage ou une suspension ne prend effet sur l\'appareil de la personne que lorsqu\'elle ouvre ce lien.';
+  if (c.email) {
+    lienEnvoyer.hidden = false;
+    lienEnvoyer.setAttribute('href', urlGmail(c.email, sujet, corps));
+    lienEnvoyer.setAttribute('target', '_blank');
+    lienEnvoyer.setAttribute('rel', 'noopener');
+    $('#rEmailMsg').textContent = 'Ouvre un brouillon Gmail prêt à envoyer à ' + c.email + ' (connectez-vous à support.naogroup@gmail.com si ce n\'est pas déjà fait).' + precision;
+  } else {
+    lienEnvoyer.hidden = true;
+    $('#rEmailMsg').textContent = 'Aucun e-mail renseigné pour ce profil : copiez le message et envoyez-le vous-même.' + precision;
+  }
+  ouvrir('m-remis');
+}
+$('#btnAjouter').addEventListener('click', function(){
+  msg('msgAjout','');
+  var prenom = $('#a-prenom').value.trim(), nom = $('#a-nom').value.trim();
+  var ident = T.normIdentifiant($('#a-ident').value), mdp = $('#a-mdp').value;
+  var email = $('#a-email').value.trim(), notes = $('#a-notes').value.trim();
+  var outils = outilsCoches($('#tuilesAjout'));
+  if (!prenom && !nom) return msg('msgAjout', 'Indiquez au moins un prénom ou un nom.');
+  if (!/^[a-z0-9._-]{3,40}$/.test(ident)) return msg('msgAjout', "Identifiant : 3 à 40 caractères, lettres sans accent, chiffres, point, tiret.");
+  if (mdp.length < 8) return msg('msgAjout', 'Le mot de passe provisoire doit contenir 8 caractères au moins.');
+  var liste = T.lireComptes();
+  if (liste.some(function(c){ return T.normIdentifiant(c.identifiant) === ident; })) return msg('msgAjout', 'Cet identifiant est déjà pris.');
+  T.protegerMdp(mdp).then(function(secret){
+    var c = { id: T.nouvelId(), role: 'testeuse', identifiant: ident, prenom: prenom, nom: nom, email: email, notes: notes, statut: 'actif', motif: '',
+      outils: outils, mdp: secret, mdpLe: Date.now(), changerMdp: true, creeLe: new Date().toISOString(), derniereConnexion: null };
+    liste.push(c); T.ecrireComptes(liste);
+    charger(); rendre();
+    $('#a-prenom').value=''; $('#a-nom').value=''; $('#a-ident').value=''; $('#a-email').value=''; $('#a-notes').value=''; identTouche=false; $('#a-mdp').value = T.motDePasseProvisoire();
+    $('#tuilesAjout').innerHTML = tuilesHtml(T.outils.map(function(o){ return o.id; }));
+    ouvrirRemis('Profil créé', c, mdp, 'inv');
+  });
+});
+$('#btnCopierRemis').addEventListener('click', function(){
+  if (navigator.clipboard) navigator.clipboard.writeText($('#m-remis').dataset.corps || '').then(function(){ toast('Copié.'); });
+});
+
+/* ---------- actions sur un profil ---------- */
+document.getElementById('corpsProfils').addEventListener('click', function(e){
+  var b = e.target.closest('[data-a]'); if (!b) return;
+  var c = PROFILS.filter(function(x){ return x.id === b.getAttribute('data-id'); })[0], a = b.getAttribute('data-a');
+  if (a === 'modifier') { cibleModif = c; $('#mSous').textContent = nomComplet(c); $('#m-email').value = c.email || ''; $('#m-notes').value = c.notes || ''; $('#tuilesModif').innerHTML = tuilesHtml(c.outils || []); ouvrir('m-modifier'); }
+  else if (a === 'suspendre' || a === 'bloquer' || a === 'reactiver') {
+    cibleStatut = c; actionStatut = a;
+    $('#sTitre').textContent = { suspendre:'Suspendre l’accès', bloquer:'Bloquer l’accès', reactiver:'Réactiver l’accès' }[a];
+    $('#sSous').textContent = nomComplet(c) + ' · ' + c.identifiant;
+    $('#sMotifBloc').hidden = a === 'reactiver'; $('#sMotif').value = '';
+    ouvrir('m-statut');
+  } else if (a === 'maj') {
+    ouvrirRemis('Mise à jour à envoyer', c, '', 'maj');
+  } else if (a === 'mdp') {
+    cibleMdp = c; $('#mdpSous').textContent = nomComplet(c) + ' · ' + c.identifiant + ' — son mot de passe actuel ne peut pas être lu.';
+    $('#mdpValeur').value = T.motDePasseProvisoire(); msg('mdpMsg',''); ouvrir('m-mdp');
+  } else if (a === 'supprimer') {
+    if (!confirm('Supprimer le profil de ' + nomComplet(c) + ' ?')) return;
+    var liste = T.lireComptes().filter(function(x){ return x.id !== c.id; }); T.ecrireComptes(liste);
+    charger(); rendre(); toast('Profil supprimé.');
+  }
+});
+$('#btnValiderModif').addEventListener('click', function(){
+  var outils = outilsCoches($('#tuilesModif'));
+  var liste = T.lireComptes(); var i = liste.findIndex(function(x){ return x.id === cibleModif.id; });
+  var avant = (liste[i].outils || []).slice().sort().join(',');
+  liste[i].outils = outils; liste[i].email = $('#m-email').value.trim(); liste[i].notes = $('#m-notes').value.trim();
+  T.ecrireComptes(liste); charger(); rendre(); fermer('m-modifier');
+  if (avant !== outils.slice().sort().join(',')) ouvrirRemis('Outils modifiés — envoyer la mise à jour', liste[i], '', 'maj');
+  else toast('Profil mis à jour.');
+});
+$('#btnValiderStatut').addEventListener('click', function(){
+  var s = { suspendre:'suspendu', bloquer:'bloque', reactiver:'actif' }[actionStatut];
+  var liste = T.lireComptes(); var i = liste.findIndex(function(x){ return x.id === cibleStatut.id; });
+  liste[i].statut = s; liste[i].motif = s === 'actif' ? '' : $('#sMotif').value.trim();
+  T.ecrireComptes(liste); charger(); rendre(); fermer('m-statut');
+  ouvrirRemis(s === 'actif' ? 'Accès rétabli — envoyer la mise à jour' : (s === 'bloque' ? 'Accès bloqué' : 'Accès suspendu') + ' — envoyer la mise à jour', liste[i], '', 'maj');
+});
+$('#btnProposeMdp').addEventListener('click', function(){ $('#mdpValeur').value = T.motDePasseProvisoire(); });
+$('#btnValiderMdp').addEventListener('click', function(){
+  var v = $('#mdpValeur').value; if (v.length < 8) return msg('mdpMsg', '8 caractères au moins.');
+  T.protegerMdp(v).then(function(secret){
+    var liste = T.lireComptes(); var i = liste.findIndex(function(x){ return x.id === cibleMdp.id; });
+    liste[i].mdp = secret; liste[i].mdpLe = Date.now(); liste[i].changerMdp = true; T.ecrireComptes(liste);
+    charger(); rendre(); fermer('m-mdp');
+    ouvrirRemis('Nouveau mot de passe', liste[i], v, 'inv');
+  });
+});
+document.addEventListener('click', function(e){ var f = e.target.closest('[data-ferme]'); if (f) fermer(f.getAttribute('data-ferme')); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') document.querySelectorAll('.voile.ouvert').forEach(function(v){ v.classList.remove('ouvert'); }); });
+$('#btnSortir').addEventListener('click', function(){ T.effacerSession(); location.href = 'NaoGroup.html'; });
+
+/* ---------- démarrage : réservé à la créatrice ---------- */
+function refus(titre, texte){ $('#refusTitre').textContent = titre; $('#refusTexte').textContent = texte; $('#refus').hidden = false; }
+var s = T.session();
+if (!s) { location.replace('connexion-test.html?retour=' + encodeURIComponent(location.href)); }
+else {
+  var c = T.compteParId(s.id);
+  if (!c || c.role !== 'directrice') refus('Accès réservé', 'Cette page est réservée à la créatrice de NaoGroup.');
+  else if (T.etatAcces(c).ok === false) refus('Accès réservé', 'Votre accès est actuellement suspendu ou bloqué.');
+  else { MOI = c; $('#app').hidden = false; charger(); rendre(); }
+}
+})();
+</script>
+</body>
+</html>

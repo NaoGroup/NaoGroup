@@ -1,0 +1,53 @@
+/* ============================================================
+   NaoGroup — socle mobile partagé (tablette et téléphone).
+   Une page qui charge ce fichier gagne un meilleur confort tactile
+   sans qu'on touche à sa propre mise en page. À charger APRÈS la
+   feuille de style de l'outil, dans le <head> :
+     <link rel="stylesheet" href="../naogroup-mobile.css">
+
+   Ce fichier ne redessine rien : il pose des réglages sûrs (aucun
+   risque de casser un écran existant) et quelques outils qu'on peut
+   activer au cas par cas (la classe .nao-tactile) sur les prochains
+   écrans qu'on adapte vraiment au doigt.
+   ============================================================ */
+
+/* Le doigt répond tout de suite : sans ce réglage, les navigateurs
+   attendent ~300 ms après un tap pour vérifier qu'il ne s'agit pas
+   d'un double-tap de zoom. */
+a, button, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
+/* Les marges de sécurité des téléphones à encoche ou à coins arrondis.
+   Ces variables ne s'appliquent nulle part toutes seules : on les pose
+   soi-même en padding sur une barre du haut ou un bouton flottant, le
+   jour où on en ajoute un. */
+:root{
+  --nao-marge-haut: env(safe-area-inset-top, 0px);
+  --nao-marge-bas: env(safe-area-inset-bottom, 0px);
+  --nao-marge-gauche: env(safe-area-inset-left, 0px);
+  --nao-marge-droite: env(safe-area-inset-right, 0px);
+}
+
+/* Un tableau plus large que l'écran devient son propre couloir de
+   défilement horizontal, sans rien changer à sa mise en page interne —
+   au lieu de casser la largeur de toute la page sur petit écran. */
+@media (max-width: 900px){
+  table{ display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+/* Empêche le zoom involontaire de Safari iOS quand on touche un champ
+   de saisie affiché plus petit que 16 px. */
+@media (max-width: 900px){
+  input, select, textarea{ font-size:max(16px, 1em); }
+}
+
+/* Zone tactile confortable (44×44 px, la taille conseillée par Apple et
+   Google) : à poser à la main sur les boutons les plus utilisés au doigt,
+   sans toucher à ceux qu'on n'a pas encore revus. */
+.nao-tactile{
+  min-width:44px; min-height:44px;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+
+@media (prefers-reduced-motion:reduce){ *{ scroll-behavior:auto!important; } }

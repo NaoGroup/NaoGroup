@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naocv"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naocv"></script>
+<title>NaoCV — Votre parcours mérite d'être remarqué</title>
+<meta name="description" content="NaoCV, le générateur de CV, de lettres de motivation et de candidatures de NaoGroup : création guidée, versions par offre, CV aux couleurs de l'entreprise, version ATS, lettres, suivi des candidatures et exports PDF / DOCX.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%234A3DC4'/><stop offset='.55' stop-color='%237C7BE8'/><stop offset='1' stop-color='%239FD0F2'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><rect x='7.4' y='5.4' width='13.4' height='8.8' rx='2.1' fill='%23fff'/><circle cx='11.3' cy='9.8' r='2.1' fill='%236A62DA'/><path d='M29 5.2Q29.5 9.1 33.4 9.6Q29.5 10.1 29 14Q28.5 10.1 24.6 9.6Q28.5 9.1 29 5.2Z' fill='%23fff'/><path d='M12 31.5V19L28 31.5V19' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('naocv.theme') || 'dark'; if (localStorage.getItem('naocv.calme') === '1') document.documentElement.classList.add('calme'); } catch (e) {}</script>
+<link rel="stylesheet" href="naocv.css">
+</head>
+<body>
+
+<!-- Le décor : halos, trame de points, feuilles, mallettes et stylos qui dérivent, enveloppes qui s'envolent. -->
+<div id="decor" class="decor" aria-hidden="true">
+  <div class="halos"><i></i><i></i><i></i></div>
+  <svg class="motifs" id="motifs"></svg>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- NaoGroup -->
+  <linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient>
+  <symbol id="l-gr" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#ggr)"/>
+    <path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g>
+  </symbol>
+  <!-- NaoCV : au-dessus du N, une carte de profil — une photo, deux lignes — et, à côté,
+       un éclat qui brille : le parcours qu'on remarque. Le dégradé finit en bleu ciel, « bureau ». -->
+  <linearGradient id="gcv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4A3DC4"/><stop offset=".55" stop-color="#7C7BE8"/><stop offset="1" stop-color="#9FD0F2"/></linearGradient>
+  <radialGradient id="gcv-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-cv" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gcv)"/>
+    <circle cx="29" cy="9.6" r="5.6" fill="url(#gcv-lueur)" opacity=".6"/>
+    <rect x="7.4" y="5.4" width="13.4" height="8.8" rx="2.1" fill="#fff" opacity=".94"/>
+    <circle cx="11.3" cy="9.8" r="2.1" fill="#6A62DA" opacity=".72"/>
+    <path d="M14.6 8.5H18.4M14.6 11.2H17" stroke="#6A62DA" stroke-width="1.05" stroke-linecap="round" opacity=".6"/>
+    <path d="M29 5.2Q29.5 9.1 33.4 9.6Q29.5 10.1 29 14Q28.5 10.1 24.6 9.6Q28.5 9.1 29 5.2Z" fill="#fff"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
+
+<div class="page">
+  <header class="bar">
+    <a class="mark" href="../NaoGroup.html" aria-label="Revenir à NaoGroup" title="Revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoCV"><use href="#l-cv"/></svg>
+      <div><h1 class="nom-outil">Nao<span>CV</span></h1><div class="sub">Votre parcours mérite d'être remarqué</div></div>
+    </a>
+    <div class="outils-haut">
+      <button class="pastille creer" type="button" data-act="creer-mon-cv">✨ Créer mon CV</button>
+      <a class="pastille" href="../NaoGroup.html" title="Revenir à NaoGroup"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg> NaoGroup</a>
+      <button class="pastille icone" type="button" data-act="sauvegarder" title="Sauvegarder mes CV dans un fichier">💾</button>
+      <button class="pastille icone" type="button" data-act="recharger" title="Recharger une sauvegarde">📂</button>
+      <button class="pastille icone" type="button" data-act="reinitialiser" title="Réinitialiser NaoCV : repartir d'un outil vierge">🧹</button>
+      <button class="pastille icone" type="button" data-act="calme" id="btnCalme" title="Mettre les animations en pause">🕊️</button>
+      <button class="theme" type="button" data-act="theme" aria-label="Basculer thème clair / sombre" title="Thème clair / sombre"><span class="pouce"></span><span class="lune">☾</span><span class="soleil">☀</span></button>
+    </div>
+  </header>
+
+  <nav class="onglets" id="onglets" aria-label="Sections de NaoCV"></nav>
+
+  <main id="contenu" tabindex="-1"></main>
+
+  <footer class="pied">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-cv"/></svg>
+    <div>Un outil de la maison <a href="../NaoGroup.html">NaoGroup</a> · vos CV restent sur cet ordinateur · NaoCV n'invente rien : chaque mot vient de vous.</div>
+  </footer>
+</div>
+
+<div class="voile" id="modale" role="dialog" aria-modal="true" aria-labelledby="modaleTitre"><div class="fen" id="modaleFen"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="impression"></div>
+<datalist id="dlEntreprises"></datalist>
+<input type="file" id="fichierSauvegarde" accept="application/json,.json" hidden>
+<input type="file" id="fichierImage" accept="image/*" hidden>
+<input type="file" id="fichierImport" accept=".docx,.txt,.pdf,text/plain,application/pdf,image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+
+<!-- pdf.js (Mozilla, licence Apache 2.0), embarqué pour lire les CV en PDF sans connexion.
+     Il n'est exécuté qu'au premier import d'un PDF. -->
+<script type="text/plain" id="lib-pdf">@@PDFJS@@</script>
+<script type="text/plain" id="lib-pdf-worker">@@PDFWORKER@@</script>
+
+<script src="nc-core.js"></script>
+<script src="nc-savoir.js"></script>
+<script src="nc-cv.js"></script>
+<script src="nc-vues.js"></script>
+<script src="nc-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark" data-sexe="neutre">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naobaby"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naobaby"></script>
+<title>NaoBaby — Chaque semaine, un peu plus de vous.</title>
+<meta name="description" content="NaoBaby — le carnet de grossesse de NaoGroup : semaines, rendez-vous, listes, événements, accouchement et premiers souvenirs de bébé.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%235A44CC'/><stop offset='.45' stop-color='%238C7BEA'/><stop offset='.8' stop-color='%23C3A6F4'/><stop offset='1' stop-color='%23EBC3E0'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M11 6.8A9 6.8 0 0 0 29 6.8A9 3.6 0 0 1 11 6.8Z' fill='%23fff' opacity='.55'/><path d='M20 3.5Q20.43 5.97 22.9 6.4Q20.43 6.83 20 9.3Q19.57 6.83 17.1 6.4Q19.57 5.97 20 3.5Z' fill='%23fff'/><path d='M12 31.5V18.5L28 31.5V18.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { var r = document.documentElement; r.dataset.theme = localStorage.getItem('naobaby.theme') || 'dark'; r.dataset.sexe = localStorage.getItem('naobaby.accent') || 'neutre'; } catch (e) {}</script>
+<link rel="stylesheet" href="naobaby.css">
+</head>
+<body class="entree">
+
+<!-- ================= Marque =================
+     Même jeton que toute la famille NaoGroup (carré de 40, rayon 13) et même
+     N blanc d'un seul tracé, posé bas comme NaoAgenda, NaoAstro et NaoLang.
+     Le dégradé part du violet profond, passe par une touche bleu-violet et la
+     lavande, et s'éteint sur un rose poudré à peine visible dans le coin.
+     L'accent de NaoBaby : un croissant de lune couché, en blanc à 55 %, qui
+     berce une petite étoile pleine — le berceau et l'enfant qui arrive.     -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <linearGradient id="nb-degrade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5A44CC"/><stop offset=".45" stop-color="#8C7BEA"/>
+      <stop offset=".8" stop-color="#C3A6F4"/><stop offset="1" stop-color="#EBC3E0"/>
+    </linearGradient>
+    <radialGradient id="nb-reflet" cx=".28" cy=".18" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="nb-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <symbol id="nao-logo" viewBox="0 0 40 40">
+      <rect width="40" height="40" rx="13" fill="url(#nb-degrade)"/>
+      <rect width="40" height="40" rx="13" fill="url(#nb-reflet)"/>
+      <circle cx="20" cy="7.4" r="6.4" fill="url(#nb-lueur)" opacity=".5"/>
+      <path d="M11 6.8A9 6.8 0 0 0 29 6.8A9 3.6 0 0 1 11 6.8Z" fill="#fff" opacity=".55"/>
+      <path d="M20 3.5Q20.43 5.97 22.9 6.4Q20.43 6.83 20 9.3Q19.57 6.83 17.1 6.4Q19.57 5.97 20 3.5Z" fill="#fff"/>
+      <path d="M12 31.5V18.5L28 31.5V18.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="fond" aria-hidden="true"><i></i><i></i><i></i><div class="motifs" id="motifs"></div><div class="ciel" id="ciel"></div></div>
+
+<!-- l'entrée dans l'outil : une étoile tombe dans le berceau de lune -->
+<div class="intro" id="intro" role="presentation" title="Toucher pour entrer">
+  <div class="ciel-i" id="introCiel" aria-hidden="true"></div>
+  <div class="scene">
+    <div class="berceau">
+      <div class="lueur"></div>
+      <svg class="anneau" id="introAnneau" viewBox="0 0 280 280" aria-hidden="true"></svg>
+      <div class="lune">
+        <svg class="croissant" viewBox="10 -1 20 16" aria-hidden="true">
+          <defs><linearGradient id="nb-lune-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E4D9FF"/></linearGradient></defs>
+          <path d="M11 6.8A9 6.8 0 0 0 29 6.8A9 3.6 0 0 1 11 6.8Z" fill="url(#nb-lune-g)"/>
+        </svg>
+        <div class="onde"></div><div class="onde o2"></div>
+        <div class="etoile-bb"><div class="traine"></div><svg viewBox="16.4 2.8 7.2 7.2" aria-hidden="true"><path d="M20 3.5Q20.43 5.97 22.9 6.4Q20.43 6.83 20 9.3Q19.57 6.83 17.1 6.4Q19.57 5.97 20 3.5Z" fill="#fff"/></svg></div>
+        <div class="eclat"></div>
+        <div id="introGerbe"></div>
+      </div>
+      <span class="scint" style="left:40px;top:70px;animation-delay:1.6s">✦</span>
+      <span class="scint" style="left:226px;top:58px;animation-delay:1.9s;font-size:10px">✦</span>
+      <span class="scint" style="left:236px;top:196px;animation-delay:2.2s">✦</span>
+      <span class="scint" style="left:30px;top:200px;animation-delay:2.4s;font-size:10px">✦</span>
+    </div>
+    <div class="nom" id="introNom" aria-label="NaoBaby"></div>
+    <div class="phrase" id="introPhrase">Chaque semaine, <b>un peu plus de vous.</b></div>
+  </div>
+  <div class="passer">Toucher pour entrer</div>
+</div>
+
+<div class="shell">
+  <header class="entete">
+    <a class="marque" href="../NaoGroup.html" title="Revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoBaby"><use href="#nao-logo"/></svg>
+      <div>
+        <h1>Nao<span>Baby</span></h1>
+        <div class="slogan">Chaque semaine, un peu plus de vous.</div>
+      </div>
+    </a>
+    <div class="semaine-pill" id="pill" hidden></div>
+    <div class="spacer"></div>
+    <div class="outils-mini">
+      <button class="theme" type="button" data-act="theme" role="switch" id="b-theme" title="Basculer clair / sombre"><span class="pouce" id="pouce">🌙</span></button>
+      <button class="btn" type="button" data-act="partage" title="Partager avec votre partenaire, sauvegarder ou recharger">💞 Partager & sauvegarder</button>
+      <button class="rond" type="button" data-act="aide" title="Comment ça marche (F1)" aria-label="Aide : comment ça marche">❓</button>
+      <button class="rond" type="button" data-act="profil" title="Notre profil de grossesse" aria-label="Profil">⚙️</button>
+      <input type="file" id="fichier" accept=".json,.naobaby,application/json" hidden>
+      <input type="file" id="photo-in" accept="image/*" hidden>
+    </div>
+  </header>
+
+  <nav class="pages" id="pages" aria-label="Espaces"></nav>
+  <div id="rappels" class="rappels"></div>
+  <main id="vue"></main>
+
+  <div class="pied-page">💜 NaoBaby — tout reste sur cet ordinateur (stockage local du navigateur). Pensez à 💞 sauvegarder de temps en temps ·
+    <a href="../NaoGroup.html">NaoGroup</a> · <a href="#" data-act="reinitialiser">♻️ Réinitialiser l’outil</a>
+    <div class="avert">NaoBaby est un carnet d'organisation et de souvenirs. Il ne remplace jamais l'avis d'une sage-femme, d'un médecin ou de la maternité.
+      En cas d'urgence : <b>15</b> (SAMU) ou <b>112</b>.</div></div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<canvas id="confettis" hidden></canvas>
+<div id="impression"></div>
+
+<script src="nb-core.js"></script>
+<script src="nb-grossesse.js"></script>
+<script src="nb-evenements.js"></script>
+<script src="nb-bebe.js"></script>
+<script src="nb-aide.js"></script>
+<script src="nb-app.js"></script>
+</body>
+</html>

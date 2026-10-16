@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naoroots"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naoroots"></script>
+<script src="../naogroup-logos.js"></script>
+<title>NaoRoots — Retrouver nos racines, transmettre nos histoires</title>
+<meta name="description" content="NaoRoots, l'espace de NaoGroup pour l'arbre familial, les souvenirs, les photos et les histoires de famille, de génération en génération.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%234B2FB8'/><stop offset='.52' stop-color='%237A70EC'/><stop offset='1' stop-color='%23D4BEFA'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M20 16.4V9.6M20 12.6L15.6 9.2M20 11.2L24.4 8' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round'/><circle cx='15.1' cy='8.7' r='1.9' fill='%23fff'/><circle cx='24.9' cy='7.5' r='1.9' fill='%23fff'/><path d='M20 3.6C21.9 5.2 22 7.6 20 9.4C18 7.6 18.1 5.2 20 3.6Z' fill='%23fff'/><path d='M12 31.5V19.5L28 31.5V19.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { var r = document.documentElement; r.dataset.theme = localStorage.getItem('naoroots.theme') || 'dark'; if (localStorage.getItem('naoroots.calme') === '1') r.classList.add('calme'); if (localStorage.getItem('naoroots.grand') === '1') r.classList.add('grand'); } catch (e) {}</script>
+<link rel="stylesheet" href="naoroots.css">
+</head>
+<body class="entree">
+
+<!-- Le décor : halos, ciel étoilé, et l'arbre de famille qui vit doucement —
+     petits arbres qui poussent, constellations familiales qui se relient,
+     feuilles qui tombent en tournoyant, racines qui s'étirent. -->
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<svg class="motifs" id="motifs" aria-hidden="true"></svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- NaoRoots : au-dessus du N, un petit arbre de famille — un tronc fin qui part de deux racines,
+       deux branches qui portent chacune une génération, et une feuille qui monte. -->
+  <linearGradient id="gro" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4B2FB8"/><stop offset=".52" stop-color="#7A70EC"/><stop offset="1" stop-color="#D4BEFA"/></linearGradient>
+  <radialGradient id="gro-lueur"><stop offset="0" stop-color="#F1E8FF" stop-opacity=".95"/><stop offset="1" stop-color="#F1E8FF" stop-opacity="0"/></radialGradient>
+  <symbol id="l-ro" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gro)"/>
+    <circle cx="20" cy="9.6" r="9" fill="url(#gro-lueur)" opacity=".55"/>
+    <path d="M20 16.4Q17.9 16.6 16.4 17.8M20 16.4Q22.1 16.6 23.6 17.8" fill="none" stroke="#fff" stroke-width="1.15" stroke-linecap="round" opacity=".6"/>
+    <path d="M20 16.4V9.6M20 12.6L15.6 9.2M20 11.2L24.4 8" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="15.1" cy="8.7" r="1.9" fill="#fff"/>
+    <circle cx="24.9" cy="7.5" r="1.9" fill="#fff"/>
+    <path d="M20 3.6C21.9 5.2 22 7.6 20 9.4C18 7.6 18.1 5.2 20 3.6Z" fill="#fff"/>
+    <path d="M20 5.2V8.4" stroke="#8A7CEE" stroke-width=".7" stroke-linecap="round"/>
+    <circle cx="31.4" cy="6.4" r="1.1" fill="#fff" opacity=".8"/>
+    <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <pattern id="pointsCarte" width="2.2" height="2.2" patternUnits="userSpaceOnUse"><circle cx="1.1" cy="1.1" r=".62" class="pt-carte"/></pattern>
+</defs></svg>
+
+<!-- L'entrée dans l'outil : l'arbre de la famille pousse — les racines se tracent, le tronc monte,
+     les branches s'étendent et les générations s'allument une à une. Un clic pour entrer tout de suite. -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="scene-intro">
+    <svg class="pousse-arbre" viewBox="0 0 320 270" aria-hidden="true">
+      <defs><radialGradient id="introNoeud"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#E4D7FF"/><stop offset="1" stop-color="#A996F2"/></radialGradient>
+        <radialGradient id="introLueur"><stop offset="0" stop-color="#D4BEFA" stop-opacity=".55"/><stop offset="1" stop-color="#D4BEFA" stop-opacity="0"/></radialGradient></defs>
+      <circle class="lueur" cx="160" cy="118" r="120" fill="url(#introLueur)"/>
+      <path class="sol" d="M70 214H250"/>
+      <g class="racines"><path d="M160 214C156 230 140 238 120 244C106 248 96 256 90 266"/><path d="M160 214C164 232 182 240 202 244C216 247 226 255 232 265"/>
+        <path d="M160 214C160 232 158 246 154 262"/><path d="M140 238C132 248 130 256 132 266"/><path d="M186 239C194 248 196 256 194 266"/></g>
+      <path class="tronc" d="M160 214C157 186 163 160 160 128"/>
+      <g class="branches"><path style="--i:0" d="M160 170C140 162 118 160 96 148"/><path style="--i:1" d="M160 160C182 152 204 150 226 138"/>
+        <path style="--i:2" d="M160 136C146 116 132 100 112 88"/><path style="--i:3" d="M160 132C176 112 190 98 210 84"/><path style="--i:4" d="M160 128C160 106 160 84 160 58"/></g>
+      <g class="couples"><path style="--i:0" d="M96 148C120 156 200 150 226 138"/><path style="--i:1" d="M112 88C140 70 182 70 210 84"/></g>
+      <g class="leurs-feuilles">
+        <path style="--i:0" d="M128 158C122 150 124 142 132 140C136 148 134 154 128 158Z"/><path style="--i:1" d="M196 150C204 144 212 146 214 154C206 158 200 156 196 150Z"/>
+        <path style="--i:2" d="M140 106C132 102 130 94 136 88C142 94 144 100 140 106Z"/><path style="--i:3" d="M182 100C188 94 196 94 198 102C192 106 186 106 182 100Z"/>
+        <path style="--i:4" d="M160 44C168 50 168 60 160 66C152 60 152 50 160 44Z"/></g>
+      <g class="generations"><circle style="--i:0" cx="96" cy="148" r="9"/><circle style="--i:1" cx="226" cy="138" r="9"/><circle style="--i:2" cx="112" cy="88" r="8"/>
+        <circle style="--i:3" cx="210" cy="84" r="8"/><circle style="--i:4" cx="160" cy="50" r="10"/></g>
+    </svg>
+    <div class="titre-intro"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-ro"/></svg><span>Nao<b>Roots</b></span></div>
+    <div class="phrase">Retrouver nos racines, <span>transmettre nos histoires.</span></div>
+    <div class="passer">Cliquer pour entrer</div>
+  </div>
+</div>
+
+<div class="page">
+  <header class="bar">
+    <a class="mark" href="../NaoGroup.html" title="Revenir à NaoGroup" aria-label="NaoRoots — revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoRoots"><use href="#l-ro"/></svg>
+      <div><h1 class="nom-outil">Nao<span>Roots</span></h1><div class="sub">Retrouver nos racines, transmettre nos histoires</div></div>
+    </a>
+    <div class="outils-haut">
+      <a class="pastille" href="../NaoGroup.html" title="Revenir à l'accueil NaoGroup"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg> NaoGroup</a>
+      <button class="pastille icone" type="button" data-act="corbeille" id="btnCorbeille" title="Corbeille — récupérer un élément supprimé" aria-label="Corbeille">🗑️</button>
+      <button class="pastille icone" type="button" data-act="sauvegarder" title="Sauvegarder NaoRoots dans un fichier" aria-label="Sauvegarder">💾</button>
+      <button class="pastille icone" type="button" data-act="ouvrir-fichier" title="Ouvrir une sauvegarde, une invitation ou des ajouts reçus" aria-label="Ouvrir un fichier">📂</button>
+      <button class="pastille icone" type="button" data-act="grand" id="btnGrand" title="Agrandir le texte">A+</button>
+      <button class="pastille icone" type="button" data-act="calme" id="btnCalme" title="Mettre les animations en pause">🕊️</button>
+      <button class="pastille reset" type="button" data-act="reinitialiser" title="Réinitialiser NaoRoots (repartir de zéro)">♻️ <span class="lib-r">Réinitialiser</span></button>
+      <button class="theme-switch" type="button" data-act="theme" id="btnTheme" role="switch" aria-checked="true" aria-label="Thème sombre" title="Basculer clair / sombre"><span class="thumb" aria-hidden="true">🌙</span></button>
+    </div>
+  </header>
+
+  <nav class="onglets" id="onglets" aria-label="Espaces de NaoRoots"></nav>
+
+  <div class="bandeau-recu" id="bandeauRecu" hidden></div>
+
+  <main id="contenu" tabindex="-1"></main>
+
+  <footer class="pied">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-ro"/></svg>
+    <div>Un outil de la maison <a href="../NaoGroup.html">NaoGroup</a> · NaoRoots est un outil personnel de généalogie et de mémoire familiale.
+      Les informations sont des <b>informations familiales à vérifier</b>, sauf lorsqu'une source officielle est ajoutée. Rien n'est jamais public ni partagé sans votre accord.</div>
+  </footer>
+</div>
+
+<!-- Ce qui sera imprimé (arbre, frise, livre de famille) : invisible à l'écran. -->
+<div id="impression" aria-hidden="true"></div>
+
+<div class="voile" id="modale" role="dialog" aria-modal="true" aria-labelledby="modaleTitre"><div class="fen" id="modaleFen"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="fichierOuvrir" accept=".naoroots,application/json,.json" hidden>
+<input type="file" id="fichierGedcom" accept=".ged,.gedcom,.zip,text/plain,application/zip" hidden>
+
+<script src="nr-core.js"></script>
+<script src="nr-arbre.js"></script>
+<script src="nr-vues.js"></script>
+<script src="nr-app.js"></script>
+</body>
+</html>

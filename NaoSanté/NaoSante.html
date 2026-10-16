@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naosante"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naosante"></script>
+<title>NaoSanté — Prenez soin de votre rythme</title>
+<meta name="description" content="NaoSanté, l'outil bien-être de NaoGroup : hydratation, sommeil, activité, habitudes, rendez-vous et rappels de santé. Un outil d'organisation personnelle, jamais un avis médical.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%234B36C6'/><stop offset='.55' stop-color='%239A84EE'/><stop offset='1' stop-color='%23A9D6F6'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M7.6 10.6H11.6L13.4 7L15.9 14.4L17.8 10.6H20.2' fill='none' stroke='%23fff' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round' opacity='.55'/><path d='M27.4 14.8C23.9 12.5 22.6 10.7 22.6 8.9A2.4 2.4 0 0 1 27.4 7.7A2.4 2.4 0 0 1 32.2 8.9C32.2 10.7 30.9 12.5 27.4 14.8Z' fill='%23fff'/><path d='M12 31.5V19L28 31.5V19' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { var r = document.documentElement; r.dataset.theme = localStorage.getItem('naosante.theme') || 'dark'; if (localStorage.getItem('naosante.calme') === '1') r.classList.add('calme'); if (localStorage.getItem('naosante.grand') === '1') r.classList.add('grand'); } catch (e) {}</script>
+<style>
+/* ============================================================
+   NaoSanté — le bien-être au quotidien, dans la maison NaoGroup.
+   Même charte que les autres outils : fond violet étoilé, cartes de
+   verre, le N du jeton — avec une touche de bleu clair, et en fond
+   des gélules, des gouttes d'eau et des cœurs qui battent doucement.
+   ============================================================ */
+:root{
+  --serif:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --fond:radial-gradient(1200px 860px at 50% 28%, #7564C2 0%, #43358A 42%, #1C1636 100%);
+  --fond-uni:#1C1636;
+  --ink:#F3EFFB;
+  --ink-2:rgba(243,239,251,.78);
+  --ink-3:rgba(243,239,251,.54);
+  --verre:rgba(255,255,255,.07);
+  --verre-2:rgba(255,255,255,.12);
+  --champ:rgba(0,0,0,.2);
+  --bord:rgba(255,255,255,.16);
+  --bord-2:rgba(255,255,255,.32);
+  --lilas:#C9B7F5;
+  --accent:#C9B7F5;
+  --ciel:#A9D6F6;
+  --eau:#9DD2F5;
+  --or:#F4C67E;
+  --rose:#F5A8C8;
+  --menthe:#9BE6C6;
+  --ok:#8FE3B8;
+  --alerte:#FF9DAF;
+  --texte-bouton:#1C1636;
+  --degrade:linear-gradient(135deg,#8E7BD4,#C39BF3);
+  --degrade-sa:linear-gradient(135deg,#4B36C6,#9A84EE 55%,#A9D6F6);
+  --degrade-eau:linear-gradient(135deg,#8E7BD4,#9DD2F5);
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+  --motif:#fff;
+  --halo-1:#B9A8F0; --halo-2:#8FC7F0; --halo-3:#ed7483;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --fond:radial-gradient(1200px 860px at 50% 22%, #FFFFFF 0%, #F3EEFF 46%, #E1DCFA 100%);
+  --fond-uni:#F3EEFF;
+  --ink:#2E2358;
+  --ink-2:rgba(46,35,88,.78);
+  --ink-3:rgba(46,35,88,.56);
+  --verre:rgba(255,255,255,.6);
+  --verre-2:rgba(255,255,255,.88);
+  --champ:rgba(255,255,255,.8);
+  --bord:rgba(96,74,170,.18);
+  --bord-2:rgba(96,74,170,.36);
+  --lilas:#6A4FC9;
+  --accent:#6A4FC9;
+  --ciel:#2F7FB8;
+  --eau:#3C8FCB;
+  --or:#B7801F;
+  --rose:#C9588A;
+  --menthe:#1F8F6A;
+  --ok:#23915F;
+  --alerte:#C9415F;
+  --texte-bouton:#fff;
+  --degrade:linear-gradient(135deg,#6F55D0,#A98BEF);
+  --degrade-eau:linear-gradient(135deg,#6F55D0,#5BA8DE);
+  --ombre:0 24px 50px -30px rgba(70,50,140,.45);
+  --motif:#6A4FC9;
+  --halo-1:#D9CCFB; --halo-2:#C6E2F8; --halo-3:#F8CFDD;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.55;
+  background:var(--fond);background-color:var(--fond-uni);background-attachment:fixed;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, color-mix(in srgb, var(--motif) 20%, transparent) 1px, transparent 1.7px);
+  background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 34%, #000 0 28%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 34%, #000 0 28%, transparent 72%);
+  animation:grille 1.8s ease both}
+@keyframes grille{from{opacity:0;transform:scale(1.14)}to{opacity:1;transform:none}}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+::selection{background:color-mix(in srgb, var(--accent) 45%, transparent)}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid color-mix(in srgb, var(--accent) 70%, transparent);outline-offset:2px}
+
+/* ---------- le décor ---------- */
+.halos{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.halos i{position:absolute;border-radius:50%;filter:blur(64px);animation:flotte 16s ease-in-out infinite alternate}
+.halos i:nth-child(1){width:460px;height:460px;background:var(--halo-1);left:6%;top:8%;opacity:.45}
+.halos i:nth-child(2){width:400px;height:400px;background:var(--halo-2);right:6%;bottom:6%;opacity:.3;animation-duration:19s}
+.halos i:nth-child(3){width:340px;height:340px;background:var(--halo-3);right:30%;top:-10%;opacity:.18;animation-duration:23s}
+@keyframes flotte{from{transform:translate(0,0) scale(1)}to{transform:translate(46px,-34px) scale(1.18)}}
+
+.motifs{position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%}
+.motifs .m{transform-box:fill-box;transform-origin:center;animation:derive linear infinite alternate}
+.motifs .m *{fill:none;stroke:var(--motif);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.motifs .m .plein{fill:var(--motif);stroke:none}
+.motifs .m .demi{fill:var(--motif);fill-opacity:.35}
+.motifs .etoile{fill:var(--motif);animation:scintille ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+/* le cœur qui bat, la pulsation qui se trace, la goutte qui se remplit */
+.motifs .bat{transform-box:fill-box;transform-origin:center;animation:bat 2.4s ease-in-out infinite;animation-delay:var(--r,0s)}
+.motifs .pouls{stroke-dasharray:60;stroke-dashoffset:60;animation:pouls var(--d,6s) ease-in-out infinite;animation-delay:var(--r,0s)}
+.motifs .rempli{transform-box:fill-box;transform-origin:bottom;animation:rempli var(--d,8s) ease-in-out infinite;animation-delay:var(--r,0s)}
+@keyframes bat{0%,60%,100%{transform:scale(1)}10%{transform:scale(1.14)}20%{transform:scale(.96)}30%{transform:scale(1.1)}}
+@keyframes pouls{0%,10%{stroke-dashoffset:60}45%,70%{stroke-dashoffset:0}100%{stroke-dashoffset:-60}}
+@keyframes rempli{0%,15%{transform:scaleY(.15)}55%,80%{transform:scaleY(1)}100%{transform:scaleY(.15)}}
+@keyframes derive{0%{transform:translate(0,0) rotate(-6deg)}100%{transform:translate(26px,-32px) rotate(8deg)}}
+@keyframes scintille{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:.8;transform:scale(1.15)}}
+/* les gouttes et petites gélules qui montent doucement, comme des bulles */
+.motifs .bulle{opacity:0;animation:monteBulle linear infinite}
+@keyframes monteBulle{0%{transform:translateY(0);opacity:0}12%{opacity:.35}80%{opacity:.22}100%{transform:translateY(-72vh);opacity:0}}
+/* la grande ligne de pulsation qui traverse l'écran de temps en temps */
+.motifs .ecg{fill:none;stroke:var(--motif);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.1;
+  stroke-dasharray:var(--l) var(--l);stroke-dashoffset:var(--l);animation:ecg 14s ease-in-out infinite}
+@keyframes ecg{0%{stroke-dashoffset:var(--l)}45%,60%{stroke-dashoffset:0;opacity:.12}100%{stroke-dashoffset:calc(var(--l) * -1);opacity:0}}
+:root.calme .motifs *,:root.calme .halos i{animation-play-state:paused!important}
+:root.calme .motifs .bulles,:root.calme .motifs .ecg{display:none}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}.motifs .bulles,.motifs .ecg{display:none}}
+
+/* ---------- l'entrée : une pulsation traverse l'écran et réveille le cœur du jeton ---------- */
+.intro{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:var(--fond);background-color:var(--fond-uni);
+  cursor:pointer;animation:introSort .75s 3s cubic-bezier(.6,0,.3,1) forwards}
+.intro::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle, color-mix(in srgb, var(--motif) 22%, transparent) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 45%, #000 0 26%, transparent 66%);mask-image:radial-gradient(circle at 50% 45%, #000 0 26%, transparent 66%)}
+@keyframes introSort{to{opacity:0;visibility:hidden;transform:scale(1.08)}}
+.intro .scene{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(560px,92vw)}
+.jeton-intro{position:relative;width:118px;height:118px;display:grid;place-items:center;
+  animation:jetonArrive .8s cubic-bezier(.2,.8,.2,1) both}
+.jeton-intro svg{position:relative;width:118px;height:118px;border-radius:37px;
+  box-shadow:0 24px 50px -18px rgba(0,0,0,.8),0 0 60px -8px rgba(169,214,246,.65);animation:battement 1s 1.05s ease-in-out 2}
+@keyframes jetonArrive{from{opacity:0;transform:scale(.4) rotate(-20deg)}}
+@keyframes battement{0%,55%,100%{transform:scale(1)}12%{transform:scale(1.12)}24%{transform:scale(.97)}36%{transform:scale(1.08)}}
+.jeton-intro .onde{position:absolute;inset:0;border-radius:40px;border:2px solid var(--ciel);opacity:0;animation:onde 1.6s 1.05s ease-out 2}
+.jeton-intro .o2{animation-delay:1.25s}.jeton-intro .o3{border-color:var(--accent);animation-delay:1.45s}
+@keyframes onde{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.9)}}
+.pouls-intro{width:100%;height:auto;margin-top:18px;overflow:visible}
+.pouls-intro .trace{fill:none;stroke:url(#gradProgres);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 6px rgba(169,214,246,.8));animation:trace 1.8s .45s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes trace{to{stroke-dashoffset:0}}
+.gouttes-intro{position:absolute;inset:0;pointer-events:none}
+.gouttes-intro i{position:absolute;bottom:30%;width:10px;height:13px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--degrade-eau);opacity:0;
+  animation:goutteMonte 2.4s ease-out forwards}
+.gouttes-intro i:nth-child(1){left:12%;animation-delay:.6s}.gouttes-intro i:nth-child(2){left:30%;animation-delay:1s;transform:scale(.7)}
+.gouttes-intro i:nth-child(3){left:68%;animation-delay:.8s}.gouttes-intro i:nth-child(4){left:84%;animation-delay:1.3s;transform:scale(.8)}
+.gouttes-intro i:nth-child(5){left:50%;animation-delay:1.6s;transform:scale(.6)}
+@keyframes goutteMonte{0%{opacity:0;translate:0 20px}25%{opacity:.7}100%{opacity:0;translate:0 -140px}}
+.titre-intro{font-family:var(--serif);font-style:italic;font-weight:700;font-size:40px;letter-spacing:-.025em;color:var(--ink);margin-top:10px;animation:monte .8s 1.4s ease both}
+.titre-intro span{color:var(--accent)}
+.intro .phrase{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink-2);text-align:center;animation:monte .8s 1.8s ease both}
+.intro .phrase span{color:var(--ciel)}
+.intro .passer{margin-top:26px;font-family:var(--ui);font-size:11px;color:var(--ink-3);letter-spacing:.08em;animation:monte .6s 1s ease both}
+@media (max-width:560px){.jeton-intro,.jeton-intro svg{width:84px;height:84px;border-radius:27px}.titre-intro{font-size:30px}.intro .phrase{font-size:16px}}
+body.entree .page{animation:emerge .9s 2.9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes emerge{from{opacity:0;transform:translateY(22px) scale(.985)}}
+
+.page{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:18px 22px 60px}
+:root.grand .page{zoom:1.14}
+@keyframes monte{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes jeton{from{opacity:0;transform:scale(.5) rotate(-18deg)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
+
+/* ---------- barre du haut ---------- */
+.bar{display:flex;align-items:center;gap:12px;padding:8px 0;animation:monte .7s ease both;flex-wrap:wrap}
+.bar .mark{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}
+.bar .mark svg{width:46px;height:46px;border-radius:14px;box-shadow:0 8px 22px -8px rgba(0,0,0,.6),0 0 24px -6px rgba(169,214,246,.55);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.bar .mark:hover svg{transform:rotate(-6deg) scale(1.06)}
+.bar h1{margin:0;font-size:24px;letter-spacing:-.01em;font-weight:700;line-height:1.1;font-style:italic}
+.nom-outil span{color:var(--accent)}
+.bar .sub{font-family:var(--ui);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.bar .outils-haut{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.pastille{display:inline-flex;align-items:center;gap:7px;font-family:var(--ui);font-size:12.5px;color:var(--ink-2);text-decoration:none;
+  padding:8px 13px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;transition:.2s;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);white-space:nowrap}
+.pastille:hover{border-color:var(--bord-2);color:var(--ink);transform:translateY(-1px)}
+.pastille svg{width:18px;height:18px;border-radius:6px}
+.pastille.icone{padding:8px 10px;font-size:14px;min-width:38px;justify-content:center;font-weight:700}
+.theme{position:relative;width:62px;height:34px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;padding:0;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.theme .pouce{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:var(--degrade);transition:transform .35s cubic-bezier(.2,.8,.2,1);box-shadow:0 4px 12px -4px rgba(0,0,0,.5)}
+:root[data-theme="light"] .theme .pouce{transform:translateX(28px)}
+.theme .lune,.theme .soleil{position:absolute;top:50%;transform:translateY(-50%);font-size:13px;line-height:1;pointer-events:none}
+.theme .lune{left:10px;color:#fff}
+.theme .soleil{right:10px;color:var(--or)}
+:root[data-theme="light"] .theme .lune{color:var(--ink-3)}
+:root[data-theme="light"] .theme .soleil{color:#fff}
+:root.calme #btnCalme,:root.grand #btnGrand{background:var(--verre-2);border-color:var(--bord-2);color:var(--ink)}
+
+/* ---------- onglets ---------- */
+.onglets{display:flex;flex-wrap:wrap;gap:8px;padding:14px 2px 16px;margin:6px 0 8px;animation:monte .7s .05s ease both}
+@media (max-width:760px){.onglets{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}}
+.onglets button{flex:none;display:inline-flex;align-items:center;gap:8px;font-family:var(--ui);font-size:14px;font-weight:650;color:var(--ink-2);
+  padding:10px 16px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;transition:.2s;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.onglets button:hover{color:var(--ink);border-color:var(--bord-2);transform:translateY(-1px)}
+.onglets button.actif{background:var(--degrade);color:var(--texte-bouton);border-color:transparent;box-shadow:0 10px 24px -12px rgba(111,85,208,.9)}
+.onglets .e{font-size:16px}
+.sous-onglets{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px;padding:5px;border-radius:18px;background:var(--verre);border:1px solid var(--bord);width:max-content;max-width:100%;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.sous-onglets button{flex:none;border:0;background:transparent;font-family:var(--ui);font-size:13px;font-weight:650;color:var(--ink-2);padding:8px 14px;border-radius:13px;cursor:pointer;transition:.2s}
+.sous-onglets button:hover{color:var(--ink);background:var(--verre)}
+.sous-onglets button.actif{background:var(--verre-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--bord-2)}
+
+/* ---------- briques ---------- */
+main{outline:none}
+.vue{animation:monte .55s ease both}
+.carte{position:relative;background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:22px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .6s ease both;min-width:0}
+.carte::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.08),transparent 38%)}
+:root[data-theme="light"] .carte::after{background:linear-gradient(160deg,rgba(255,255,255,.7),transparent 40%)}
+.carte>*{position:relative;z-index:1}
+.carte h3{margin:0 0 4px;font-size:20px;font-weight:700;letter-spacing:-.01em;font-style:italic;display:flex;align-items:center;gap:9px}
+.carte h3 .e{font-style:normal;font-size:20px}
+.carte h3 .lien{margin-left:auto;font-style:normal}
+.carte .chapo{font-family:var(--ui);font-size:12.5px;color:var(--ink-3);margin:0 0 14px}
+.titre-vue{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:8px 0 16px}
+.titre-vue h2{margin:0;font-size:31px;letter-spacing:-.02em;font-style:italic;line-height:1.15}
+.titre-vue h2 span{color:var(--accent)}
+.titre-vue p{margin:2px 0 0;font-family:var(--ui);font-size:13.5px;color:var(--ink-3)}
+.titre-vue .actions{margin-left:auto}
+.grille{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.large-2{grid-column:span 2}
+.pleine{grid-column:1/-1}
+@media (max-width:1020px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}.large-2{grid-column:auto}.page{padding:12px 14px 50px}.titre-vue h2{font-size:25px}}
+.pile{display:flex;flex-direction:column;gap:16px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--ui);font-size:13.5px;font-weight:650;
+  padding:11px 17px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);color:var(--ink);cursor:pointer;
+  transition:transform .2s, background .2s, border-color .2s, box-shadow .2s;text-decoration:none;white-space:nowrap}
+.btn:hover{transform:translateY(-2px);border-color:var(--bord-2);background:var(--verre-2)}
+.btn.plein{background:var(--degrade);color:var(--texte-bouton);border-color:transparent;box-shadow:0 12px 28px -14px rgba(111,85,208,.95)}
+.btn.plein:hover{box-shadow:0 16px 34px -14px rgba(111,85,208,1)}
+.btn.eau{background:var(--degrade-eau);color:var(--texte-bouton);border-color:transparent;box-shadow:0 12px 28px -14px rgba(90,150,220,.9)}
+.btn.lavande{background:color-mix(in srgb, var(--accent) 20%, transparent);border-color:color-mix(in srgb, var(--accent) 40%, transparent)}
+.btn.petit{padding:6px 12px;font-size:12px}
+.btn.fin{background:transparent}
+.btn.danger{color:var(--alerte)}
+.btn .e{font-size:16px}
+.btn-rond{width:34px;height:34px;display:inline-grid;place-items:center;border-radius:12px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;font-size:14px;transition:.2s;flex:none;padding:0;color:var(--ink)}
+.btn-rond:hover{border-color:var(--bord-2);background:var(--verre-2);transform:translateY(-1px)}
+.lien{background:none;border:0;padding:0;color:var(--accent);font-family:var(--ui);font-size:12.5px;font-weight:650;cursor:pointer;text-decoration:none}
+.lien:hover{text-decoration:underline}
+.etiquette{display:inline-flex;align-items:center;gap:5px;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:650;
+  padding:3px 9px;border-radius:999px;background:var(--verre-2);border:1px solid var(--bord);color:var(--ink-2);white-space:nowrap}
+.etiquette.ok{color:var(--ok);border-color:color-mix(in srgb, var(--ok) 40%, transparent)}
+.etiquette.or{color:var(--or);border-color:color-mix(in srgb, var(--or) 40%, transparent)}
+.etiquette.rose{color:var(--rose);border-color:color-mix(in srgb, var(--rose) 40%, transparent)}
+.etiquette.ciel{color:var(--ciel);border-color:color-mix(in srgb, var(--ciel) 40%, transparent)}
+.etiquette.alerte{color:var(--alerte);border-color:color-mix(in srgb, var(--alerte) 45%, transparent)}
+.vide{font-family:var(--ui);font-size:13.5px;color:var(--ink-3);text-align:center;padding:18px 12px;border:1px dashed var(--bord);border-radius:16px}
+.vide .btn{margin-top:10px}
+.muet{color:var(--ink-3)}
+.ui{font-family:var(--ui);font-style:normal}
+.chiffre{font-family:var(--serif);font-style:italic;font-weight:700}
+.sous-titre{font-family:var(--ui);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+.sous-titre:first-child{margin-top:0}
+.gros{font-size:34px;line-height:1;font-style:italic;font-weight:700}
+.gros small{font-family:var(--ui);font-style:normal;font-size:13px;font-weight:600;color:var(--ink-3);margin-left:4px}
+.note-douce{font-family:var(--ui);font-size:12px;color:var(--ink-3);padding:10px 12px;border-radius:14px;background:var(--champ);border:1px solid var(--bord);margin-top:12px;line-height:1.5}
+.note-douce b{color:var(--ink-2)}
+
+/* ---------- l'accueil : la carte de bienvenue ---------- */
+.hero{display:flex;gap:24px;align-items:center;flex-wrap:wrap;padding:26px 28px;margin-bottom:16px;overflow:hidden}
+.hero .jeton{width:100px;height:100px;border-radius:31px;flex:none;box-shadow:0 20px 44px -18px rgba(0,0,0,.8),0 0 50px -10px rgba(169,214,246,.55);animation:jeton .9s cubic-bezier(.2,.8,.2,1) both}
+.hero .txt{flex:1;min-width:260px}
+.hero .date{font-family:var(--ui);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.hero h2{margin:4px 0 0;font-size:38px;line-height:1.08;letter-spacing:-.025em;font-style:italic}
+.hero h2 span{color:var(--accent)}
+.hero .slogan{font-family:var(--ui);font-size:13px;color:var(--ink-3);margin-top:4px}
+.hero .douceur{margin:12px 0 0;font-size:17px;font-style:italic;color:var(--ink-2);display:flex;gap:10px;align-items:flex-start}
+.hero .douceur::before{content:'“';font-size:34px;line-height:.8;color:var(--accent);opacity:.7}
+.hero .douceur .autre{font-style:normal;margin-left:6px;align-self:center}
+.hero .progres-jour{position:relative;width:118px;height:118px;flex:none}
+.hero .progres-jour svg{width:100%;height:100%;transform:rotate(-90deg)}
+.anneau .fondc{fill:none;stroke:var(--bord);stroke-width:9}
+.anneau .valc{fill:none;stroke:url(#gradProgres);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)}
+.hero .progres-jour .lab{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--ui);font-size:10.5px;color:var(--ink-3);line-height:1.2}
+.hero .progres-jour .lab b{display:block;font-family:var(--serif);font-style:italic;font-size:28px;color:var(--ink)}
+@media (max-width:700px){.hero{padding:20px}.hero h2{font-size:29px}.hero .jeton{width:70px;height:70px;border-radius:22px}.hero .progres-jour{display:none}}
+
+/* les gros boutons visibles de l'accueil */
+.rapides{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+@media (max-width:900px){.rapides{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rapide{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:999px;border:1px solid var(--bord);background:var(--verre);cursor:pointer;
+  text-align:left;font-family:var(--ui);font-size:14px;font-weight:700;color:var(--ink);transition:.25s cubic-bezier(.2,.8,.2,1);animation:monte .6s ease both;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.rapide:hover{transform:translateY(-4px);border-color:var(--bord-2);background:var(--verre-2);box-shadow:0 18px 34px -20px rgba(111,85,208,.9)}
+.rapide .ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:var(--degrade);box-shadow:0 10px 20px -10px rgba(111,85,208,.9);flex:none}
+.rapide.eau .ic{background:var(--degrade-eau)}
+.rapide small{display:block;font-weight:500;font-size:11.5px;color:var(--ink-3)}
+.rapide:active .ic{animation:pop .35s ease}
+
+/* ---------- énergie & humeur : de grosses pastilles ---------- */
+.choix-niveau{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.choix-niveau.cinq{grid-template-columns:repeat(5,minmax(0,1fr))}
+.choix-niveau button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px 10px;border-radius:18px;border:1px solid var(--bord);background:var(--champ);cursor:pointer;
+  font-family:var(--ui);font-size:12px;font-weight:650;color:var(--ink-2);transition:.2s}
+.choix-niveau button .e{font-size:24px;line-height:1;transition:transform .25s}
+.choix-niveau button:hover{border-color:var(--bord-2);transform:translateY(-2px)}
+.choix-niveau button:hover .e{transform:scale(1.12)}
+.choix-niveau button.on{background:color-mix(in srgb, var(--accent) 22%, transparent);border-color:var(--accent);color:var(--ink);box-shadow:0 10px 22px -14px rgba(111,85,208,.9)}
+.choix-niveau button.on .e{animation:pop .4s ease}
+.niveaux{display:flex;gap:3px;align-items:flex-end;height:26px}
+.niveaux i{width:7px;border-radius:3px;background:var(--bord-2)}
+.niveaux i.on{background:var(--degrade)}
+
+/* ---------- hydratation : la goutte qui se remplit ---------- */
+.eau-bloc{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.goutte{position:relative;width:96px;height:120px;flex:none}
+.goutte svg{width:100%;height:100%;overflow:visible}
+.goutte .contour{fill:var(--champ);stroke:var(--bord-2);stroke-width:1.5}
+.goutte .niveau{transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.goutte .vague{fill:url(#gradEau);opacity:.9;animation:vague 4s linear infinite}
+.goutte .vague.b{opacity:.45;animation-duration:6s;animation-direction:reverse}
+@keyframes vague{from{transform:translateX(0)}to{transform:translateX(-80px)}}
+.goutte .pct{position:absolute;inset:0;display:grid;place-items:center;padding-top:26px;font-family:var(--ui);font-weight:800;font-size:15px;color:var(--ink);text-shadow:0 1px 6px rgba(0,0,0,.25)}
+.verres{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
+.verre{width:24px;height:30px;border-radius:4px 4px 8px 8px;border:1.5px solid var(--bord-2);position:relative;overflow:hidden;background:var(--champ);cursor:pointer;padding:0;transition:.2s}
+.verre::after{content:'';position:absolute;left:0;right:0;bottom:0;height:0;background:var(--degrade-eau);transition:height .5s cubic-bezier(.2,.8,.2,1)}
+.verre.plein::after{height:78%}
+.verre:hover{transform:translateY(-2px);border-color:var(--eau)}
+.verre.plein.dernier::after{animation:remplir .6s ease}
+@keyframes remplir{from{height:0}to{height:78%}}
+
+/* ---------- lignes cochables (habitudes, défis, rappels) ---------- */
+.ligne{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:15px;transition:background .2s;position:relative}
+.ligne:hover{background:var(--verre)}
+.ligne + .ligne{border-top:1px solid color-mix(in srgb, var(--bord) 55%, transparent)}
+.coche-btn{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--bord-2);background:var(--champ);cursor:pointer;display:grid;place-items:center;padding:0;transition:.2s}
+.coche-btn:hover{border-color:var(--accent)}
+.coche-btn svg{width:15px;height:15px;stroke:var(--texte-bouton);stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .3s ease}
+.fait .coche-btn{background:var(--degrade);border-color:transparent}
+.fait .coche-btn svg{stroke-dashoffset:0}
+.ligne .emo{font-size:20px;flex:none;width:28px;text-align:center}
+.ligne .corps{flex:1;min-width:0}
+.ligne .texte{font-size:15.5px;line-height:1.35;word-break:break-word}
+.fait .texte{color:var(--ink-3)}
+.ligne .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;font-family:var(--ui);font-size:11.5px;color:var(--ink-3);align-items:center}
+.ligne .outils{display:flex;gap:4px;opacity:.35;transition:opacity .2s}
+.ligne:hover .outils,.ligne:focus-within .outils{opacity:1}
+@media (hover:none){.ligne .outils{opacity:1}}
+.serie{display:inline-flex;align-items:center;gap:4px;font-family:var(--ui);font-size:12px;font-weight:800;color:var(--or);white-space:nowrap}
+.serie.zero{color:var(--ink-3);font-weight:600}
+.semaine-points{display:flex;gap:4px}
+.semaine-points i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--bord-2);display:block}
+.semaine-points i.on{background:var(--degrade);border-color:transparent}
+.semaine-points i.auj{box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent)}
+
+/* barre de progression */
+.progres{display:flex;align-items:center;gap:10px;font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.progres .barre{flex:1;height:9px;border-radius:999px;background:var(--champ);border:1px solid var(--bord);overflow:hidden}
+.progres .barre i{display:block;height:100%;border-radius:inherit;background:var(--degrade);transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.progres.eau .barre i{background:var(--degrade-eau)}
+.progres b{font-weight:800;color:var(--ink);min-width:38px;text-align:right}
+.progres.complet .barre i{background:linear-gradient(90deg,var(--ok),#B9F0D6)}
+
+/* ---------- mini-graphiques ---------- */
+.barres{display:grid;grid-template-columns:repeat(var(--n,7),minmax(0,1fr));gap:8px;align-items:end;height:130px;padding-top:6px}
+.barres.mois{gap:3px}
+.barres .col{display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;min-width:0}
+.barres .col .b{flex-shrink:0;width:100%;max-width:34px;border-radius:9px 9px 5px 5px;background:var(--degrade);min-height:3px;transition:height .8s cubic-bezier(.2,.8,.2,1);position:relative}
+.barres.mois .col .b{border-radius:4px 4px 2px 2px}
+.barres .col .b.eau{background:var(--degrade-eau)}
+.barres .col .b.nul{background:var(--bord)}
+.barres .col .b.cible{outline:2px solid color-mix(in srgb, var(--ok) 60%, transparent);outline-offset:1px}
+.barres .col small{font-family:var(--ui);font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.barres .col.auj small{color:var(--accent);font-weight:800}
+.barres .col .v{font-family:var(--ui);font-size:10.5px;font-weight:700;color:var(--ink-2)}
+.barres-cadre{position:relative}
+.barres-cadre .ligne-cible{position:absolute;left:0;right:0;border-top:1.5px dashed color-mix(in srgb, var(--ok) 70%, transparent);pointer-events:none}
+.barres-cadre .ligne-cible span{position:absolute;right:0;top:-17px;font-family:var(--ui);font-size:10px;font-weight:700;color:var(--ok)}
+.chiffres{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.chiffres div{padding:12px 14px;border-radius:18px;background:var(--champ);border:1px solid var(--bord)}
+.chiffres b{display:block;font-size:26px;line-height:1.05;font-style:italic;background:var(--degrade);-webkit-background-clip:text;background-clip:text;color:transparent}
+.chiffres small{display:block;font-family:var(--ui);font-size:11px;letter-spacing:.04em;color:var(--ink-3);margin-top:5px}
+
+/* calendrier du mois (pastilles) */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;max-width:380px;margin:0 auto}
+.cal .j{aspect-ratio:1;border-radius:11px;display:grid;place-items:center;font-family:var(--ui);font-size:11.5px;font-weight:700;color:var(--ink-2);background:var(--champ);border:1px solid var(--bord);position:relative}
+.cal .j.hors{opacity:0;pointer-events:none}
+.cal .j.auj{border-color:var(--accent)}
+.cal .j.n1{background:color-mix(in srgb, #8E7BD4 25%, var(--champ))}
+.cal .j.n2{background:color-mix(in srgb, #8E7BD4 50%, var(--champ))}
+.cal .j.n3{background:color-mix(in srgb, #8E7BD4 78%, var(--champ));color:#fff}
+.cal .j.n4{background:var(--degrade);color:#fff;border-color:transparent}
+.cal .t{font-family:var(--ui);font-size:10px;font-weight:800;text-align:center;color:var(--ink-3);letter-spacing:.06em}
+.legende{display:flex;gap:6px;align-items:center;font-family:var(--ui);font-size:11px;color:var(--ink-3);margin-top:10px}
+.legende i{width:14px;height:14px;border-radius:5px;display:inline-block;border:1px solid var(--bord)}
+
+/* ---------- sommeil ---------- */
+.nuit{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.nuit .lune-ic{width:58px;height:58px;border-radius:20px;display:grid;place-items:center;font-size:28px;background:linear-gradient(135deg,#2B2466,#6F55D0);box-shadow:0 12px 26px -14px rgba(0,0,0,.8);flex:none}
+:root[data-theme="light"] .nuit .lune-ic{background:linear-gradient(135deg,#6F55D0,#A9D6F6)}
+.horaires{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--ui);font-size:12.5px;color:var(--ink-3)}
+.horaires b{display:block;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink)}
+
+/* ---------- rendez-vous & rappels ---------- */
+.rdv{display:flex;gap:13px;align-items:center;padding:11px 12px;border-radius:17px;background:var(--champ);border:1px solid var(--bord);transition:.2s}
+.rdv + .rdv{margin-top:8px}
+.rdv:hover{border-color:var(--bord-2)}
+.rdv .cal-ic{width:50px;flex:none;text-align:center;border-radius:14px;overflow:hidden;border:1px solid var(--bord-2);background:var(--verre-2)}
+.rdv .cal-ic small{display:block;font-family:var(--ui);font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--degrade);color:var(--texte-bouton);padding:2px 0}
+.rdv .cal-ic b{display:block;font-size:21px;font-style:italic;line-height:1.3}
+.rdv .corps{flex:1;min-width:0}
+.rdv .titre{font-size:15.5px;font-weight:700;font-style:italic;word-break:break-word}
+.rdv .meta{font-family:var(--ui);font-size:12px;color:var(--ink-3);display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:2px}
+.rdv.passe{opacity:.62}
+.rdv .outils{display:flex;gap:4px}
+
+/* ---------- activité ---------- */
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.type{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;border-radius:17px;border:1px solid var(--bord);background:var(--champ);cursor:pointer;font-family:var(--ui);font-size:12px;font-weight:650;color:var(--ink);transition:.2s}
+.type .e{font-size:24px}
+.type:hover{border-color:var(--accent);transform:translateY(-2px)}
+.type.on{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 20%, transparent)}
+.etirement{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:15px;background:var(--champ);border:1px solid var(--bord)}
+.etirement + .etirement{margin-top:7px}
+.etirement .emo{font-size:22px}
+.etirement .corps{flex:1;min-width:0}
+.etirement .n{font-weight:700;font-style:italic}
+.etirement .d{font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.minuteur{display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 0 4px}
+.minuteur .anneau{position:relative;width:170px;height:170px}
+.minuteur .anneau svg{width:100%;height:100%;transform:rotate(-90deg)}
+.minuteur .anneau .lab{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.minuteur .anneau .lab b{display:block;font-family:var(--serif);font-style:italic;font-size:38px;color:var(--ink);line-height:1}
+.minuteur .etape{font-size:21px;font-style:italic;font-weight:700;text-align:center}
+.minuteur .conseil{font-family:var(--ui);font-size:12.5px;color:var(--ink-3);text-align:center;max-width:42ch}
+
+/* ---------- objectifs & défis ---------- */
+.objectif{padding:16px;border-radius:20px;background:var(--champ);border:1px solid var(--bord)}
+.objectif + .objectif{margin-top:10px}
+.objectif .tete{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.objectif .emo{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;font-size:22px;background:var(--degrade);flex:none;box-shadow:0 10px 20px -12px rgba(111,85,208,.9)}
+.objectif .n{font-size:17px;font-weight:700;font-style:italic;line-height:1.2}
+.objectif .s{font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.objectif .outils{margin-left:auto;display:flex;gap:4px}
+.objectif.atteint{border-color:color-mix(in srgb, var(--ok) 55%, transparent)}
+.defi{display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb, #8E7BD4 26%, transparent),color-mix(in srgb, #A9D6F6 18%, transparent));border:1px solid var(--bord-2)}
+.defi .emo{font-size:34px;flex:none;animation:flotteDoux 4s ease-in-out infinite}
+@keyframes flotteDoux{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.defi .n{font-size:18px;font-weight:700;font-style:italic}
+.defi .s{font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.defi.fait{border-color:color-mix(in srgb, var(--ok) 60%, transparent)}
+.defis{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px}
+.mini-defi{display:flex;flex-direction:column;gap:6px;padding:13px;border-radius:17px;border:1px solid var(--bord);background:var(--champ);cursor:pointer;text-align:left;font-family:var(--ui);font-size:13px;font-weight:650;color:var(--ink);transition:.2s}
+.mini-defi .e{font-size:22px}
+.mini-defi:hover{border-color:var(--accent);transform:translateY(-2px)}
+.mini-defi.fait{border-color:color-mix(in srgb, var(--ok) 55%, transparent);background:color-mix(in srgb, var(--ok) 12%, var(--champ))}
+.mini-defi.fait small{color:var(--ok)}
+.mini-defi small{font-weight:500;color:var(--ink-3);font-size:11.5px}
+
+/* ---------- notes privées & mémo ---------- */
+.prive{border-style:dashed}
+.fiche{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.fiche .c{padding:13px 14px;border-radius:17px;background:var(--champ);border:1px solid var(--bord);min-width:0}
+.fiche .c .l{font-family:var(--ui);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.fiche .c .v{font-size:15px;white-space:pre-wrap;word-break:break-word}
+.fiche .c .v.vide-v{font-family:var(--ui);font-size:12.5px;color:var(--ink-3);font-style:normal}
+.masque .v{filter:blur(7px);user-select:none;transition:filter .3s}
+.cadenas{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:26px 16px}
+.cadenas .e{font-size:40px}
+.contact{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:14px;background:var(--verre);border:1px solid var(--bord);margin-top:6px}
+.contact .ini{width:34px;height:34px;border-radius:50%;background:var(--degrade);color:var(--texte-bouton);display:grid;place-items:center;font-family:var(--ui);font-weight:800;font-size:12.5px;flex:none}
+.contact a{font-family:var(--ui);font-weight:700;text-decoration:none}
+
+/* ---------- humeur : le journal ---------- */
+.journal-j{display:flex;gap:12px;align-items:flex-start;padding:11px 12px;border-radius:16px;background:var(--champ);border:1px solid var(--bord)}
+.journal-j + .journal-j{margin-top:7px}
+.journal-j .d{width:54px;flex:none;font-family:var(--ui);font-size:11px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;line-height:1.3}
+.journal-j .d b{display:block;font-family:var(--serif);font-style:italic;font-size:20px;color:var(--ink);letter-spacing:0;text-transform:none}
+.journal-j .e{font-size:22px}
+.journal-j .t{flex:1;min-width:0;font-size:14.5px;color:var(--ink-2);word-break:break-word}
+
+/* ---------- séances chronométrées ---------- */
+.seances{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.seance{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:20px;background:var(--champ);border:1px solid var(--bord);transition:.25s}
+.seance:hover{border-color:var(--bord-2);transform:translateY(-2px)}
+.seance.proposee{border-style:dashed}
+.seance .tete{display:flex;align-items:center;gap:11px}
+.seance .emo{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;font-size:22px;background:var(--degrade);flex:none;box-shadow:0 10px 20px -12px rgba(111,85,208,.9)}
+.seance.fractionne .emo{background:var(--degrade-eau)}
+.seance .n{font-size:17px;font-weight:700;font-style:italic;line-height:1.2}
+.seance .s{font-family:var(--ui);font-size:11.5px;color:var(--ink-3)}
+.seance .exos{display:flex;flex-direction:column;gap:3px;font-family:var(--ui);font-size:12.5px;color:var(--ink-2);flex:1}
+.seance .exos small{color:var(--ink-3);margin-left:4px}
+.reglage-fr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;flex:1}
+.reglage-fr label{display:flex;flex-direction:column;gap:3px;font-family:var(--ui);font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.reglage-fr input{width:100%;padding:10px;border-radius:12px;border:1px solid var(--bord);background:var(--verre);font-family:var(--serif);font-style:italic;font-weight:700;font-size:20px;text-align:center;outline:none;color:var(--ink)}
+.reglage-fr input:focus{border-color:var(--accent)}
+.reglage-fr small{font-weight:500;text-transform:none;letter-spacing:0}
+/* l'éditeur */
+.exo-ligne{display:grid;grid-template-columns:58px minmax(140px,1fr) 70px 112px 84px 84px auto;gap:6px;align-items:end;padding:8px;border-radius:14px;background:var(--champ);border:1px solid var(--bord)}
+.exo-ligne + .exo-ligne{margin-top:6px}
+.exo-ligne input,.exo-ligne select{width:100%;padding:9px 8px;border-radius:11px;border:1px solid var(--bord);background:var(--verre);font-family:var(--ui);font-size:13.5px;outline:none;color:var(--ink)}
+.exo-ligne select option{background:var(--fond-uni)}
+.exo-ligne label{display:flex;flex-direction:column;gap:3px}
+.exo-ligne label span{font-family:var(--ui);font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.exo-ligne .fl{display:flex;gap:3px}
+.exo-ligne .fl .btn-rond{width:30px;height:30px;border-radius:10px;font-size:12px}
+.exo-ligne .fl .btn-rond:disabled{opacity:.3;cursor:default}
+@media (max-width:700px){.exo-ligne{grid-template-columns:58px 1fr 1fr}.exo-ligne>input[data-k=nom]{grid-column:2/-1}.exo-ligne .fl{grid-column:1/-1;justify-content:flex-end}}
+/* le lecteur */
+.lecteur{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;--phase:var(--accent)}
+.lecteur.phase-repos,.lecteur.phase-transition{--phase:var(--ciel)}
+.lecteur.phase-pret{--phase:var(--or)}
+.lecteur .haut-l{display:flex;align-items:center;gap:11px;width:100%;text-align:left}
+.lecteur .haut-l .emo{font-size:26px}
+.lecteur .haut-l b{font-size:19px;font-style:italic}
+.lecteur .progres-l{width:100%;height:7px;border-radius:999px;background:var(--champ);border:1px solid var(--bord);overflow:hidden}
+.lecteur .progres-l i{display:block;height:100%;background:var(--degrade);transition:width .5s}
+.lecteur .phase-l{margin-top:6px;font-family:var(--ui);font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--phase)}
+.lecteur .cadran{position:relative;width:min(250px,62vw);aspect-ratio:1}
+.lecteur .cadran svg{width:100%;height:100%;transform:rotate(-90deg)}
+.lecteur .cadran .fondc{fill:none;stroke:var(--bord);stroke-width:8}
+.lecteur .cadran .valc{fill:none;stroke:var(--phase);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s linear;filter:drop-shadow(0 0 8px color-mix(in srgb, var(--phase) 60%, transparent))}
+.lecteur .cadran .lab{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--ui);font-size:12px;color:var(--ink-3)}
+.lecteur .cadran .lab b{font-family:var(--serif);font-style:italic;font-size:62px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.lecteur .cadran .lab small{margin-top:6px;font-size:14px;font-weight:700;color:var(--ink-2)}
+.lecteur.phase-effort .cadran{animation:respire 2s ease-in-out infinite}
+.lecteur.en-pause .cadran{animation:none;opacity:.55}
+@keyframes respire{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+.lecteur .exo-l{font-size:26px;font-weight:700;font-style:italic;display:flex;align-items:center;gap:10px;justify-content:center}
+.lecteur .exo-l .e{font-style:normal}
+.lecteur .serie-l{font-size:13px}
+.lecteur .ensuite{font-family:var(--ui);font-size:12.5px;color:var(--ink-2);padding:7px 14px;border-radius:999px;background:var(--champ);border:1px solid var(--bord)}
+.lecteur .commandes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.lecteur .grand-btn{padding:15px 28px;font-size:16px}
+
+/* ---------- formulaires ---------- */
+.voile{position:fixed;inset:0;z-index:50;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px 20px;overflow-y:auto;
+  background:rgba(14,9,34,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+:root[data-theme="light"] .voile{background:rgba(60,40,120,.22)}
+.voile.ouvert{display:flex}
+.fen{width:100%;max-width:580px;background:var(--fond-uni);background-image:linear-gradient(160deg,color-mix(in srgb, #6F55D0 22%, transparent),transparent 60%);
+  border:1px solid var(--bord-2);border-radius:26px;padding:24px;box-shadow:0 40px 90px -30px rgba(0,0,0,.9);animation:monte .35s cubic-bezier(.2,.8,.2,1) both}
+.fen.large{max-width:760px}
+:root[data-theme="light"] .fen{background:#fff;background-image:linear-gradient(160deg,#F1EBFF,#fff 55%)}
+:root.grand .fen{zoom:1.1}
+.fen h3{margin:0 0 2px;font-size:23px;font-style:italic;display:flex;align-items:center;gap:10px}
+.fen .sous{font-family:var(--ui);font-size:12.5px;color:var(--ink-3);margin:0 0 16px}
+.fen .champs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.champ{display:flex;flex-direction:column;gap:5px;min-width:0}
+.champ.large{grid-column:1/-1}
+.champ>label,.champ>.lab{font-family:var(--ui);font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--ink-2)}
+.champ input,.champ select,.champ textarea{width:100%;padding:11px 12px;border-radius:13px;border:1px solid var(--bord);background:var(--champ);
+  font-family:var(--ui);font-size:14.5px;outline:none;transition:border-color .2s, box-shadow .2s}
+.champ input:focus,.champ select:focus,.champ textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+.champ textarea{min-height:84px;resize:vertical}
+.champ select option{background:var(--fond-uni)}
+.champ .aide{font-family:var(--ui);font-size:11px;color:var(--ink-3)}
+.champ.case{flex-direction:row;align-items:center;gap:10px;font-family:var(--ui);font-size:13.5px}
+.champ.case input{width:19px;height:19px;accent-color:#8E7BD4}
+.choix-emoji{display:flex;gap:4px;flex-wrap:wrap}
+.choix-emoji button{width:38px;height:38px;border-radius:12px;border:1px solid var(--bord);background:var(--champ);cursor:pointer;font-size:19px;padding:0}
+.choix-emoji button.on{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 22%, transparent)}
+.fen .pied-fen{display:flex;gap:8px;margin-top:20px;align-items:center;flex-wrap:wrap}
+.fen .pied-fen .droite{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:560px){.fen .champs{grid-template-columns:1fr}.fen{padding:18px}}
+
+/* ---------- toasts & pied ---------- */
+.toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:70;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:calc(100vw - 32px)}
+.toast{pointer-events:auto;display:flex;gap:12px;align-items:center;font-family:var(--ui);font-size:13.5px;padding:12px 16px;border-radius:15px;background:rgba(28,22,54,.95);color:#fff;
+  border:1px solid rgba(255,255,255,.18);box-shadow:0 18px 40px -18px #000;animation:monte .3s ease both}
+.toast.alerte{border-color:#FF9DAF}
+.toast button{border:0;background:rgba(255,255,255,.14);color:#fff;padding:5px 10px;border-radius:9px;cursor:pointer;font-weight:700;font-size:12px}
+.pied{margin-top:40px;font-family:var(--ui);font-size:12px;color:var(--ink-3);text-align:center}
+.pied .avert{max-width:760px;margin:0 auto 14px;padding:12px 16px;border-radius:16px;border:1px solid var(--bord);background:var(--verre);line-height:1.55;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.pied .avert b{color:var(--ink-2)}
+.pied .signe{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap}
+.pied svg{width:22px;height:22px;border-radius:7px}
+
+/* le petit éclat quand on coche */
+.eclat{position:fixed;z-index:80;pointer-events:none;font-size:16px;animation:eclat .9s ease-out forwards}
+@keyframes eclat{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.2) rotate(40deg)}}
+
+@media print{
+  body{background:#fff!important;color:#000}
+  body::before,.halos,.motifs,.voile,.toasts,.bar .outils-haut,.onglets{display:none!important}
+}
+</style>
+</head>
+<body class="entree">
+
+<!-- Le décor : halos, ciel étoilé, gélules, gouttes d'eau, cœurs et lignes de pulsation qui passent doucement. -->
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i></div>
+<svg class="motifs" id="motifs" aria-hidden="true"></svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- NaoGroup -->
+  <linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6F55D0"/><stop offset="1" stop-color="#C39BF3"/></linearGradient>
+  <symbol id="l-gr" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#ggr)"/>
+    <path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g>
+  </symbol>
+  <!-- NaoSanté : au-dessus du N, une ligne de pulsation qui court vers un petit cœur, avec une lueur douce.
+       Le dégradé part du violet profond, passe par la lavande et finit sur une touche de bleu clair. -->
+  <linearGradient id="gsa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4B36C6"/><stop offset=".55" stop-color="#9A84EE"/><stop offset="1" stop-color="#A9D6F6"/></linearGradient>
+  <radialGradient id="gsa-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-sa" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gsa)"/>
+    <circle cx="27.4" cy="10.4" r="7.2" fill="url(#gsa-lueur)" opacity=".55"/>
+    <path d="M7.6 10.6H11.6L13.4 7L15.9 14.4L17.8 10.6H20.2" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+    <path d="M27.4 14.8C23.9 12.5 22.6 10.7 22.6 8.9A2.4 2.4 0 0 1 27.4 7.7A2.4 2.4 0 0 1 32.2 8.9C32.2 10.7 30.9 12.5 27.4 14.8Z" fill="#fff"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <linearGradient id="gradProgres" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8E7BD4"/><stop offset="1" stop-color="#A9D6F6"/></linearGradient>
+  <linearGradient id="gradEau" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B7E1FA"/><stop offset="1" stop-color="#8E7BD4"/></linearGradient>
+</defs></svg>
+
+<!-- l'entrée dans l'outil : une pulsation traverse l'écran et réveille le cœur du jeton -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="scene">
+    <div class="jeton-intro"><span class="onde"></span><span class="onde o2"></span><span class="onde o3"></span>
+      <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-sa"/></svg></div>
+    <svg class="pouls-intro" viewBox="0 0 520 90" aria-hidden="true">
+      <path class="trace" pathLength="1" d="M0 45H140L156 26L176 74L196 10L214 62L226 45H286L298 36L310 45H360L376 26L396 74L416 10L434 62L446 45H520"/>
+    </svg>
+    <div class="gouttes-intro" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="titre-intro">Nao<span>Santé</span></div>
+    <div class="phrase">Prenez soin de <span>votre rythme</span>.</div>
+    <div class="passer">cliquer pour entrer</div>
+  </div>
+</div>
+
+<div class="page">
+  <header class="bar">
+    <a class="mark" href="../NaoGroup.html" title="Revenir à NaoGroup" aria-label="NaoSanté — revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoSanté"><use href="#l-sa"/></svg>
+      <div><h1 class="nom-outil">Nao<span>Santé</span></h1><div class="sub">Prenez soin de votre rythme</div></div>
+    </a>
+    <div class="outils-haut">
+      <a class="pastille" href="../NaoGroup.html" title="Revenir à NaoGroup"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg> NaoGroup</a>
+      <button class="pastille icone" type="button" data-act="sauvegarder" title="Sauvegarder mon suivi dans un fichier">💾</button>
+      <button class="pastille icone" type="button" data-act="recharger" title="Recharger une sauvegarde">📂</button>
+      <button class="pastille icone" type="button" data-act="reglages" title="Mes réglages (objectifs, verre, sommeil)">⚙️</button>
+      <button class="pastille icone" type="button" data-act="reinitialiser" title="Réinitialiser l'outil (repartir de zéro)" aria-label="Réinitialiser l'outil">♻️</button>
+      <button class="pastille icone" type="button" data-act="grand" id="btnGrand" title="Agrandir le texte">A+</button>
+      <button class="pastille icone" type="button" data-act="calme" id="btnCalme" title="Mettre les animations en pause">🕊️</button>
+      <button class="theme" type="button" data-act="theme" id="btnTheme" aria-label="Basculer thème clair / sombre" title="Thème clair / sombre"><span class="pouce"></span><span class="lune">☾</span><span class="soleil">☀</span></button>
+    </div>
+  </header>
+
+  <nav class="onglets" id="onglets" aria-label="Espaces de NaoSanté"></nav>
+
+  <main id="contenu" tabindex="-1"></main>
+
+  <footer class="pied">
+    <p class="avert"><b>NaoSanté est un outil d'organisation et de suivi personnel.</b> Il ne pose aucun diagnostic, ne propose aucun traitement
+      et ne remplace jamais l'avis d'un médecin, d'un pharmacien ou d'un professionnel de santé. En cas d'urgence : <b>15</b> (SAMU) ou <b>112</b>.</p>
+    <div class="signe"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-sa"/></svg>
+      <div>Un outil de la maison <a href="../NaoGroup.html">NaoGroup</a> · sans compte, sans abonnement : votre suivi reste sur cet ordinateur.</div></div>
+  </footer>
+</div>
+
+<div class="voile" id="modale" role="dialog" aria-modal="true" aria-labelledby="modaleTitre"><div class="fen" id="modaleFen"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="fichierSauvegarde" accept="application/json,.json,.naosante" hidden>
+
+<script>
+/* ============================================================
+   NaoSanté — le cœur : données, dates, références, calculs,
+   fenêtres et toasts.
+   Rappel de la maison : NaoSanté organise et encourage. Il ne pose
+   jamais de diagnostic et ne donne aucun conseil médical.
+   ============================================================ */
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const lire = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
+const ecrire = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const nombre = v => { const n = parseFloat(String(v == null ? '' : v).replace(',', '.').replace(/\s/g, '')); return isFinite(n) ? n : 0; };
+const somme = (arr, f) => arr.reduce((t, x) => t + (f ? f(x) : x), 0);
+const initiales = nom => String(nom || '?').trim().split(/\s+/).map(m => m[0]).join('').slice(0, 2).toUpperCase();
+const pluriel = (n, un, plusieurs) => n + ' ' + (Math.abs(n) > 1 ? (plusieurs || un + 's') : un);
+const borne = (v, a, b) => Math.max(a, Math.min(b, v));
+const joli = n => String(Math.round(n * 10) / 10).replace('.', ',');
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2, '0');
+const isoJour = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const auj = () => isoJour(new Date());
+const parseJour = s => { const [y, m, d] = String(s).slice(0, 10).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
+const ajouteJours = (s, n) => { const d = parseJour(s); d.setDate(d.getDate() + n); return isoJour(d); };
+const joursEntre = (a, b) => Math.round((parseJour(b) - parseJour(a)) / 864e5);
+const lundiDe = s => { const d = parseJour(s); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return isoJour(d); };
+const derniersJours = n => Array.from({ length: n }, (_, i) => ajouteJours(auj(), i - n + 1));
+const joursSemaine = lundi => Array.from({ length: 7 }, (_, i) => ajouteJours(lundi, i));
+const JOURS_C = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+const JOURS_L = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+const MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+const MOIS_L = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+function fmtJour(s, long) {
+  if (!s) return '';
+  const d = parseJour(s);
+  return long ? `${JOURS_L[d.getDay()]} ${d.getDate()} ${MOIS_L[d.getMonth()]} ${d.getFullYear()}`
+              : `${JOURS_C[d.getDay()]} ${d.getDate()} ${MOIS_C[d.getMonth()]}`;
+}
+function quand(s) {
+  if (!s) return '';
+  const n = joursEntre(auj(), s);
+  if (n === 0) return "aujourd'hui";
+  if (n === 1) return 'demain';
+  if (n === -1) return 'hier';
+  if (n > 1) return n < 14 ? `dans ${n} jours` : `le ${fmtJour(s)}`;
+  return `il y a ${-n} jours`;
+}
+/* 07:30 → 450 minutes ; 450 → « 7 h 30 » */
+const enMinutes = h => { const [a, b] = String(h || '0:0').split(':').map(Number); return (a || 0) * 60 + (b || 0); };
+const duree = m => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h} h ${pad(r)}` : `${h} h`) : `${r} min`; };
+
+/* ============================================================
+   LES RÉFÉRENCES
+   ============================================================ */
+const ACTIVITES = [
+  ['marche', '🚶', 'Marche'], ['gym', '🤸', 'Gymnastique'], ['muscu', '🏋️', 'Musculation'], ['course', '🏃', 'Course'],
+  ['velo', '🚴', 'Vélo'], ['yoga', '🧘', 'Yoga'], ['etirements', '🙆', 'Étirements'], ['danse', '💃', 'Danse'],
+  ['natation', '🏊', 'Natation'], ['autre', '✨', 'Autre']
+];
+const activite = k => ACTIVITES.find(a => a[0] === k) || ACTIVITES[ACTIVITES.length - 1];
+const INTENSITES = [['douce', '🌱 Douce'], ['moderee', '🌿 Modérée'], ['soutenue', '🔥 Soutenue']];
+const intensite = k => (INTENSITES.find(i => i[0] === k) || INTENSITES[0])[1];
+
+const HABITUDES_PROPOSEES = [
+  ['💧', 'Boire de l’eau'], ['🚶', 'Marcher'], ['☕', 'Prendre une pause'], ['🙆', 'M’étirer'], ['🌙', 'Me coucher plus tôt']
+];
+const EMOJIS_HABITUDE = ['💧', '🚶', '☕', '🙆', '🌙', '🧘', '🌿', '🍎', '📖', '🌤️', '🛁', '🎧', '✍️', '🌬️', '😴', '💪', '🫖', '🌸', '🚲', '⭐'];
+
+const DEFIS = [
+  ['eau', '💧', 'Boire un verre d’eau', 'Un grand verre, tranquillement.'],
+  ['marche', '🚶', 'Marcher 15 minutes', 'Dehors ou chez soi, à son rythme.'],
+  ['etire', '🙆', '5 minutes d’étirements', 'En douceur, sans forcer.'],
+  ['respire', '🌬️', 'Respirer calmement quelques minutes', 'Inspirer sur 4 temps, expirer sur 6.'],
+  ['pause', '☕', 'Faire une vraie pause', 'Quelques minutes loin des écrans.'],
+  ['air', '🌤️', 'Prendre l’air 10 minutes', 'Une fenêtre, un balcon, un tour du pâté.'],
+  ['coucher', '🌙', 'Se coucher 15 minutes plus tôt', 'Un petit pas vers un meilleur rythme.'],
+  ['epaules', '🤷', 'Relâcher ses épaules', 'Trois grands cercles lents, vers l’arrière.']
+];
+const defi = k => DEFIS.find(d => d[0] === k) || DEFIS[0];
+/* le défi du jour change chaque jour, tout seul */
+const defiDuJour = (d = auj()) => DEFIS[Math.abs(joursEntre('2024-01-01', d)) % DEFIS.length];
+
+const ENCOURAGEMENTS = [
+  'Chaque petit pas compte, même ceux qu’on ne voit pas.',
+  'Aujourd’hui, vous faites de votre mieux — et c’est déjà beaucoup.',
+  'Prendre soin de soi n’est pas une course : c’est un rythme.',
+  'Un verre d’eau, une respiration, un sourire : c’est un bon début.',
+  'Soyez aussi doux·ce avec vous qu’avec les gens que vous aimez.',
+  'Les bonnes habitudes poussent lentement, comme les plantes.',
+  'Une journée imparfaite reste une journée qui compte.',
+  'Vous avez le droit de ralentir.',
+  'Bouger un peu, c’est déjà bouger.',
+  'Le repos fait aussi partie du progrès.',
+  'Écoutez votre rythme : il a souvent raison.',
+  'Ce que vous faites régulièrement compte plus que ce que vous faites parfois.',
+  'Un jour sans ? Demain est une nouvelle page.',
+  'Votre énergie d’aujourd’hui n’est pas celle de demain : accueillez-la.',
+  'Petit à petit, l’oiseau fait son nid.',
+  'Merci de prendre ce moment pour vous.',
+  'Respirez. Vous êtes exactement là où vous devez être.',
+  'La régularité est une forme de tendresse envers soi.'
+];
+const encouragementDuJour = (decalage = 0) => ENCOURAGEMENTS[(Math.abs(joursEntre('2024-01-01', auj())) + decalage) % ENCOURAGEMENTS.length];
+
+const ENERGIES = [[1, '🪫', 'Faible'], [2, '🔋', 'Moyenne'], [3, '⚡', 'Bonne'], [4, '✨', 'Très bonne']];
+const energie = n => ENERGIES.find(e => e[0] === n);
+const HUMEURS = [[1, '😔', 'Difficile'], [2, '😕', 'Mitigée'], [3, '🙂', 'Correcte'], [4, '😊', 'Bonne'], [5, '😄', 'Excellente']];
+const humeur = n => HUMEURS.find(h => h[0] === n);
+const QUALITES = [[1, '😣 Agitée'], [2, '😕 Moyenne'], [3, '🙂 Correcte'], [4, '😌 Bonne'], [5, '🌟 Excellente']];
+
+const TYPES_RDV = [
+  ['medical', '🩺', 'Médecin'], ['dentaire', '🦷', 'Dentiste'], ['optique', '👓', 'Ophtalmologie / optique'],
+  ['suivi', '📋', 'Suivi / contrôle'], ['soins', '🤲', 'Kiné / soins'], ['autre', '📅', 'Autre rendez-vous']
+];
+const typeRdv = k => TYPES_RDV.find(t => t[0] === k) || TYPES_RDV[TYPES_RDV.length - 1];
+const TYPES_RAPPEL = [
+  ['ordonnance', '💊', 'Renouveler une ordonnance'], ['rdv', '📞', 'Prendre rendez-vous'],
+  ['controle', '🔍', 'Effectuer un contrôle'], ['autre', '🔔', 'Autre rappel']
+];
+const typeRappel = k => TYPES_RAPPEL.find(t => t[0] === k) || TYPES_RAPPEL[TYPES_RAPPEL.length - 1];
+
+const TYPES_OBJECTIF = [
+  ['sommeil', '🌙', 'Mieux dormir', 'heures par nuit', 8],
+  ['souplesse', '🙆', 'Améliorer ma souplesse', 'séances d’étirements par semaine', 4],
+  ['bouger', '🏃', 'Bouger davantage', 'minutes d’activité par semaine', 150],
+  ['eau', '💧', 'Boire plus d’eau', 'verres par jour', 8],
+  ['libre', '🎯', 'Objectif personnel', 'étapes', 0]
+];
+const typeObjectif = k => TYPES_OBJECTIF.find(t => t[0] === k) || TYPES_OBJECTIF[TYPES_OBJECTIF.length - 1];
+
+const CATS_MEMO = [['medicament', '💊', 'Médicament'], ['vitamine', '🌿', 'Vitamine / complément'], ['autre', '🧴', 'Autre']];
+const catMemo = k => CATS_MEMO.find(c => c[0] === k) || CATS_MEMO[0];
+const MOMENTS = [['matin', '🌅 Matin'], ['midi', '☀️ Midi'], ['soir', '🌆 Soir'], ['coucher', '🌙 Coucher']];
+
+/* La routine de souplesse proposée : des gestes simples, sans aucune prétention médicale. */
+const ROUTINE_PROPOSEE = [
+  ['🙆', 'Nuque : inclinaisons douces', 40, 'Oreille vers l’épaule, d’un côté puis de l’autre.'],
+  ['🤷', 'Épaules : grands cercles lents', 40, 'Vers l’arrière, en respirant.'],
+  ['🐈', 'Dos : le chat et la vache', 60, 'À quatre pattes, on arrondit puis on creuse le dos.'],
+  ['🙇', 'Flexion avant, genoux souples', 45, 'On laisse pendre la tête et les bras, sans chercher à toucher le sol.'],
+  ['🦵', 'Cuisses : étirement debout', 60, 'Une main au mur, 30 secondes par jambe.'],
+  ['🧘', 'Respiration calme', 60, 'Assis·e confortablement, épaules relâchées.']
+];
+
+/* ============================================================
+   L'ÉTAT
+   ============================================================ */
+const CLE = 'naosante.donnees';
+const reglagesVierges = () => ({ prenom: '', verreMl: 250, objectifVerres: 8, objectifSommeil: 8, coucherCible: '23:00', objectifMinutes: 150, objectifEtirements: 4 });
+const vierge = () => ({
+  version: 1, reglages: reglagesVierges(),
+  eau: {}, energie: {}, humeur: {}, sommeil: [], activites: [],
+  etirements: { routine: [], jours: {} },
+  habitudes: [], faits: {}, rdv: [], rappels: [], objectifs: [],
+  notes: { active: false, masquer: true, groupe: '', allergies: '', traitements: '', infos: '', urgence: [] },
+  memo: [], defis: {},
+  programmes: [], seances: [], fractionne: { effort: 30, pause: 15, tours: 8 }
+});
+function normaliser(d) {
+  const s = Object.assign(vierge(), d || {});
+  s.reglages = Object.assign(reglagesVierges(), s.reglages || {});
+  ['sommeil', 'activites', 'habitudes', 'rdv', 'rappels', 'objectifs', 'memo', 'programmes', 'seances'].forEach(k => { if (!Array.isArray(s[k])) s[k] = []; });
+  ['eau', 'energie', 'humeur', 'faits', 'defis'].forEach(k => { if (!s[k] || typeof s[k] !== 'object' || Array.isArray(s[k])) s[k] = {}; });
+  if (!s.etirements || typeof s.etirements !== 'object') s.etirements = { routine: [], jours: {} };
+  if (!Array.isArray(s.etirements.routine)) s.etirements.routine = [];
+  if (!s.etirements.jours || typeof s.etirements.jours !== 'object') s.etirements.jours = {};
+  if (!s.etirements.routine.length) s.etirements.routine = ROUTINE_PROPOSEE.map(([e, n, sec, c]) => ({ id: uid(), emoji: e, nom: n, secondes: sec, conseil: c }));
+  s.notes = Object.assign(vierge().notes, s.notes || {});
+  if (!Array.isArray(s.notes.urgence)) s.notes.urgence = [];
+  s.programmes.forEach(p => { if (!Array.isArray(p.exercices)) p.exercices = []; });
+  s.fractionne = Object.assign(vierge().fractionne, s.fractionne || {});
+  s.objectifs.forEach(o => { if (!Array.isArray(o.pas)) o.pas = []; });
+  s.memo.forEach(m => { if (!Array.isArray(m.moments)) m.moments = []; if (!m.pris || typeof m.pris !== 'object') m.pris = {}; });
+  return s;
+}
+function charger() {
+  try { const d = JSON.parse(localStorage.getItem(CLE) || 'null'); if (d && typeof d === 'object') return normaliser(d); } catch (e) {}
+  return normaliser(null);
+}
+let S = charger();
+let dejaPrevenu = false;
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify(S)); return true; }
+  catch (e) {
+    if (dejaPrevenu) return false;
+    dejaPrevenu = true;
+    toast('Ce navigateur refuse d’enregistrer : pensez à 💾 sauvegarder votre suivi dans un fichier.', { alerte: true, duree: 7000 });
+    return false;
+  }
+}
+let annulation = null;
+function instantane() { annulation = JSON.stringify(S); }
+function annuler() { if (!annulation) return; S = normaliser(JSON.parse(annulation)); annulation = null; sauver(); rendre(); }
+const trouver = (liste, id) => (liste || []).find(x => x.id === id);
+const retirer = (liste, id) => { const i = liste.findIndex(x => x.id === id); if (i >= 0) liste.splice(i, 1); };
+const R = () => S.reglages;
+
+/* ============================================================
+   LES CALCULS
+   ============================================================ */
+/* hydratation */
+const verres = (d = auj()) => S.eau[d] || 0;
+const pctEau = (d = auj()) => borne(verres(d) / Math.max(1, R().objectifVerres), 0, 1);
+const litres = n => joli(n * R().verreMl / 1000).replace(/,0$/, '') + ' L';
+
+/* sommeil : une nuit est rangée au jour du réveil */
+const dureeNuit = n => { let m = enMinutes(n.lever) - enMinutes(n.coucher); if (m <= 0) m += 1440; return m; };
+const nuitDu = d => S.sommeil.find(n => n.date === d);
+const nuitsTriees = () => S.sommeil.slice().sort((a, b) => b.date.localeCompare(a.date));
+function moyenneSommeil(jours) {
+  const n = jours.map(nuitDu).filter(Boolean);
+  return n.length ? somme(n, dureeNuit) / n.length : 0;
+}
+
+/* activité */
+const activitesDu = d => S.activites.filter(a => a.date === d);
+const minutesDu = d => somme(activitesDu(d), a => nombre(a.duree)) + (S.etirements.jours[d] || 0);
+const minutesSemaine = (lundi = lundiDe(auj())) => somme(joursSemaine(lundi), minutesDu);
+const seancesEtirementSemaine = (lundi = lundiDe(auj())) =>
+  joursSemaine(lundi).filter(d => S.etirements.jours[d] || activitesDu(d).some(a => a.type === 'etirements' || a.type === 'yoga')).length;
+
+/* habitudes & séries */
+const faitsDu = d => S.faits[d] || [];
+const estFaite = (h, d = auj()) => faitsDu(d).includes(h.id);
+const habitudesDu = d => S.habitudes.filter(h => !h.archive && (!h.cree || h.cree <= d));
+function serie(test) {
+  let d = auj(), n = 0;
+  if (!test(d)) d = ajouteJours(d, -1);
+  while (test(d) && n < 3660) { n++; d = ajouteJours(d, -1); }
+  return n;
+}
+const serieHabitude = h => serie(d => faitsDu(d).includes(h.id));
+function tauxHabitudes(d) {
+  const hs = habitudesDu(d); if (!hs.length) return null;
+  return hs.filter(h => faitsDu(d).includes(h.id)).length / hs.length;
+}
+const serieEau = () => serie(d => verres(d) >= R().objectifVerres);
+const serieEtirements = () => serie(d => !!S.etirements.jours[d]);
+function meilleureSerie(test, depuis) {
+  let meilleure = 0, cours = 0;
+  for (let d = depuis; d <= auj(); d = ajouteJours(d, 1)) { if (test(d)) { cours++; meilleure = Math.max(meilleure, cours); } else cours = 0; }
+  return meilleure;
+}
+
+/* rendez-vous & rappels */
+const rdvAVenir = () => S.rdv.filter(r => r.date >= auj()).sort((a, b) => (a.date + (a.heure || '')).localeCompare(b.date + (b.heure || '')));
+const rdvPasses = () => S.rdv.filter(r => r.date < auj()).sort((a, b) => b.date.localeCompare(a.date));
+const rappelsOuverts = () => S.rappels.filter(r => !r.fait).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
+
+/* objectifs : la progression se calcule toute seule à partir du suivi */
+function progresObjectif(o) {
+  const c = nombre(o.cible) || typeObjectif(o.type)[4] || 1;
+  if (o.type === 'eau') {
+    const j = derniersJours(7).filter(d => verres(d) >= c).length;
+    return { pct: j / 7, texte: `${j} jour${j > 1 ? 's' : ''} sur 7 à ${c} verres ou plus` };
+  }
+  if (o.type === 'sommeil') {
+    const j = derniersJours(7).filter(d => { const n = nuitDu(d); return n && dureeNuit(n) >= c * 60 - 10; }).length;
+    return { pct: j / 7, texte: `${j} nuit${j > 1 ? 's' : ''} sur 7 d’au moins ${joli(c)} h` };
+  }
+  if (o.type === 'bouger') {
+    const m = minutesSemaine();
+    return { pct: borne(m / c, 0, 1), texte: `${m} min sur ${c} min cette semaine` };
+  }
+  if (o.type === 'souplesse') {
+    const s = seancesEtirementSemaine();
+    return { pct: borne(s / c, 0, 1), texte: `${s} séance${s > 1 ? 's' : ''} sur ${c} cette semaine` };
+  }
+  const t = o.pas.length, f = o.pas.filter(p => p.fait).length;
+  return t ? { pct: f / t, texte: `${f} étape${f > 1 ? 's' : ''} sur ${t}` } : { pct: o.fait ? 1 : 0, texte: o.fait ? 'Atteint 🎉' : 'Ajoutez des étapes pour suivre votre avancée' };
+}
+const objectifsActifs = () => S.objectifs.filter(o => !o.archive);
+const objectifVedette = () => objectifsActifs().find(o => o.vedette) || objectifsActifs()[0];
+
+/* ---------- toasts ---------- */
+function toast(texte, o = {}) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (o.alerte ? ' alerte' : '');
+  t.innerHTML = `<span>${esc(texte)}</span>`;
+  if (o.annuler) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Annuler';
+    b.addEventListener('click', () => { annuler(); t.remove(); });
+    t.appendChild(b);
+  }
+  $('#toasts').appendChild(t);
+  setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 420); }, o.duree || (o.annuler ? 6500 : 3200));
+}
+function eclat(x, y, signes) {
+  if (document.documentElement.classList.contains('calme')) return;
+  (signes || ['✦', '♡', '·', '✧', '♡']).forEach((c, i, t) => {
+    const s = document.createElement('span'); s.className = 'eclat'; s.textContent = c;
+    const a = (i / t.length) * Math.PI * 2 - Math.PI / 2;
+    s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.color = i % 2 ? 'var(--ciel)' : 'var(--accent)';
+    s.style.setProperty('--x', Math.cos(a) * 36 + 'px'); s.style.setProperty('--y', Math.sin(a) * 36 + 'px');
+    document.body.appendChild(s); setTimeout(() => s.remove(), 950);
+  });
+}
+
+/* ============================================================
+   La fenêtre-formulaire : un seul constructeur pour tout l'outil.
+   champs : { k, l, t, o, ph, large, aide }
+   types : text, number, date, time, tel, textarea, select, case, emoji, html
+   ============================================================ */
+function ouvrirModale(html, apres, large) {
+  const voile = $('#modale'), fen = $('#modaleFen');
+  fen.className = 'fen' + (large ? ' large' : '');
+  fen.innerHTML = html;
+  voile.classList.add('ouvert');
+  document.body.style.overflow = 'hidden';
+  if (apres) apres(fen);
+  const f = fen.querySelector('input:not([type=hidden]):not([type=checkbox]),select,textarea');
+  if (f && window.matchMedia('(pointer:fine)').matches) setTimeout(() => f.focus(), 60);
+}
+let fermetureModale = null;
+function fermerModale() {
+  $('#modale').classList.remove('ouvert');
+  document.body.style.overflow = '';
+  $('#modaleFen').innerHTML = '';
+  if (fermetureModale) { const f = fermetureModale; fermetureModale = null; f(); }
+}
+function formulaire(o) {
+  const v = o.valeurs || {};
+  const champ = c => {
+    const id = 'f_' + c.k, val = v[c.k], lab = esc(c.l);
+    const cls = 'champ' + (c.large || c.t === 'textarea' || c.t === 'emoji' || c.t === 'html' ? ' large' : '');
+    let inner;
+    if (c.t === 'select') inner = `<select id="${id}" name="${c.k}">${c.o.map(([a, b]) => `<option value="${esc(a)}"${String(val ?? '') === String(a) ? ' selected' : ''}>${esc(b)}</option>`).join('')}</select>`;
+    else if (c.t === 'textarea') inner = `<textarea id="${id}" name="${c.k}" placeholder="${esc(c.ph || '')}">${esc(val || '')}</textarea>`;
+    else if (c.t === 'case') return `<label class="champ case large"><input type="checkbox" name="${c.k}"${val ? ' checked' : ''}> ${lab}</label>`;
+    else if (c.t === 'html') return `<div class="${cls}">${c.l ? `<span class="lab">${lab}</span>` : ''}${c.html}</div>`;
+    else if (c.t === 'emoji') inner = `<input type="hidden" name="${c.k}" value="${esc(val || c.o[0])}"><div class="choix-emoji">${c.o.map(e => `<button type="button" data-emoji="${e}" class="${(val || c.o[0]) === e ? 'on' : ''}">${e}</button>`).join('')}</div>`;
+    else inner = `<input id="${id}" name="${c.k}" type="${c.t || 'text'}" value="${esc(val ?? '')}" placeholder="${esc(c.ph || '')}"${c.t === 'number' ? ` step="${c.pas || 'any'}" inputmode="decimal" min="0"` : ''}>`;
+    return `<div class="${cls}"><label for="${id}">${lab}</label>${inner}${c.aide ? `<div class="aide">${esc(c.aide)}</div>` : ''}</div>`;
+  };
+  ouvrirModale(`<form id="formModale" novalidate>
+      <h3 id="modaleTitre">${o.titre}</h3>${o.sous ? `<p class="sous">${o.sous}</p>` : ''}
+      <div class="champs">${o.champs.map(champ).join('')}</div>
+      <div class="pied-fen">${o.supprimer ? '<button type="button" class="btn fin danger" data-f="supprimer">Supprimer</button>' : ''}
+        <div class="droite"><button type="button" class="btn fin" data-f="fermer">Annuler</button><button type="submit" class="btn plein">${o.valider || 'Enregistrer'}</button></div></div>
+    </form>`, fen => {
+    const f = fen.querySelector('form');
+    fen.querySelectorAll('.choix-emoji').forEach(ce => ce.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      ce.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+      ce.previousElementSibling.value = b.dataset.emoji;
+    }));
+    fen.querySelector('[data-f="fermer"]').addEventListener('click', fermerModale);
+    const sup = fen.querySelector('[data-f="supprimer"]');
+    if (sup) sup.addEventListener('click', () => { o.supprimer(); fermerModale(); });
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      const r = {};
+      o.champs.forEach(c => {
+        if (c.t === 'html') return;
+        const el = f.elements[c.k]; if (!el) return;
+        r[c.k] = c.t === 'case' ? el.checked : (c.t === 'number' ? nombre(el.value) : el.value.trim());
+      });
+      if (o.valider_si && !o.valider_si(r, f)) return;
+      if (o.enregistrer(r, f) !== false) fermerModale();
+    });
+    if (o.apres) o.apres(fen);
+  }, o.large);
+}
+</script>
+<script>
+/* ============================================================
+   NaoSanté — les écrans.
+   ============================================================ */
+const VUES = [
+  ['aujourdhui', '🌿', 'Aujourd’hui'],
+  ['hydratation', '💧', 'Hydratation'],
+  ['sommeil', '🌙', 'Sommeil'],
+  ['activite', '🏃', 'Activité & souplesse'],
+  ['habitudes', '✅', 'Habitudes & défis'],
+  ['rdv', '📅', 'Rendez-vous & rappels'],
+  ['humeur', '😊', 'Humeur & énergie'],
+  ['objectifs', '🎯', 'Objectifs'],
+  ['progression', '📈', 'Progression'],
+  ['notes', '🔒', 'Notes & mémo']
+];
+const U = { vue: 'aujourdhui', periode: 'semaine', decalage: 0, phrase: 0, devoile: false };
+
+/* ---------- petites briques ---------- */
+const COCHE = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function anneau(pct, cls = '') {
+  const c = 2 * Math.PI * 52;
+  return `<svg viewBox="0 0 120 120" class="anneau ${cls}"><circle class="fondc" cx="60" cy="60" r="52"/>
+    <circle class="valc" cx="60" cy="60" r="52" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c * (1 - borne(pct, 0, 1))).toFixed(1)}"/></svg>`;
+}
+function barreProgres(pct, texte, cls = '') {
+  const p = Math.round(borne(pct, 0, 1) * 100);
+  return `<div class="progres ${cls}${p >= 100 ? ' complet' : ''}"><div class="barre"><i style="width:${p}%"></i></div><b>${p} %</b></div>${texte ? `<div class="ui muet" style="font-size:12px;margin-top:5px">${texte}</div>` : ''}`;
+}
+function goutte(pct) {
+  const y = 118 - borne(pct, 0, 1) * 112;
+  return `<div class="goutte"><svg viewBox="0 0 96 120">
+      <defs><clipPath id="clipGoutte"><path d="M48 3C48 3 9 49 9 76a39 39 0 0 0 78 0C87 49 48 3 48 3Z"/></clipPath></defs>
+      <path class="contour" d="M48 3C48 3 9 49 9 76a39 39 0 0 0 78 0C87 49 48 3 48 3Z"/>
+      <g clip-path="url(#clipGoutte)"><g class="niveau" style="transform:translateY(${y.toFixed(1)}px)">
+        <path class="vague b" d="M0 6Q20 0 40 6T80 6T120 6T160 6T200 6T240 6V140H0Z"/>
+        <path class="vague" d="M0 8Q20 2 40 8T80 8T120 8T160 8T200 8T240 8V140H0Z"/>
+      </g></g>
+      <path d="M30 62q-6 12-3 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".35"/>
+    </svg><div class="pct">${Math.round(pct * 100)} %</div></div>`;
+}
+function rangeeVerres(d = auj()) {
+  const n = verres(d), obj = R().objectifVerres, max = Math.max(obj, n);
+  return `<div class="verres" role="group" aria-label="Verres bus">${Array.from({ length: max }, (_, i) =>
+    `<button type="button" class="verre${i < n ? ' plein' : ''}${i === n - 1 ? ' dernier' : ''}" data-act="verres" data-n="${i + 1 === n ? i : i + 1}" title="${i + 1 === n ? 'Retirer ce verre' : `${i + 1} verre${i ? 's' : ''}`}"></button>`).join('')}</div>`;
+}
+/* de petites barres verticales ; vals = [{v, lab, auj, cls}] */
+function barres(vals, o = {}) {
+  const max = Math.max(o.cible || 0, ...vals.map(x => x.v), 1);
+  const cible = o.cible ? `<div class="ligne-cible" style="bottom:calc(21px + ${(o.cible / max).toFixed(3)} * (100% - 6px) * .64)"></div>` : '';
+  return `<div class="barres-cadre">${cible}<div class="barres${o.mois ? ' mois' : ''}" style="--n:${vals.length}">${vals.map(x =>
+    `<div class="col${x.auj ? ' auj' : ''}" title="${esc(x.titre || '')}">${o.mois ? '' : `<span class="v">${x.v ? (o.fmt ? o.fmt(x.v) : x.v) : ''}</span>`}
+      <div class="b ${o.cls || ''}${x.v ? '' : ' nul'}${o.cible && x.v >= o.cible ? ' cible' : ''}" style="height:${(x.v / max * 64).toFixed(1)}%"></div>
+      <small>${x.lab}</small></div>`).join('')}</div></div>`;
+}
+const vide = (texte, bouton) => `<div class="vide">${texte}${bouton ? `<br>${bouton}` : ''}</div>`;
+const titreVue = (titre, sous, actions = '') => `<div class="titre-vue"><div><h2>${titre}</h2>${sous ? `<p>${sous}</p>` : ''}</div>${actions ? `<div class="actions">${actions}</div>` : ''}</div>`;
+const lab7 = d => JOURS_C[parseJour(d).getDay()].slice(0, 3);
+
+function ligneHabitude(h, complet) {
+  const f = estFaite(h), s = serieHabitude(h);
+  const pts = complet ? `<div class="semaine-points">${derniersJours(7).map(d => `<i class="${faitsDu(d).includes(h.id) ? 'on' : ''}${d === auj() ? ' auj' : ''}" title="${fmtJour(d)}" data-act="basculer-jour" data-id="${h.id}" data-d="${d}" style="cursor:pointer"></i>`).join('')}</div>` : '';
+  return `<div class="ligne${f ? ' fait' : ''}">
+    <button type="button" class="coche-btn" data-act="habitude" data-id="${h.id}" aria-label="${f ? 'Décocher' : 'Cocher'} ${esc(h.nom)}">${COCHE}</button>
+    <span class="emo">${esc(h.emoji || '⭐')}</span>
+    <div class="corps"><div class="texte">${esc(h.nom)}</div>${complet ? `<div class="meta">${pts}</div>` : ''}</div>
+    <span class="serie${s ? '' : ' zero'}" title="Jours consécutifs">${s ? '🔥 ' + pluriel(s, 'jour') : '—'}</span>
+    ${complet ? `<div class="outils"><button class="btn-rond" data-act="modifier-habitude" data-id="${h.id}" title="Modifier">✏️</button></div>` : ''}
+  </div>`;
+}
+function carteRdv(r) {
+  const d = parseJour(r.date), t = typeRdv(r.type);
+  return `<div class="rdv${r.date < auj() ? ' passe' : ''}">
+    <div class="cal-ic"><small>${MOIS_C[d.getMonth()]}</small><b>${d.getDate()}</b></div>
+    <div class="corps"><div class="titre">${t[1]} ${esc(r.titre || t[2])}</div>
+      <div class="meta"><span>${quand(r.date)}${r.heure ? ' · ' + esc(r.heure) : ''}</span>${r.avec ? `<span>· ${esc(r.avec)}</span>` : ''}${r.lieu ? `<span>· 📍 ${esc(r.lieu)}</span>` : ''}</div></div>
+    <div class="outils"><button class="btn-rond" data-act="modifier-rdv" data-id="${r.id}" title="Modifier">✏️</button></div></div>`;
+}
+function ligneRappel(r) {
+  const t = typeRappel(r.type), retard = r.date && r.date < auj() && !r.fait;
+  return `<div class="ligne${r.fait ? ' fait' : ''}">
+    <button type="button" class="coche-btn" data-act="rappel" data-id="${r.id}" aria-label="Marquer comme fait">${COCHE}</button>
+    <span class="emo">${t[1]}</span>
+    <div class="corps"><div class="texte">${esc(r.texte || t[2])}</div>
+      <div class="meta"><span>${esc(t[2])}</span>${r.date ? `<span class="etiquette${retard ? ' alerte' : ' ciel'}">${retard ? 'à faire · ' : ''}${quand(r.date)}</span>` : ''}</div></div>
+    <div class="outils"><button class="btn-rond" data-act="modifier-rappel" data-id="${r.id}" title="Modifier">✏️</button></div></div>`;
+}
+function carteObjectif(o, compact) {
+  const t = typeObjectif(o.type), p = progresObjectif(o);
+  return `<div class="objectif${p.pct >= 1 ? ' atteint' : ''}">
+    <div class="tete"><div class="emo">${t[1]}</div><div style="min-width:0"><div class="n">${esc(o.titre || t[2])}</div>
+      <div class="s">${o.type === 'libre' ? 'Objectif personnel' : `Cible : ${joli(nombre(o.cible) || t[4])} ${t[3]}`}${o.fin ? ` · jusqu’au ${fmtJour(o.fin)}` : ''}</div></div>
+      ${compact ? '' : `<div class="outils"><button class="btn-rond" data-act="vedette" data-id="${o.id}" title="Mettre en avant sur l’accueil">${o.vedette ? '⭐' : '☆'}</button>
+        <button class="btn-rond" data-act="modifier-objectif" data-id="${o.id}" title="Modifier">✏️</button></div>`}</div>
+    ${barreProgres(p.pct, p.texte)}
+    ${!compact && o.type === 'libre' ? `<div style="margin-top:10px">${o.pas.map(s => `<div class="ligne${s.fait ? ' fait' : ''}">
+        <button type="button" class="coche-btn" data-act="pas" data-id="${o.id}" data-p="${s.id}">${COCHE}</button><div class="corps"><div class="texte">${esc(s.texte)}</div></div>
+        <div class="outils"><button class="btn-rond" data-act="retirer-pas" data-id="${o.id}" data-p="${s.id}" title="Retirer">✕</button></div></div>`).join('')}
+      <form class="actions" data-form="pas" data-id="${o.id}" style="margin-top:8px"><input class="saisie" name="t" placeholder="Ajouter une étape…" style="flex:1;min-width:0;padding:9px 12px;border-radius:12px;border:1px solid var(--bord);background:var(--champ);font-family:var(--ui)"><button class="btn petit lavande" type="submit">＋</button></form></div>` : ''}
+    ${p.pct >= 1 ? '<div class="note-douce" style="margin-top:10px">🎉 <b>Bravo !</b> Vous avez atteint votre objectif. Prenez le temps d’en être fier·e.</div>' : ''}
+  </div>`;
+}
+function carteDefiDuJour() {
+  const d = defiDuJour(), fait = (S.defis[auj()] || []).includes(d[0]);
+  return `<div class="defi${fait ? ' fait' : ''}"><span class="emo">${d[1]}</span>
+    <div style="flex:1;min-width:0"><div class="s ui" style="font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px">Mini-défi du jour</div>
+      <div class="n">${esc(d[2])}</div><div class="s">${esc(d[3])}</div></div>
+    <button class="btn ${fait ? 'lavande' : 'plein'} petit" data-act="defi" data-k="${d[0]}">${fait ? '✓ Relevé !' : 'Je le fais'}</button></div>`;
+}
+
+/* ============================================================
+   L'ACCUEIL
+   ============================================================ */
+function vueAujourdhui() {
+  const d = auj(), en = S.energie[d], taux = tauxHabitudes(d);
+  const hs = habitudesDu(d), nuit = nuitDu(d) || nuitsTriees()[0];
+  const lundi = lundiDe(d), min = minutesSemaine(lundi), obj = objectifVedette();
+  const heure = new Date().getHours(), salut = heure < 5 ? 'Bonne nuit' : heure < 12 ? 'Bonjour' : heure < 18 ? 'Bon après-midi' : 'Bonsoir';
+  const prenom = R().prenom ? ' ' + esc(R().prenom) : '';
+  const venir = rdvAVenir().slice(0, 3), rap = rappelsOuverts();
+  return `<div class="vue">
+  <section class="carte hero">
+    <svg class="jeton" viewBox="0 0 40 40" aria-hidden="true"><use href="#l-sa"/></svg>
+    <div class="txt">
+      <div class="date">${fmtJour(d, true)}</div>
+      <h2>${salut}${prenom}, <span>prenez soin de votre rythme.</span></h2>
+      <div class="slogan">NaoSanté — Prenez soin de votre rythme.</div>
+      <p class="douceur"><span>${esc(encouragementDuJour(U.phrase))}</span><button class="btn-rond autre" data-act="phrase" title="Une autre phrase">↻</button></p>
+    </div>
+    <div class="progres-jour" title="Habitudes du jour">${anneau(taux || 0)}<div class="lab"><div><b>${taux == null ? '—' : Math.round(taux * 100) + '%'}</b>habitudes<br>du jour</div></div></div>
+  </section>
+
+  <div class="rapides">
+    <button class="rapide" data-act="ajouter-habitude"><span class="ic">✅</span><span>Ajouter une habitude<small>boire, marcher, s’étirer…</small></span></button>
+    <button class="rapide" data-act="ajouter-rdv"><span class="ic">📅</span><span>Ajouter un rendez-vous<small>médecin, dentiste, optique…</small></span></button>
+    <button class="rapide" data-act="ajouter-activite"><span class="ic">🏃</span><span>Ajouter une activité<small>marche, yoga, vélo…</small></span></button>
+    <button class="rapide eau" data-act="boire"><span class="ic">💧</span><span>Boire un verre d’eau<small>${verres(d)} / ${R().objectifVerres} aujourd’hui</small></span></button>
+  </div>
+
+  <div class="grille g3">
+    <section class="carte">
+      <h3><span class="e">⚡</span> Mon énergie du jour</h3>
+      <p class="chapo">Comment vous sentez-vous, là, maintenant ?</p>
+      <div class="choix-niveau">${ENERGIES.map(([n, e, l]) => `<button type="button" class="${en === n ? 'on' : ''}" data-act="energie" data-n="${n}"><span class="e">${e}</span>${l}</button>`).join('')}</div>
+      <p class="ui muet" style="font-size:12px;margin:12px 0 0">${en ? (en <= 1 ? 'Journée à énergie douce : accordez-vous des pauses, sans culpabiliser.' : en === 2 ? 'Une énergie moyenne : parfait pour les petits pas.' : 'Belle énergie ! Profitez-en à votre rythme.') : 'Un simple clic : cela vous aidera à voir vos tendances.'}</p>
+    </section>
+
+    <section class="carte">
+      <h3><span class="e">💧</span> Mon hydratation <button class="lien" data-act="vue" data-vue="hydratation">Détails →</button></h3>
+      <div class="eau-bloc">${goutte(pctEau(d))}
+        <div style="flex:1;min-width:140px"><div class="gros">${verres(d)}<small>/ ${R().objectifVerres} verres</small></div>
+          <div class="ui muet" style="font-size:12px;margin-top:4px">soit ${litres(verres(d))} sur ${litres(R().objectifVerres)}</div>
+          ${rangeeVerres(d)}
+          <div class="actions"><button class="btn eau petit" data-act="boire">💧 Un verre</button>${verres(d) ? '<button class="btn petit fin" data-act="retirer-verre">− 1</button>' : ''}</div></div></div>
+      ${serieEau() > 1 ? `<p class="ui" style="font-size:12px;margin:10px 0 0"><span class="serie">🔥 ${serieEau()} jours</span> <span class="muet">d’objectif atteint d’affilée</span></p>` : ''}
+    </section>
+
+    <section class="carte">
+      <h3><span class="e">✅</span> Mes habitudes du jour <button class="lien" data-act="vue" data-vue="habitudes">Toutes →</button></h3>
+      ${hs.length ? `<p class="chapo">${hs.filter(h => estFaite(h)).length} sur ${hs.length} réalisée${hs.length > 1 ? 's' : ''}</p>${hs.slice(0, 6).map(h => ligneHabitude(h)).join('')}${hs.length > 6 ? `<button class="lien" data-act="vue" data-vue="habitudes" style="margin-top:8px">+ ${hs.length - 6} autres</button>` : ''}`
+        : vide('Aucune habitude pour l’instant.', '<button class="btn plein petit" data-act="habitudes-proposees">✨ Commencer avec 5 habitudes douces</button>')}
+    </section>
+
+    <section class="carte">
+      <h3><span class="e">🌙</span> Mon sommeil <button class="lien" data-act="vue" data-vue="sommeil">Détails →</button></h3>
+      ${nuit ? `<div class="nuit"><div class="lune-ic">🌙</div><div><div class="gros">${duree(dureeNuit(nuit))}</div>
+          <div class="ui muet" style="font-size:12px">${nuit.date === d ? 'cette nuit' : 'nuit du ' + fmtJour(ajouteJours(nuit.date, -1))} · objectif ${joli(R().objectifSommeil)} h</div></div></div>
+        <div class="horaires" style="margin:12px 0"><div>Coucher<b>${esc(nuit.coucher)}</b></div><div>Réveil<b>${esc(nuit.lever)}</b></div><div>Moyenne 7 j<b>${moyenneSommeil(derniersJours(7)) ? duree(moyenneSommeil(derniersJours(7))) : '—'}</b></div></div>`
+        : '<p class="chapo">Notez vos heures de coucher et de réveil pour suivre votre rythme.</p>'}
+      <button class="btn ${nuitDu(d) ? 'fin' : 'plein'} petit" data-act="noter-nuit">${nuitDu(d) ? '✏️ Modifier ma nuit' : '🌙 Noter ma nuit'}</button>
+    </section>
+
+    <section class="carte">
+      <h3><span class="e">📅</span> Mes rendez-vous à venir <button class="lien" data-act="vue" data-vue="rdv">Tous →</button></h3>
+      ${venir.length ? venir.map(carteRdv).join('') : vide('Aucun rendez-vous prévu.', '<button class="btn petit lavande" data-act="ajouter-rdv">＋ Ajouter un rendez-vous</button>')}
+      ${rap.length ? `<div class="sous-titre" style="margin-top:14px">🔔 Rappels</div>${rap.slice(0, 2).map(ligneRappel).join('')}${rap.length > 2 ? `<button class="lien" data-act="vue" data-vue="rdv">+ ${rap.length - 2} autres rappels</button>` : ''}` : ''}
+    </section>
+
+    <section class="carte">
+      <h3><span class="e">🏃</span> Mon activité de la semaine <button class="lien" data-act="vue" data-vue="activite">Détails →</button></h3>
+      <div class="gros" style="margin:4px 0 8px">${min}<small>/ ${R().objectifMinutes} min</small></div>
+      ${barreProgres(min / Math.max(1, R().objectifMinutes), '')}
+      ${barres(joursSemaine(lundi).map(j => ({ v: minutesDu(j), lab: lab7(j), auj: j === d, titre: `${fmtJour(j)} : ${minutesDu(j)} min` })), { fmt: v => v })}
+    </section>
+
+    <section class="carte large-2">
+      <h3><span class="e">🎯</span> Mon objectif en cours <button class="lien" data-act="vue" data-vue="objectifs">Tous →</button></h3>
+      ${obj ? carteObjectif(obj, true) : vide('Choisissez un objectif doux : mieux dormir, bouger davantage, boire plus d’eau…', '<button class="btn plein petit" data-act="ajouter-objectif">🎯 Créer mon objectif</button>')}
+    </section>
+
+    <section class="carte">
+      <h3><span class="e">🌱</span> Un petit défi</h3>
+      <p class="chapo">Simple, doux, faisable aujourd’hui.</p>
+      ${carteDefiDuJour()}
+    </section>
+  </div></div>`;
+}
+
+/* ============================================================
+   HYDRATATION
+   ============================================================ */
+function vueHydratation() {
+  const d = auj(), j7 = derniersJours(7), j30 = derniersJours(30);
+  const moy7 = somme(j7, verres) / 7, atteints = j30.filter(x => verres(x) >= R().objectifVerres).length;
+  return `<div class="vue">${titreVue('Mon <span>hydratation</span>', 'Un verre après l’autre, à votre rythme.',
+    '<button class="btn fin" data-act="reglages">⚙️ Mon objectif</button><button class="btn eau" data-act="boire">💧 Boire un verre d’eau</button>')}
+  <div class="grille g2">
+    <section class="carte">
+      <h3><span class="e">💧</span> Aujourd’hui</h3>
+      <div class="eau-bloc" style="margin-top:10px">${goutte(pctEau(d))}
+        <div style="flex:1;min-width:180px"><div class="gros">${verres(d)}<small>/ ${R().objectifVerres} verres de ${R().verreMl} ml</small></div>
+          <div class="ui muet" style="font-size:12.5px;margin-top:4px">${litres(verres(d))} bus sur ${litres(R().objectifVerres)} · ${verres(d) >= R().objectifVerres ? '🎉 objectif du jour atteint' : `encore ${R().objectifVerres - verres(d)} verre${R().objectifVerres - verres(d) > 1 ? 's' : ''}`}</div>
+          ${rangeeVerres(d)}
+          <div class="actions"><button class="btn eau" data-act="boire">＋ 1 verre</button><button class="btn fin" data-act="retirer-verre"${verres(d) ? '' : ' disabled'}>− 1</button></div></div></div>
+      <p class="note-douce">Touchez un verre pour indiquer directement combien vous en avez bu. Les besoins varient d’une personne à l’autre :
+        <b>votre objectif est le vôtre</b>, ajustez-le librement dans ⚙️.</p>
+    </section>
+    <section class="carte">
+      <h3><span class="e">📊</span> Mes 7 derniers jours</h3>
+      <div class="chiffres" style="margin:10px 0 14px">
+        <div><b>${joli(moy7)}</b><small>verres / jour en moyenne</small></div>
+        <div><b>${serieEau()}</b><small>jour${serieEau() > 1 ? 's' : ''} d’affilée à l’objectif</small></div>
+        <div><b>${atteints}</b><small>objectifs atteints sur 30 jours</small></div>
+      </div>
+      ${barres(j7.map(x => ({ v: verres(x), lab: lab7(x), auj: x === d, titre: `${fmtJour(x)} : ${verres(x)} verres` })), { cible: R().objectifVerres, cls: 'eau' })}
+    </section>
+  </div></div>`;
+}
+
+/* ============================================================
+   SOMMEIL
+   ============================================================ */
+function vueSommeil() {
+  const j14 = derniersJours(14), nuits = nuitsTriees(), obj = R().objectifSommeil;
+  const moy = moyenneSommeil(derniersJours(7));
+  const couchers = derniersJours(7).map(nuitDu).filter(Boolean).map(n => { const m = enMinutes(n.coucher); return m < 720 ? m + 1440 : m; });
+  const moyC = couchers.length ? somme(couchers) / couchers.length : 0;
+  const ecart = couchers.length > 1 ? Math.round(somme(couchers, c => Math.abs(c - moyC)) / couchers.length) : null;
+  const hC = m => { m = Math.round(m) % 1440; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+  const aObj = derniersJours(7).filter(x => { const n = nuitDu(x); return n && dureeNuit(n) >= obj * 60 - 10; }).length;
+  return `<div class="vue">${titreVue('Mon <span>sommeil</span>', 'Le coucher, le réveil, et le rythme qui se dessine.',
+    '<button class="btn fin" data-act="reglages">⚙️ Mon objectif</button><button class="btn plein" data-act="noter-nuit">🌙 Noter ma nuit</button>')}
+  <div class="grille g3" style="margin-bottom:16px">
+    <section class="carte"><h3><span class="e">🎯</span> Mon objectif</h3>
+      <div class="gros" style="margin:8px 0">${joli(obj)} h<small>par nuit</small></div>
+      <div class="ui muet" style="font-size:12.5px">Heure de coucher visée : <b style="color:var(--ink)">${esc(R().coucherCible || '—')}</b></div>
+      <div style="margin-top:12px">${barreProgres(aObj / 7, `${aObj} nuit${aObj > 1 ? 's' : ''} sur 7 à l’objectif`)}</div></section>
+    <section class="carte"><h3><span class="e">📊</span> Cette semaine</h3>
+      <div class="chiffres" style="margin-top:10px">
+        <div><b>${moy ? duree(moy) : '—'}</b><small>durée moyenne</small></div>
+        <div><b>${moyC ? hC(moyC) : '—'}</b><small>coucher moyen</small></div>
+        <div><b>${ecart == null ? '—' : '± ' + ecart + ' min'}</b><small>régularité du coucher</small></div>
+      </div></section>
+    <section class="carte"><h3><span class="e">💡</span> Des idées douces</h3>
+      <p class="ui" style="font-size:13px;color:var(--ink-2);margin:6px 0 0;line-height:1.6">• Garder des horaires proches, même le week-end.<br>• Un petit rituel du soir : lumière tamisée, lecture, respiration.<br>• Poser le téléphone un peu avant de dormir.</p>
+      <p class="ui muet" style="font-size:11.5px;margin:10px 0 0">Si votre sommeil vous inquiète, parlez-en à un professionnel de santé.</p></section>
+  </div>
+  <div class="grille g2">
+    <section class="carte"><h3><span class="e">🌙</span> Mes 14 dernières nuits</h3>
+      ${barres(j14.map(x => { const n = nuitDu(x); return { v: n ? Math.round(dureeNuit(n) / 6) / 10 : 0, lab: parseJour(x).getDate(), auj: x === auj(), titre: n ? `${fmtJour(x)} : ${duree(dureeNuit(n))}` : fmtJour(x) }; }), { cible: obj, fmt: v => joli(v) })}
+      <p class="ui muet" style="font-size:11.5px;margin:8px 0 0">En heures, rangées au jour du réveil. La ligne verte marque votre objectif.</p></section>
+    <section class="carte"><h3><span class="e">📖</span> Mon carnet de nuits</h3>
+      ${nuits.length ? nuits.slice(0, 10).map(n => `<div class="ligne"><span class="emo">${n.qualite ? QUALITES[n.qualite - 1][1].split(' ')[0] : '🌙'}</span>
+        <div class="corps"><div class="texte"><b>${duree(dureeNuit(n))}</b> · ${esc(n.coucher)} → ${esc(n.lever)}</div>
+        <div class="meta"><span>réveil ${fmtJour(n.date)}</span>${n.note ? `<span>· ${esc(n.note)}</span>` : ''}</div></div>
+        <div class="outils"><button class="btn-rond" data-act="noter-nuit" data-id="${n.id}" title="Modifier">✏️</button></div></div>`).join('')
+        : vide('Aucune nuit notée pour l’instant.', '<button class="btn plein petit" data-act="noter-nuit">🌙 Noter ma première nuit</button>')}
+    </section>
+  </div></div>`;
+}
+
+/* ============================================================
+   ACTIVITÉ & SOUPLESSE
+   ============================================================ */
+function vueActivite() {
+  const d = auj(), lundi = lundiDe(d), min = minutesSemaine(lundi);
+  const recentes = S.activites.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12);
+  const rt = S.etirements.routine, tot = somme(rt, e => nombre(e.secondes)), faitAuj = !!S.etirements.jours[d];
+  const parType = ACTIVITES.map(a => [a, somme(S.activites.filter(x => x.type === a[0] && x.date >= lundi), x => nombre(x.duree))]).filter(x => x[1]);
+  return `<div class="vue">${titreVue('Mon <span>activité</span>, mes séances & ma souplesse', 'Bouger un peu, c’est déjà bouger — et le minuteur s’occupe du reste.',
+    '<button class="btn fin" data-act="reglages">⚙️ Mon objectif</button><button class="btn plein" data-act="ajouter-activite">🏃 Ajouter une activité</button>')}
+  <div class="grille g2">
+    ${sectionSport()}
+    <section class="carte"><h3><span class="e">➕</span> Ajout rapide</h3><p class="chapo">Choisissez une activité, indiquez la durée — c’est tout.</p>
+      <div class="types">${ACTIVITES.map(([k, e, l]) => `<button class="type" data-act="ajouter-activite" data-type="${k}"><span class="e">${e}</span>${l}</button>`).join('')}</div></section>
+    <section class="carte"><h3><span class="e">📅</span> Ma semaine</h3>
+      <div class="gros" style="margin:6px 0 8px">${min}<small>/ ${R().objectifMinutes} min</small></div>
+      ${barreProgres(min / Math.max(1, R().objectifMinutes), parType.map(([a, m]) => `${a[1]} ${m} min`).join(' · ') || 'Aucune activité cette semaine pour l’instant.')}
+      ${barres(joursSemaine(lundi).map(j => ({ v: minutesDu(j), lab: lab7(j), auj: j === d, titre: `${fmtJour(j)} : ${minutesDu(j)} min` })))}</section>
+
+    <section class="carte"><h3><span class="e">🙆</span> Ma routine souplesse <span class="serie${serieEtirements() ? '' : ' zero'}" style="margin-left:auto">${serieEtirements() ? '🔥 ' + pluriel(serieEtirements(), 'jour') : ''}</span></h3>
+      <p class="chapo">${rt.length} geste${rt.length > 1 ? 's' : ''} · environ ${Math.max(1, Math.round(tot / 60))} min · ${seancesEtirementSemaine()} séance${seancesEtirementSemaine() > 1 ? 's' : ''} cette semaine sur ${R().objectifEtirements}</p>
+      ${rt.map(e => `<div class="etirement"><span class="emo">${esc(e.emoji || '🙆')}</span><div class="corps"><div class="n">${esc(e.nom)}</div><div class="d">${nombre(e.secondes)} s${e.conseil ? ' · ' + esc(e.conseil) : ''}</div></div>
+        <button class="btn-rond" data-act="modifier-etirement" data-id="${e.id}" title="Modifier">✏️</button></div>`).join('')}
+      <div class="actions" style="margin-top:12px"><button class="btn plein" data-act="routine"${rt.length ? '' : ' disabled'}>▶ Commencer la routine</button>
+        <button class="btn ${faitAuj ? 'lavande' : 'fin'}" data-act="etirements-faits">${faitAuj ? '✓ Faite aujourd’hui' : '✓ Marquer faite'}</button>
+        <button class="btn fin petit" data-act="modifier-etirement">＋ Un geste</button></div>
+      <p class="note-douce">Allez-y <b>en douceur</b>, sans forcer ni à-coups, et arrêtez si c’est inconfortable ou douloureux.</p></section>
+
+    <section class="carte"><h3><span class="e">📖</span> Mes dernières activités</h3>
+      ${recentes.length ? recentes.map(a => { const t = activite(a.type); return `<div class="ligne"><span class="emo">${t[1]}</span>
+        <div class="corps"><div class="texte"><b>${esc(t[2])}</b> · ${nombre(a.duree)} min</div><div class="meta"><span>${quand(a.date)}</span><span>· ${intensite(a.intensite)}</span>${a.note ? `<span>· ${esc(a.note)}</span>` : ''}</div></div>
+        <div class="outils"><button class="btn-rond" data-act="modifier-activite" data-id="${a.id}" title="Modifier">✏️</button></div></div>`; }).join('')
+        : vide('Aucune activité notée.', '<button class="btn plein petit" data-act="ajouter-activite">🏃 Ajouter ma première activité</button>')}</section>
+  </div></div>`;
+}
+
+/* ============================================================
+   HABITUDES & DÉFIS
+   ============================================================ */
+function vueHabitudes() {
+  const hs = S.habitudes.filter(h => !h.archive), arch = S.habitudes.filter(h => h.archive);
+  const manquantes = HABITUDES_PROPOSEES.filter(([, n]) => !S.habitudes.some(h => h.nom === n));
+  const faitsDefis = S.defis[auj()] || [];
+  const meilleure = hs.reduce((m, h) => Math.max(m, serieHabitude(h)), 0);
+  return `<div class="vue">${titreVue('Mes <span>habitudes</span> & mini-défis', 'Cochez ce que vous avez fait. Les séries se construisent toutes seules.',
+    '<button class="btn plein" data-act="ajouter-habitude">✅ Ajouter une habitude</button>')}
+  <div class="grille g2">
+    <section class="carte large-2"><h3><span class="e">✅</span> Mes habitudes quotidiennes ${meilleure ? `<span class="serie" style="margin-left:auto">🔥 meilleure série en cours : ${pluriel(meilleure, 'jour')}</span>` : ''}</h3>
+      <p class="chapo">Les pastilles montrent vos 7 derniers jours : touchez-en une pour corriger un oubli.</p>
+      ${hs.length ? hs.map(h => ligneHabitude(h, true)).join('') : vide('Aucune habitude pour l’instant.')}
+      ${manquantes.length ? `<div class="sous-titre" style="margin-top:16px">Suggestions</div><div class="actions">${manquantes.map(([e, n]) => `<button class="btn petit fin" data-act="habitude-proposee" data-e="${e}" data-n="${esc(n)}">${e} ${esc(n)} ＋</button>`).join('')}</div>` : ''}
+      ${arch.length ? `<div class="sous-titre" style="margin-top:16px">En pause</div><div class="actions">${arch.map(h => `<button class="btn petit fin" data-act="modifier-habitude" data-id="${h.id}">${esc(h.emoji)} ${esc(h.nom)}</button>`).join('')}</div>` : ''}
+    </section>
+    <section class="carte"><h3><span class="e">🌱</span> Le défi du jour</h3><p class="chapo">Il change chaque matin.</p>${carteDefiDuJour()}</section>
+    <section class="carte"><h3><span class="e">✨</span> Tous les mini-défis</h3><p class="chapo">${faitsDefis.length} relevé${faitsDefis.length > 1 ? 's' : ''} aujourd’hui — aucun n’est obligatoire.</p>
+      <div class="defis">${DEFIS.map(([k, e, n, s]) => { const f = faitsDefis.includes(k); return `<button class="mini-defi${f ? ' fait' : ''}" data-act="defi" data-k="${k}"><span class="e">${e}</span>${esc(n)}<small>${f ? '✓ relevé aujourd’hui' : esc(s)}</small></button>`; }).join('')}</div></section>
+  </div></div>`;
+}
+
+/* ============================================================
+   RENDEZ-VOUS & RAPPELS
+   ============================================================ */
+function vueRdv() {
+  const venir = rdvAVenir(), passes = rdvPasses().slice(0, 8), ouverts = rappelsOuverts(), faits = S.rappels.filter(r => r.fait).slice(-6).reverse();
+  return `<div class="vue">${titreVue('Mes <span>rendez-vous</span> & rappels', 'Médecin, dentiste, optique, suivi… et tout ce qu’il ne faut pas oublier.',
+    '<button class="btn fin" data-act="ajouter-rappel">🔔 Ajouter un rappel</button><button class="btn plein" data-act="ajouter-rdv">📅 Ajouter un rendez-vous</button>')}
+  <div class="grille g2">
+    <section class="carte"><h3><span class="e">📅</span> À venir</h3>
+      ${venir.length ? venir.map(carteRdv).join('') : vide('Aucun rendez-vous prévu.')}
+      ${passes.length ? `<div class="sous-titre" style="margin-top:16px">Passés</div>${passes.map(carteRdv).join('')}` : ''}</section>
+    <section class="carte"><h3><span class="e">🔔</span> Mes rappels</h3>
+      <p class="chapo">Renouveler une ordonnance, prendre rendez-vous, faire un contrôle…</p>
+      ${ouverts.length ? ouverts.map(ligneRappel).join('') : vide('Aucun rappel en attente.')}
+      <div class="sous-titre" style="margin-top:14px">Idées de rappels</div>
+      <div class="actions">${TYPES_RAPPEL.slice(0, 3).map(([k, e, l]) => `<button class="btn petit fin" data-act="ajouter-rappel" data-type="${k}">${e} ${l}</button>`).join('')}</div>
+      ${faits.length ? `<div class="sous-titre" style="margin-top:16px">Faits récemment</div>${faits.map(ligneRappel).join('')}` : ''}</section>
+  </div></div>`;
+}
+
+/* ============================================================
+   HUMEUR & ÉNERGIE
+   ============================================================ */
+function vueHumeur() {
+  const d = auj(), h = S.humeur[d] || {}, en = S.energie[d];
+  const jours = derniersJours(14).reverse().filter(x => S.humeur[x] || S.energie[x]);
+  const j7 = derniersJours(7), moyE = j7.map(x => S.energie[x]).filter(Boolean), moyH = j7.map(x => (S.humeur[x] || {}).h).filter(Boolean);
+  return `<div class="vue">${titreVue('Mon <span>humeur</span> & mon énergie', 'Un petit mot pour vous, chaque jour. Personne d’autre ne le lit.')}
+  <div class="grille g2">
+    <section class="carte"><h3><span class="e">⚡</span> Mon énergie du jour</h3>
+      <div class="choix-niveau" style="margin-top:10px">${ENERGIES.map(([n, e, l]) => `<button type="button" class="${en === n ? 'on' : ''}" data-act="energie" data-n="${n}"><span class="e">${e}</span>${l}</button>`).join('')}</div>
+      <div class="sous-titre" style="margin-top:18px">Mon humeur</div>
+      <div class="choix-niveau cinq">${HUMEURS.map(([n, e, l]) => `<button type="button" class="${h.h === n ? 'on' : ''}" data-act="humeur" data-n="${n}"><span class="e">${e}</span>${l}</button>`).join('')}</div>
+      <div class="sous-titre" style="margin-top:18px">Mon ressenti du jour</div>
+      <form data-form="ressenti"><textarea name="t" class="saisie-libre" placeholder="Ce qui m’a fait du bien, ce qui m’a pesé, une petite victoire…" style="width:100%;min-height:96px;padding:12px;border-radius:14px;border:1px solid var(--bord);background:var(--champ);font-family:var(--ui);font-size:14px;resize:vertical">${esc(h.ressenti || '')}</textarea>
+        <div class="actions" style="margin-top:8px"><button class="btn plein petit" type="submit">Enregistrer</button></div></form></section>
+    <section class="carte"><h3><span class="e">📖</span> Mon journal</h3>
+      <div class="chiffres" style="margin:8px 0 14px">
+        <div><b>${moyE.length ? energie(Math.round(somme(moyE) / moyE.length))[1] + ' ' + energie(Math.round(somme(moyE) / moyE.length))[2] : '—'}</b><small>énergie moyenne sur 7 jours</small></div>
+        <div><b>${moyH.length ? humeur(Math.round(somme(moyH) / moyH.length))[1] + ' ' + humeur(Math.round(somme(moyH) / moyH.length))[2] : '—'}</b><small>humeur moyenne sur 7 jours</small></div>
+      </div>
+      ${jours.length ? jours.map(x => { const hh = S.humeur[x] || {}, ee = S.energie[x]; const p = parseJour(x); return `<div class="journal-j">
+        <div class="d">${JOURS_C[p.getDay()]}<b>${p.getDate()}</b></div><div class="e">${hh.h ? humeur(hh.h)[1] : ''}${ee ? energie(ee)[1] : ''}</div>
+        <div class="t">${hh.ressenti ? esc(hh.ressenti) : `<span class="muet ui" style="font-size:12.5px">${[hh.h ? 'Humeur ' + humeur(hh.h)[2].toLowerCase() : '', ee ? 'énergie ' + energie(ee)[2].toLowerCase() : ''].filter(Boolean).join(' · ')}</span>`}</div></div>`; }).join('')
+        : vide('Votre journal se remplira au fil des jours.')}
+      <p class="note-douce">Si vous traversez une période difficile, n’hésitez pas à en parler à un proche ou à un professionnel.</p></section>
+  </div></div>`;
+}
+
+/* ============================================================
+   OBJECTIFS
+   ============================================================ */
+function vueObjectifs() {
+  const act = objectifsActifs(), arch = S.objectifs.filter(o => o.archive);
+  return `<div class="vue">${titreVue('Mes <span>objectifs</span>', 'Des objectifs personnels et bienveillants. La progression se calcule toute seule.',
+    '<button class="btn plein" data-act="ajouter-objectif">🎯 Nouvel objectif</button>')}
+  <div class="grille g2">
+    <section class="carte"><h3><span class="e">🎯</span> En cours</h3><p class="chapo">⭐ = l’objectif affiché sur l’accueil.</p>
+      ${act.length ? act.map(o => carteObjectif(o)).join('') : vide('Aucun objectif pour le moment.')}</section>
+    <section class="carte"><h3><span class="e">✨</span> Idées d’objectifs</h3><p class="chapo">Un clic, et vous pourrez l’ajuster.</p>
+      <div class="pile" style="gap:8px">${TYPES_OBJECTIF.map(([k, e, l, u, c]) => `<button class="btn fin" style="justify-content:flex-start" data-act="ajouter-objectif" data-type="${k}">${e} ${l}${c ? ` <span class="muet" style="font-weight:500">· ${c} ${u}</span>` : ''}</button>`).join('')}</div>
+      ${arch.length ? `<div class="sous-titre" style="margin-top:16px">Archivés</div><div class="actions">${arch.map(o => `<button class="btn petit fin" data-act="modifier-objectif" data-id="${o.id}">${typeObjectif(o.type)[1]} ${esc(o.titre)}</button>`).join('')}</div>` : ''}</section>
+  </div></div>`;
+}
+
+/* ============================================================
+   PROGRESSION : semaine et mois
+   ============================================================ */
+function vueProgression() {
+  const semaine = U.periode === 'semaine';
+  let jours, titre;
+  if (semaine) {
+    const lundi = ajouteJours(lundiDe(auj()), U.decalage * 7); jours = joursSemaine(lundi);
+    titre = `Semaine du ${fmtJour(lundi)} au ${fmtJour(jours[6])}`;
+  } else {
+    const r = new Date(); r.setDate(1); r.setMonth(r.getMonth() + U.decalage);
+    const deb = isoJour(r), n = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate();
+    jours = Array.from({ length: n }, (_, i) => ajouteJours(deb, i));
+    titre = `${MOIS_L[r.getMonth()].replace(/^./, c => c.toUpperCase())} ${r.getFullYear()}`;
+  }
+  const passes = jours.filter(x => x <= auj());
+  const joursEau = passes.filter(x => verres(x)), eauMoy = joursEau.length ? somme(joursEau, verres) / joursEau.length : 0, nuits = passes.map(nuitDu).filter(Boolean);
+  const somMoy = nuits.length ? somme(nuits, dureeNuit) / nuits.length : 0, minTot = somme(passes, minutesDu);
+  const taux = passes.map(tauxHabitudes).filter(t => t != null), tauxMoy = taux.length ? somme(taux) / taux.length : null;
+  const ens = passes.map(x => S.energie[x]).filter(Boolean), enMoy = ens.length ? Math.round(somme(ens) / ens.length) : 0;
+  const defis = somme(passes, x => (S.defis[x] || []).length);
+  const lab = x => semaine ? lab7(x) : parseJour(x).getDate();
+  const opt = { mois: !semaine };
+  const niveau = t => t == null ? '' : t >= 1 ? 'n4' : t >= .66 ? 'n3' : t >= .33 ? 'n2' : t > 0 ? 'n1' : '';
+  let cal = '';
+  if (!semaine) {
+    const dec = (parseJour(jours[0]).getDay() + 6) % 7;
+    cal = `<div class="cal">${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => `<div class="t">${x}</div>`).join('')}${'<div class="j hors"></div>'.repeat(dec)}${jours.map(x => `<div class="j ${x <= auj() ? niveau(tauxHabitudes(x)) : ''}${x === auj() ? ' auj' : ''}" title="${fmtJour(x)}${tauxHabitudes(x) != null && x <= auj() ? ' : ' + Math.round(tauxHabitudes(x) * 100) + ' % des habitudes' : ''}">${parseJour(x).getDate()}</div>`).join('')}</div>
+      <div class="legende">Moins <i></i><i style="background:color-mix(in srgb,#8E7BD4 25%,var(--champ))"></i><i style="background:color-mix(in srgb,#8E7BD4 50%,var(--champ))"></i><i style="background:color-mix(in srgb,#8E7BD4 78%,var(--champ))"></i><i style="background:var(--degrade)"></i> Toutes</div>`;
+  }
+  return `<div class="vue">${titreVue('Ma <span>progression</span>', 'Regarder le chemin parcouru, sans jugement.')}
+  <div class="actions" style="margin-bottom:16px"><div class="sous-onglets" style="margin:0">
+      <button class="${semaine ? 'actif' : ''}" data-act="periode" data-p="semaine">Semaine</button><button class="${semaine ? '' : 'actif'}" data-act="periode" data-p="mois">Mois</button></div>
+    <button class="btn-rond" data-act="decaler" data-n="-1" title="Précédent">‹</button><b class="chiffre" style="font-size:18px">${titre}</b>
+    <button class="btn-rond" data-act="decaler" data-n="1" title="Suivant"${U.decalage >= 0 ? ' disabled style="opacity:.4"' : ''}>›</button>
+    ${U.decalage ? '<button class="lien" data-act="decaler" data-n="0">Revenir à aujourd’hui</button>' : ''}</div>
+  <section class="carte" style="margin-bottom:16px"><div class="chiffres">
+    <div><b>${eauMoy ? joli(eauMoy) : '—'}</b><small>💧 verres / jour suivi</small></div>
+    <div><b>${somMoy ? duree(somMoy) : '—'}</b><small>🌙 sommeil moyen</small></div>
+    <div><b>${minTot} min</b><small>🏃 d’activité</small></div>
+    <div><b>${tauxMoy == null ? '—' : Math.round(tauxMoy * 100) + ' %'}</b><small>✅ habitudes réalisées</small></div>
+    <div><b>${enMoy ? energie(enMoy)[1] + ' ' + energie(enMoy)[2] : '—'}</b><small>⚡ énergie moyenne</small></div>
+    <div><b>${defis}</b><small>🌱 mini-défis relevés</small></div>
+  </div></section>
+  <div class="grille g2">
+    <section class="carte"><h3><span class="e">💧</span> Hydratation</h3>${barres(jours.map(x => ({ v: verres(x), lab: lab(x), auj: x === auj(), titre: `${fmtJour(x)} : ${verres(x)} verres` })), Object.assign({ cible: R().objectifVerres, cls: 'eau' }, opt))}</section>
+    <section class="carte"><h3><span class="e">🌙</span> Sommeil (heures)</h3>${barres(jours.map(x => { const n = nuitDu(x); return { v: n ? Math.round(dureeNuit(n) / 6) / 10 : 0, lab: lab(x), auj: x === auj(), titre: n ? `${fmtJour(x)} : ${duree(dureeNuit(n))}` : fmtJour(x) }; }), Object.assign({ cible: R().objectifSommeil, fmt: joli }, opt))}</section>
+    <section class="carte"><h3><span class="e">🏃</span> Activité (minutes)</h3>${barres(jours.map(x => ({ v: minutesDu(x), lab: lab(x), auj: x === auj(), titre: `${fmtJour(x)} : ${minutesDu(x)} min` })), opt)}</section>
+    <section class="carte"><h3><span class="e">✅</span> Habitudes</h3>${semaine
+      ? barres(jours.map(x => { const t = x <= auj() ? tauxHabitudes(x) : null; return { v: t == null ? 0 : Math.round(t * 100), lab: lab(x), auj: x === auj(), titre: `${fmtJour(x)} : ${t == null ? '—' : Math.round(t * 100) + ' %'}` }; }), { fmt: v => v + '%', cible: 100 })
+      : cal}</section>
+  </div>
+  <p class="note-douce" style="margin-top:16px">🌸 ${esc(encouragementDuJour(3 + U.phrase))}</p></div>`;
+}
+
+/* ============================================================
+   NOTES PRIVÉES & MÉMO
+   ============================================================ */
+function vueNotes() {
+  const n = S.notes, masque = n.masquer && !U.devoile;
+  const case_ = (l, v) => `<div class="c"><div class="l">${l}</div><div class="v${v ? '' : ' vide-v'}">${v ? esc(v) : 'Non renseigné'}</div></div>`;
+  const prive = !n.active
+    ? `<div class="cadenas"><span class="e">🔒</span><h3 style="justify-content:center">Mes notes privées</h3>
+        <p class="ui muet" style="max-width:52ch;margin:0;font-size:13.5px">Groupe sanguin, allergies, contacts d’urgence, traitements à ne pas oublier… <b>uniquement si vous le souhaitez</b>.
+        Ces informations restent dans ce navigateur (et dans votre profil NaoGroup si vous êtes connecté·e). Rien n’est obligatoire.</p>
+        <button class="btn plein" data-act="activer-notes">Activer mes notes privées</button></div>`
+    : `<h3><span class="e">🔒</span> Mes notes privées
+        <span style="margin-left:auto;display:flex;gap:6px">${n.masquer ? `<button class="btn petit fin" data-act="devoiler">${U.devoile ? '🙈 Masquer' : '👁️ Afficher'}</button>` : ''}<button class="btn petit lavande" data-act="modifier-notes">✏️ Modifier</button></span></h3>
+      <p class="chapo">${n.masquer ? 'Floutées par défaut, pour les regards par-dessus l’épaule.' : 'Visibles à l’ouverture.'}</p>
+      <div class="fiche${masque ? ' masque' : ''}">${case_('🩸 Groupe sanguin', n.groupe)}${case_('⚠️ Allergies', n.allergies)}${case_('💊 Traitements à ne pas oublier', n.traitements)}${case_('📝 Autres informations', n.infos)}</div>
+      <div class="sous-titre" style="margin-top:16px">📞 Contacts d’urgence</div>
+      <div class="${masque ? 'masque' : ''}">${n.urgence.length ? n.urgence.map(c => `<div class="contact"><span class="ini">${esc(initiales(c.nom))}</span><div class="corps" style="flex:1;min-width:0"><div class="v"><b>${esc(c.nom)}</b>${c.lien ? ` · <span class="muet">${esc(c.lien)}</span>` : ''}</div></div>
+          ${c.tel ? `<a href="tel:${esc(c.tel.replace(/\s/g, ''))}" class="v">${esc(c.tel)}</a>` : ''}<button class="btn-rond" data-act="retirer-contact" data-id="${c.id}" title="Retirer">✕</button></div>`).join('') : '<div class="vide">Aucun contact d’urgence.</div>'}</div>
+      <div class="actions" style="margin-top:10px"><button class="btn petit fin" data-act="ajouter-contact">＋ Un contact d’urgence</button>
+        <button class="btn petit fin danger" data-act="desactiver-notes" style="margin-left:auto">Effacer mes notes privées</button></div>`;
+  const d = auj();
+  return `<div class="vue">${titreVue('Mes <span>notes</span> & mon mémo', 'Des informations à garder sous la main — rien de plus.')}
+  <div class="grille g2">
+    <section class="carte prive">${prive}</section>
+    <section class="carte"><h3><span class="e">💊</span> Mon mémo médicaments & vitamines <button class="btn petit plein" data-act="ajouter-memo" style="margin-left:auto">＋ Ajouter</button></h3>
+      <p class="chapo">Une liste pour ne pas oublier, à cocher chaque jour.</p>
+      ${S.memo.length ? S.memo.map(m => { const c = catMemo(m.categorie), f = !!m.pris[d]; return `<div class="ligne${f ? ' fait' : ''}">
+        <button type="button" class="coche-btn" data-act="memo-pris" data-id="${m.id}" aria-label="Marquer comme pris aujourd’hui">${COCHE}</button><span class="emo">${c[1]}</span>
+        <div class="corps"><div class="texte">${esc(m.nom)}</div><div class="meta"><span>${esc(c[2])}</span>${m.moments.map(k => `<span class="etiquette">${(MOMENTS.find(x => x[0] === k) || ['', k])[1]}</span>`).join('')}${m.note ? `<span>· ${esc(m.note)}</span>` : ''}</div></div>
+        <div class="outils"><button class="btn-rond" data-act="modifier-memo" data-id="${m.id}" title="Modifier">✏️</button></div></div>`; }).join('')
+        : vide('Votre mémo est vide.')}
+      <p class="note-douce">⚕️ <b>Ce mémo sert uniquement à ne rien oublier.</b> NaoSanté ne donne aucun conseil sur les médicaments, les doses ou les horaires :
+        suivez toujours les indications de votre médecin ou de votre pharmacien.</p></section>
+  </div></div>`;
+}
+
+/* ============================================================
+   RENDU
+   ============================================================ */
+const RENDUS = { aujourdhui: vueAujourdhui, hydratation: vueHydratation, sommeil: vueSommeil, activite: vueActivite, habitudes: vueHabitudes,
+  rdv: vueRdv, humeur: vueHumeur, objectifs: vueObjectifs, progression: vueProgression, notes: vueNotes };
+function rendre() {
+  $('#onglets').innerHTML = VUES.map(([k, e, l]) => `<button type="button" class="${U.vue === k ? 'actif' : ''}" data-act="vue" data-vue="${k}"><span class="e">${e}</span>${l}</button>`).join('');
+  $('#contenu').innerHTML = (RENDUS[U.vue] || vueAujourdhui)();
+}
+/* redessiner sans rejouer les animations d'entrée ni perdre le défilement */
+function maj() {
+  sauver();
+  const y = scrollY;
+  rendre();
+  $$('#contenu .vue, #contenu .carte').forEach(x => x.style.animation = 'none');
+  scrollTo(0, y);
+}
+</script>
+<script>
+/* ============================================================
+   NaoSanté — les séances chronométrées.
+   Des séries d'exercices avec un temps d'effort (ou un nombre de
+   répétitions), des pauses entre les séries et entre les exercices,
+   un lecteur guidé avec bips, et un minuteur de fractionné express.
+   Rien de médical : on bouge à son rythme et on s'arrête en cas de gêne.
+   ============================================================ */
+
+/* Les séances proposées : [emoji, nom, activité, repos entre exercices, préparation, exercices]
+   exercice : [emoji, nom, mode ('temps' | 'reps'), valeur (secondes ou répétitions), séries, repos entre séries (s)] */
+const SEANCES_PROPOSEES = [
+  ['🌅', 'Réveil musculaire', 'gym', 30, 10, [
+    ['🦵', 'Montées de genoux', 'temps', 30, 2, 15], ['🙆', 'Cercles de bras', 'temps', 30, 2, 15],
+    ['🏋️', 'Squats', 'reps', 10, 2, 30], ['🚶', 'Fentes alternées', 'reps', 10, 2, 30], ['🧱', 'Gainage', 'temps', 20, 2, 20]]],
+  ['💪', 'Renforcement maison', 'muscu', 60, 10, [
+    ['💪', 'Pompes (sur les genoux si besoin)', 'reps', 8, 3, 45], ['🏋️', 'Squats', 'reps', 12, 3, 45],
+    ['🌉', 'Pont fessier', 'reps', 12, 3, 40], ['🧱', 'Gainage', 'temps', 30, 3, 30], ['🦸', 'Superman', 'temps', 20, 2, 30]]],
+  ['🔥', 'Fractionné doux', 'course', 30, 10, [
+    ['🚶', 'Échauffement en marchant', 'temps', 180, 1, 0], ['🏃', 'Course légère', 'temps', 60, 6, 60], ['🌿', 'Retour au calme en marchant', 'temps', 180, 1, 0]]],
+  ['🧱', 'Gainage express', 'gym', 30, 10, [
+    ['🧱', 'Planche', 'temps', 30, 3, 20], ['↖️', 'Gainage latéral gauche', 'temps', 20, 2, 20],
+    ['↗️', 'Gainage latéral droit', 'temps', 20, 2, 20], ['🪲', 'Dead bug', 'temps', 30, 2, 20]]],
+  ['🚶', 'Marche active', 'marche', 0, 10, [
+    ['🚶', 'Marche rapide', 'temps', 120, 5, 60]]]
+];
+const EMOJIS_SEANCE = ['💪', '🔥', '🌅', '🧱', '🏃', '🚶', '🚴', '🤸', '🧘', '💃', '🏊', '⚡', '🎯', '🌿'];
+const EMOJIS_EXO = ['💪', '🏋️', '🦵', '🧱', '🌉', '🦸', '🏃', '🚶', '🙆', '🤸', '🪲', '🚴', '🧘', '⚡', '🌬️', '↖️', '↗️'];
+
+function seanceDepuisModele(m) {
+  const [emoji, nom, type, reposExercice, preparation, exos] = m;
+  return { id: uid(), emoji, nom, type, reposExercice, preparation,
+    exercices: exos.map(([e, n, mode, valeur, series, repos]) => ({ id: uid(), emoji: e, nom: n, mode, valeur, series, repos })) };
+}
+/* une répétition compte pour environ 3 secondes dans les estimations */
+const effortExo = x => x.mode === 'reps' ? nombre(x.valeur) * 3 : nombre(x.valeur);
+function dureeSeance(p) {
+  const ex = p.exercices || [];
+  return nombre(p.preparation) + somme(ex, x => nombre(x.series) * effortExo(x) + Math.max(0, nombre(x.series) - 1) * nombre(x.repos))
+    + Math.max(0, ex.length - 1) * nombre(p.reposExercice);
+}
+const totalSeries = p => somme(p.exercices || [], x => nombre(x.series));
+const fmtSec = s => { s = Math.max(0, Math.round(s)); return s >= 60 ? `${Math.floor(s / 60)}:${pad(s % 60)}` : `${s} s`; };
+const fmtChrono = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${pad(s % 60)}`; };
+const descExo = x => `${nombre(x.series)} × ${x.mode === 'reps' ? nombre(x.valeur) + ' répét.' : fmtSec(x.valeur)}${nombre(x.series) > 1 && nombre(x.repos) ? ` · pause ${fmtSec(x.repos)}` : ''}`;
+
+/* ============================================================
+   L'ÉCRAN : la section « séances » de la page Activité
+   ============================================================ */
+function sectionSport() {
+  const mes = S.programmes, proposees = SEANCES_PROPOSEES.filter(m => !mes.some(p => p.nom === m[1]));
+  const lundi = lundiDe(auj()), semaine = S.seances.filter(s => s.date >= lundi);
+  const f = S.fractionne;
+  const carte = (p, i, propose) => `<div class="seance${propose ? ' proposee' : ''}">
+      <div class="tete"><span class="emo">${esc(p.emoji)}</span><div style="min-width:0;flex:1"><div class="n">${esc(p.nom)}</div>
+        <div class="s">${pluriel(p.exercices.length, 'exercice')} · ${pluriel(totalSeries(p), 'série')} · ≈ ${Math.max(1, Math.round(dureeSeance(p) / 60))} min</div></div>
+        ${propose ? '<span class="etiquette ciel">proposée</span>' : `<button class="btn-rond" data-sp="modifier" data-id="${p.id}" title="Modifier la séance">✏️</button>`}</div>
+      <div class="exos">${p.exercices.slice(0, 4).map(x => `<span>${esc(x.emoji)} ${esc(x.nom)} <small>${descExo(x)}</small></span>`).join('')}${p.exercices.length > 4 ? `<span class="muet">+ ${p.exercices.length - 4} autres…</span>` : ''}</div>
+      <div class="actions"><button class="btn plein petit" data-sp="lancer" ${propose ? `data-modele="${i}"` : `data-id="${p.id}"`}>▶ Lancer</button>
+        ${propose ? `<button class="btn fin petit" data-sp="adopter" data-modele="${i}">＋ Garder et adapter</button>` : ''}</div></div>`;
+  return `<section class="carte pleine sport">
+    <h3><span class="e">⏱️</span> Mes séances chronométrées
+      <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button class="btn petit fin" data-sp="son" title="Bips du minuteur">${S.reglages.son === false ? '🔇 Son coupé' : '🔊 Son activé'}</button>
+      <button class="btn petit plein" data-sp="creer">＋ Créer une séance</button></span></h3>
+    <p class="chapo">Des séries d’exercices avec leur temps d’effort et leurs pauses : lancez, le minuteur vous guide et note la séance dans votre activité.</p>
+    <div class="chiffres" style="margin-bottom:14px">
+      <div><b>${semaine.length}</b><small>séance${semaine.length > 1 ? 's' : ''} cette semaine</small></div>
+      <div><b>${somme(semaine, s => nombre(s.series))}</b><small>séries réalisées</small></div>
+      <div><b>${fmtChrono(somme(semaine, s => nombre(s.effort)))}</b><small>temps d’effort</small></div>
+      <div><b>${fmtChrono(somme(semaine, s => nombre(s.duree)))}</b><small>durée totale, pauses comprises</small></div>
+    </div>
+    <div class="seances">
+      ${mes.map(p => carte(p, 0, false)).join('')}
+      ${proposees.map(m => carte(seanceDepuisModele(m), SEANCES_PROPOSEES.indexOf(m), true)).join('')}
+      <form class="seance fractionne" data-sp-form="fractionne">
+        <div class="tete"><span class="emo">⚡</span><div><div class="n">Minuteur fractionné</div><div class="s">Effort / pause, répété autant de fois que vous voulez</div></div></div>
+        <div class="reglage-fr">
+          <label>Effort<input type="number" name="effort" min="5" step="5" value="${nombre(f.effort)}"><small>sec.</small></label>
+          <label>Pause<input type="number" name="pause" min="0" step="5" value="${nombre(f.pause)}"><small>sec.</small></label>
+          <label>Tours<input type="number" name="tours" min="1" step="1" value="${nombre(f.tours)}"><small>fois</small></label>
+        </div>
+        <div class="actions"><button class="btn plein petit" type="submit">▶ Démarrer</button><span class="ui muet" style="font-size:12px">≈ ${fmtChrono(nombre(f.tours) * nombre(f.effort) + Math.max(0, nombre(f.tours) - 1) * nombre(f.pause) + 5)}</span></div>
+      </form>
+    </div>
+    ${S.seances.length ? `<div class="sous-titre" style="margin-top:16px">Mes dernières séances</div>
+      <div class="historique">${S.seances.slice(-5).reverse().map(s => `<div class="ligne"><span class="emo">${esc(s.emoji || '⏱️')}</span>
+        <div class="corps"><div class="texte"><b>${esc(s.nom)}</b> · ${fmtChrono(s.duree)}</div>
+        <div class="meta"><span>${quand(s.date)}</span><span>· ${pluriel(nombre(s.series), 'série')}</span><span>· ${fmtChrono(s.effort)} d’effort</span>${s.complete ? '' : '<span class="etiquette">arrêtée avant la fin</span>'}</div></div></div>`).join('')}</div>` : ''}
+    <p class="note-douce">⏱️ Les séances proposées sont des exemples à adapter librement. Échauffez-vous, <b>bougez à votre rythme</b> et arrêtez-vous en cas de douleur ou de malaise.</p>
+  </section>`;
+}
+
+/* ============================================================
+   L'ÉDITEUR DE SÉANCE
+   ============================================================ */
+function fenSeance(p) {
+  const nouvelle = !p;
+  const brouillon = JSON.parse(JSON.stringify(p || { id: uid(), emoji: '💪', nom: '', type: 'gym', reposExercice: 30, preparation: 10,
+    exercices: [{ id: uid(), emoji: '💪', nom: '', mode: 'temps', valeur: 30, series: 3, repos: 30 }] }));
+  const lignes = () => brouillon.exercices.map((x, i) => `<div class="exo-ligne" data-i="${i}">
+      <select data-k="emoji" aria-label="Symbole">${EMOJIS_EXO.map(e => `<option${e === x.emoji ? ' selected' : ''}>${e}</option>`).join('')}</select>
+      <input data-k="nom" value="${esc(x.nom)}" placeholder="Exercice (ex. : squats)" aria-label="Nom de l’exercice">
+      <label><span>Séries</span><input data-k="series" type="number" min="1" step="1" value="${nombre(x.series)}"></label>
+      <label><span>Effort</span><select data-k="mode"><option value="temps"${x.mode === 'temps' ? ' selected' : ''}>secondes</option><option value="reps"${x.mode === 'reps' ? ' selected' : ''}>répétitions</option></select></label>
+      <label><span>${x.mode === 'reps' ? 'Répét.' : 'Durée (s)'}</span><input data-k="valeur" type="number" min="1" step="${x.mode === 'reps' ? 1 : 5}" value="${nombre(x.valeur)}"></label>
+      <label><span>Pause (s)</span><input data-k="repos" type="number" min="0" step="5" value="${nombre(x.repos)}"></label>
+      <div class="fl"><button type="button" class="btn-rond" data-e="haut" title="Monter"${i ? '' : ' disabled'}>↑</button><button type="button" class="btn-rond" data-e="bas" title="Descendre"${i < brouillon.exercices.length - 1 ? '' : ' disabled'}>↓</button><button type="button" class="btn-rond" data-e="retirer" title="Retirer">✕</button></div>
+    </div>`).join('');
+  ouvrirModale(`<form id="formSeance" novalidate>
+    <h3 id="modaleTitre">${nouvelle ? '⏱️ Créer une séance' : '✏️ Modifier la séance'}</h3>
+    <p class="sous">Chaque exercice : un nombre de séries, un temps d’effort (ou des répétitions) et une pause entre les séries.</p>
+    <div class="champs">
+      <div class="champ large"><label for="sNom">Nom de la séance</label><input id="sNom" name="nom" value="${esc(brouillon.nom)}" placeholder="Ex. : mon renfo du matin"></div>
+      <div class="champ"><label for="sType">Compte comme</label><select id="sType" name="type">${ACTIVITES.map(a => `<option value="${a[0]}"${a[0] === brouillon.type ? ' selected' : ''}>${a[1]} ${a[2]}</option>`).join('')}</select></div>
+      <div class="champ"><label for="sEmoji">Symbole</label><select id="sEmoji" name="emoji">${EMOJIS_SEANCE.map(e => `<option${e === brouillon.emoji ? ' selected' : ''}>${e}</option>`).join('')}</select></div>
+      <div class="champ"><label for="sPrep">Préparation avant de commencer (s)</label><input id="sPrep" name="preparation" type="number" min="0" step="5" value="${nombre(brouillon.preparation)}"></div>
+      <div class="champ"><label for="sRepos">Pause entre deux exercices (s)</label><input id="sRepos" name="reposExercice" type="number" min="0" step="5" value="${nombre(brouillon.reposExercice)}"></div>
+    </div>
+    <div class="sous-titre" style="margin-top:16px">Les exercices <span class="muet" id="sEstim" style="text-transform:none;letter-spacing:0;font-weight:600"></span></div>
+    <div id="sExos"></div>
+    <button type="button" class="btn fin petit" data-e="ajouter" style="margin-top:8px">＋ Ajouter un exercice</button>
+    <div class="pied-fen">${nouvelle ? '' : '<button type="button" class="btn fin danger" data-e="supprimer">Supprimer</button>'}
+      <div class="droite"><button type="button" class="btn fin" data-e="fermer">Annuler</button><button type="submit" class="btn plein">Enregistrer</button></div></div>
+  </form>`, fen => {
+    const f = fen.querySelector('form'), zone = fen.querySelector('#sExos');
+    const lireEntete = () => { ['nom', 'type', 'emoji'].forEach(k => brouillon[k] = f.elements[k].value.trim()); ['preparation', 'reposExercice'].forEach(k => brouillon[k] = Math.max(0, Math.round(nombre(f.elements[k].value)))); };
+    const estimer = () => { lireEntete(); fen.querySelector('#sEstim').textContent = `· ${pluriel(totalSeries(brouillon), 'série')} · ≈ ${Math.max(1, Math.round(dureeSeance(brouillon) / 60))} min`; };
+    const dessiner = () => { zone.innerHTML = lignes(); estimer(); };
+    dessiner();
+    f.addEventListener('input', e => {
+      const l = e.target.closest('.exo-ligne');
+      if (l) { const x = brouillon.exercices[l.dataset.i], k = e.target.dataset.k; x[k] = ['series', 'valeur', 'repos'].includes(k) ? Math.max(k === 'repos' ? 0 : 1, Math.round(nombre(e.target.value))) : e.target.value; }
+      estimer();
+    });
+    f.addEventListener('change', e => { if (e.target.dataset.k === 'mode') { const x = brouillon.exercices[e.target.closest('.exo-ligne').dataset.i]; x.mode = e.target.value; x.valeur = x.mode === 'reps' ? 10 : 30; dessiner(); } });
+    f.addEventListener('click', e => {
+      const b = e.target.closest('[data-e]'); if (!b) return;
+      const l = b.closest('.exo-ligne'), i = l ? Number(l.dataset.i) : -1, ex = brouillon.exercices;
+      if (b.dataset.e === 'ajouter') { const der = ex[ex.length - 1]; ex.push({ id: uid(), emoji: '💪', nom: '', mode: 'temps', valeur: 30, series: der ? der.series : 3, repos: der ? der.repos : 30 }); dessiner(); zone.querySelector('.exo-ligne:last-child input[data-k=nom]').focus(); }
+      if (b.dataset.e === 'retirer') { ex.splice(i, 1); dessiner(); }
+      if (b.dataset.e === 'haut' && i > 0) { [ex[i - 1], ex[i]] = [ex[i], ex[i - 1]]; dessiner(); }
+      if (b.dataset.e === 'bas' && i < ex.length - 1) { [ex[i + 1], ex[i]] = [ex[i], ex[i + 1]]; dessiner(); }
+      if (b.dataset.e === 'fermer') fermerModale();
+      if (b.dataset.e === 'supprimer') { instantane(); retirer(S.programmes, p.id); fermerModale(); maj(); toast('Séance supprimée.', { annuler: true }); }
+    });
+    f.addEventListener('submit', e => {
+      e.preventDefault(); lireEntete();
+      brouillon.exercices = brouillon.exercices.filter(x => x.nom.trim());
+      if (!brouillon.nom) { toast('Donnez un nom à votre séance.', { alerte: true }); f.elements.nom.focus(); return; }
+      if (!brouillon.exercices.length) { toast('Ajoutez au moins un exercice avec un nom.', { alerte: true }); dessiner(); return; }
+      if (nouvelle) S.programmes.push(brouillon); else Object.assign(p, brouillon);
+      fermerModale(); maj(); toast(`⏱️ Séance « ${brouillon.nom} » enregistrée.`);
+    });
+  }, true);
+}
+
+/* ============================================================
+   LE SON : de petits bips, sans aucun fichier
+   ============================================================ */
+let audio = null;
+function bip(freq = 880, duree = .12, volume = .18) {
+  if (S.reglages.son === false) return;
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(volume, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + duree);
+    o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t + duree + .02);
+  } catch (e) {}
+}
+const vibrer = m => { try { if (navigator.vibrate) navigator.vibrate(m); } catch (e) {} };
+
+/* ============================================================
+   LE LECTEUR : préparation → effort → pause → … → bravo
+   ============================================================ */
+function etapesDe(p) {
+  const et = [], ex = p.exercices;
+  if (nombre(p.preparation)) et.push({ phase: 'pret', duree: nombre(p.preparation), x: ex[0], serie: 1 });
+  ex.forEach((x, i) => {
+    const n = Math.max(1, nombre(x.series));
+    for (let s = 1; s <= n; s++) {
+      et.push({ phase: 'effort', duree: x.mode === 'reps' ? 0 : nombre(x.valeur), x, i, serie: s, n });
+      if (s < n && nombre(x.repos)) et.push({ phase: 'repos', duree: nombre(x.repos), x, i, serie: s + 1, n });
+    }
+    if (i < ex.length - 1 && nombre(p.reposExercice)) et.push({ phase: 'transition', duree: nombre(p.reposExercice), x: ex[i + 1], i: i + 1, serie: 1, n: Math.max(1, nombre(ex[i + 1].series)) });
+  });
+  return et;
+}
+let lecteur = null;
+function lancerSeance(p) {
+  if (!p || !p.exercices.length) return;
+  const etapes = etapesDe(p), C = 2 * Math.PI * 52;
+  const L = lecteur = { p, etapes, k: 0, reste: etapes[0].duree, ecoule: 0, total: 0, effort: 0, series: 0, pause: false, minuteur: null, verrou: null };
+  const LIB = { pret: 'Préparez-vous', effort: 'Effort', repos: 'Pause', transition: 'Pause — exercice suivant' };
+  const suivante = () => etapes.slice(L.k + 1).find(e => e.phase === 'effort');
+  const dessiner = () => {
+    const e = etapes[L.k], reps = e.phase === 'effort' && !e.duree, nx = suivante();
+    const pct = reps ? 1 : e.duree ? L.reste / e.duree : 0;
+    const fini = etapes.filter((x, j) => j < L.k && x.phase === 'effort').length, tot = etapes.filter(x => x.phase === 'effort').length;
+    $('#modaleFen').innerHTML = `<div class="lecteur phase-${e.phase}${L.pause ? ' en-pause' : ''}">
+      <div class="haut-l"><span class="emo">${esc(p.emoji)}</span><div style="flex:1;min-width:0"><b id="modaleTitre">${esc(p.nom)}</b>
+        <div class="ui muet" style="font-size:12px">Série ${fini + (e.phase === 'effort' ? 1 : 0)} / ${tot} · écoulé <span data-l="total">${fmtChrono(L.total)}</span></div></div>
+        <button class="btn-rond" data-l="son" title="Son">${S.reglages.son === false ? '🔇' : '🔊'}</button></div>
+      <div class="progres-l"><i style="width:${(fini / tot * 100).toFixed(1)}%"></i></div>
+      <div class="phase-l">${LIB[e.phase]}</div>
+      <div class="cadran"><svg viewBox="0 0 120 120"><circle class="fondc" cx="60" cy="60" r="52"/>
+          <circle class="valc" cx="60" cy="60" r="52" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - pct)).toFixed(1)}"/></svg>
+        <div class="lab">${reps ? `<b>${nombre(e.x.valeur)}</b><span>répétitions</span><small data-l="ecoule">${fmtChrono(L.ecoule)}</small>` : `<b data-l="reste">${fmtChrono(L.reste)}</b><span>${e.phase === 'effort' ? 'on tient bon' : e.phase === 'pret' ? 'on se met en place' : 'on respire'}</span>`}</div></div>
+      <div class="exo-l"><span class="e">${esc(e.x.emoji)}</span>${esc(e.x.nom)}</div>
+      <div class="ui muet serie-l">${e.phase === 'pret' ? `Premier exercice · ${descExo(e.x)}` : `Série ${e.serie} sur ${e.n}${e.phase === 'effort' ? '' : ' à venir'}`}</div>
+      ${nx && e.phase === 'effort' ? `<div class="ensuite">Ensuite : ${nx.x === e.x ? `pause ${fmtSec(e.x.repos)}, puis série ${nx.serie}` : `${esc(nx.x.emoji)} ${esc(nx.x.nom)}`}</div>` : ''}
+      <div class="commandes">
+        <button class="btn fin" data-l="stop">■ Arrêter</button>
+        ${e.phase !== 'effort' ? '<button class="btn fin" data-l="plus">+15 s</button>' : ''}
+        ${reps ? '<button class="btn plein grand-btn" data-l="suivant">✓ Série terminée</button>'
+               : `<button class="btn ${L.pause ? 'plein' : 'lavande'}" data-l="pause">${L.pause ? '▶ Reprendre' : '⏸ Pause'}</button><button class="btn fin" data-l="suivant">Passer ⏭</button>`}
+      </div></div>`;
+  };
+  const entrer = () => {
+    const e = etapes[L.k];
+    L.reste = e.duree; L.ecoule = 0;
+    if (e.phase === 'effort') { bip(1046, .25, .22); vibrer(200); } else { bip(660, .2); vibrer([80, 60, 80]); }
+    dessiner();
+  };
+  const avancer = () => {
+    const e = etapes[L.k];
+    if (e.phase === 'effort') { L.series++; L.effort += e.duree || L.ecoule; }
+    L.k++;
+    if (L.k >= etapes.length) return terminer(true);
+    entrer();
+  };
+  const terminer = complete => {
+    clearInterval(L.minuteur); L.minuteur = null;
+    try { if (L.verrou) L.verrou.release(); } catch (e) {}
+    if (complete) { bip(784, .15); setTimeout(() => bip(988, .15), 170); setTimeout(() => bip(1318, .35), 340); vibrer([120, 80, 120, 80, 240]); }
+    const assez = L.effort >= 30 || L.series >= 1;
+    $('#modaleFen').innerHTML = `<div class="cadenas"><span class="e">${complete ? '🏅' : '🌿'}</span>
+      <h3 id="modaleTitre" style="justify-content:center">${complete ? 'Séance terminée, bravo !' : 'Séance arrêtée'}</h3>
+      <div class="chiffres" style="width:100%;max-width:440px">
+        <div><b>${fmtChrono(L.total)}</b><small>durée totale</small></div><div><b>${L.series}</b><small>série${L.series > 1 ? 's' : ''}</small></div><div><b>${fmtChrono(L.effort)}</b><small>d’effort</small></div></div>
+      <p class="ui muet" style="margin:0;font-size:13px">${complete ? 'Prenez le temps de boire un verre d’eau et de vous étirer doucement.' : assez ? 'Chaque série compte. Voulez-vous garder ce qui a été fait ?' : 'Pas de souci : on recommencera quand vous voudrez.'}</p>
+      <div class="actions" style="justify-content:center">${assez ? `<button class="btn plein" data-l="noter">✓ ${complete ? 'Noter dans mon activité' : 'Garder ce qui a été fait'}</button>` : ''}<button class="btn fin" data-l="fermer">Fermer</button></div></div>`;
+    L.fin = complete;
+    if (complete) noter();
+  };
+  const noter = () => {
+    if (L.note) return; L.note = true;
+    const min = Math.max(1, Math.round(L.total / 60));
+    S.activites.push({ id: uid(), date: auj(), type: p.type || 'gym', duree: min, intensite: 'moderee', note: `Séance « ${p.nom} » · ${pluriel(L.series, 'série')}` });
+    S.seances.push({ id: uid(), date: auj(), nom: p.nom, emoji: p.emoji, duree: Math.round(L.total), effort: Math.round(L.effort), series: L.series, complete: !!L.fin });
+    sauver();
+    const b = $('#modaleFen [data-l="noter"]'); if (b) { b.disabled = true; b.textContent = `✓ ${min} min ajoutées à votre activité`; }
+  };
+  ouvrirModale('', fen => {
+    fen.classList.add('large');
+    entrer();
+    fen.onclick = ev => {
+      const b = ev.target.closest('[data-l]'); if (!b) return;
+      const a = b.dataset.l;
+      if (a === 'pause') { L.pause = !L.pause; dessiner(); }
+      if (a === 'suivant') avancer();
+      if (a === 'plus') { L.reste += 15; etapes[L.k].duree += 15; dessiner(); }
+      if (a === 'son') { S.reglages.son = S.reglages.son === false; sauver(); dessiner(); if (S.reglages.son) bip(); }
+      if (a === 'stop') { if (L.minuteur) terminer(false); else fermerModale(); }
+      if (a === 'noter') noter();
+      if (a === 'fermer') fermerModale();
+    };
+  });
+  fermetureModale = () => { clearInterval(L.minuteur); try { if (L.verrou) L.verrou.release(); } catch (e) {} $('#modaleFen').onclick = null; lecteur = null; rendre(); };
+  /* garder l'écran allumé pendant la séance, si le navigateur le permet */
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(v => { L.verrou = v; }).catch(() => {}); } catch (e) {}
+  L.minuteur = setInterval(() => {
+    if (L.pause || !$('#modale').classList.contains('ouvert')) return;
+    const e = etapes[L.k];
+    L.total++;
+    const t = $('#modaleFen [data-l="total"]'); if (t) t.textContent = fmtChrono(L.total);
+    if (e.phase === 'effort' && !e.duree) { L.ecoule++; const z = $('#modaleFen [data-l="ecoule"]'); if (z) z.textContent = fmtChrono(L.ecoule); return; }
+    L.reste--;
+    if (L.reste <= 0) return avancer();
+    if (L.reste <= 3) bip(L.reste === 1 ? 740 : 620, .09, .15);
+    const r = $('#modaleFen [data-l="reste"]'), c = $('#modaleFen .cadran .valc');
+    if (r) r.textContent = fmtChrono(L.reste);
+    if (c) c.setAttribute('stroke-dashoffset', (C * (1 - L.reste / e.duree)).toFixed(1));
+  }, 1000);
+}
+
+/* ============================================================
+   LES CLICS DE LA SECTION
+   ============================================================ */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-sp]'); if (!b || b.disabled) return;
+  const a = b.dataset.sp;
+  const prog = () => b.dataset.id ? trouver(S.programmes, b.dataset.id) : seanceDepuisModele(SEANCES_PROPOSEES[Number(b.dataset.modele)]);
+  if (a === 'lancer') { bip(0, .001, 0); lancerSeance(prog()); }
+  if (a === 'modifier') fenSeance(trouver(S.programmes, b.dataset.id));
+  if (a === 'creer') fenSeance();
+  if (a === 'adopter') { const p = prog(); S.programmes.push(p); maj(); fenSeance(p); }
+  if (a === 'son') { S.reglages.son = S.reglages.son === false; maj(); if (S.reglages.son) bip(); }
+});
+document.addEventListener('submit', e => {
+  const f = e.target.closest('[data-sp-form="fractionne"]'); if (!f) return;
+  e.preventDefault();
+  const effort = Math.max(5, Math.round(nombre(f.effort.value))), pause = Math.max(0, Math.round(nombre(f.pause.value))), tours = Math.max(1, Math.round(nombre(f.tours.value)));
+  S.fractionne = { effort, pause, tours }; sauver();
+  lancerSeance({ id: 'fractionne', emoji: '⚡', nom: `Fractionné ${fmtSec(effort)} / ${fmtSec(pause)}`, type: 'gym', reposExercice: 0, preparation: 5,
+    exercices: [{ id: 'fr', emoji: '⚡', nom: 'Effort', mode: 'temps', valeur: effort, series: tours, repos: pause }] });
+});
+</script>
+<script>
+/* ============================================================
+   NaoSanté — les actions, les fenêtres, la sauvegarde et le décor.
+   ============================================================ */
+function allerA(v) { U.vue = v; U.decalage = 0; if (location.hash.slice(1) !== v) history.replaceState(null, '', '#' + v); rendre(); scrollTo({ top: 0, behavior: 'smooth' }); }
+const optionsDe = t => t.map(x => [x[0], x[1] + ' ' + x[2]]);
+
+/* ---------- hydratation ---------- */
+function boire(e) {
+  S.eau[auj()] = verres() + 1; maj();
+  if (e) eclat(e.clientX, e.clientY, ['💧', '·', '✧', '💧']);
+  if (verres() === R().objectifVerres) toast('🎉 Objectif d’hydratation atteint pour aujourd’hui. Bravo !');
+  else toast(`💧 ${verres()} / ${R().objectifVerres} verres — un de plus, en douceur.`);
+}
+
+/* ---------- les fenêtres ---------- */
+function fenHabitude(h) {
+  const nouvelle = !h;
+  formulaire({
+    titre: nouvelle ? '✅ Ajouter une habitude' : '✏️ Modifier l’habitude',
+    sous: 'Une habitude quotidienne, simple et atteignable.',
+    valeurs: h || { emoji: '💧' },
+    champs: [
+      { k: 'nom', l: 'Mon habitude', ph: 'Ex. : boire un verre d’eau au réveil', large: true },
+      { k: 'emoji', l: 'Son symbole', t: 'emoji', o: EMOJIS_HABITUDE },
+      ...(nouvelle ? [] : [{ k: 'archive', l: 'Mettre en pause (elle ne compte plus dans la journée, ses séries sont gardées)', t: 'case' }])
+    ],
+    supprimer: nouvelle ? null : () => { instantane(); retirer(S.habitudes, h.id); maj(); toast('Habitude supprimée.', { annuler: true }); },
+    enregistrer: r => {
+      if (!r.nom) { toast('Donnez un nom à votre habitude.', { alerte: true }); return false; }
+      if (nouvelle) S.habitudes.push({ id: uid(), nom: r.nom, emoji: r.emoji, cree: auj() });
+      else Object.assign(h, r);
+      maj(); toast(nouvelle ? '✅ Nouvelle habitude ajoutée. À vous de jouer !' : 'Habitude mise à jour.');
+    }
+  });
+}
+function fenRdv(r, type) {
+  const nouveau = !r;
+  formulaire({
+    titre: nouveau ? '📅 Ajouter un rendez-vous' : '✏️ Modifier le rendez-vous',
+    sous: 'Médical, dentaire, optique ou de suivi.',
+    valeurs: r || { type: type || 'medical', date: ajouteJours(auj(), 7) },
+    champs: [
+      { k: 'type', l: 'Type', t: 'select', o: optionsDe(TYPES_RDV) },
+      { k: 'titre', l: 'Intitulé', ph: 'Ex. : contrôle annuel' },
+      { k: 'date', l: 'Date', t: 'date' },
+      { k: 'heure', l: 'Heure', t: 'time' },
+      { k: 'avec', l: 'Avec', ph: 'Dr Martin, cabinet…' },
+      { k: 'lieu', l: 'Lieu', ph: 'Adresse, ville…' },
+      { k: 'note', l: 'Note', t: 'textarea', ph: 'Documents à apporter, questions à poser…' }
+    ],
+    supprimer: nouveau ? null : () => { instantane(); retirer(S.rdv, r.id); maj(); toast('Rendez-vous supprimé.', { annuler: true }); },
+    enregistrer: v => {
+      if (!v.date) { toast('Indiquez la date du rendez-vous.', { alerte: true }); return false; }
+      if (nouveau) S.rdv.push(Object.assign({ id: uid() }, v)); else Object.assign(r, v);
+      maj(); toast(`📅 Rendez-vous noté ${quand(v.date)}.`);
+    }
+  });
+}
+function fenRappel(r, type) {
+  const nouveau = !r;
+  formulaire({
+    titre: nouveau ? '🔔 Ajouter un rappel' : '✏️ Modifier le rappel',
+    sous: 'Renouveler une ordonnance, prendre rendez-vous, effectuer un contrôle…',
+    valeurs: r || { type: type || 'ordonnance', date: ajouteJours(auj(), 14), texte: type ? typeRappel(type)[2] : '' },
+    champs: [
+      { k: 'type', l: 'Type', t: 'select', o: optionsDe(TYPES_RAPPEL) },
+      { k: 'date', l: 'À faire avant le', t: 'date' },
+      { k: 'texte', l: 'Mon rappel', ph: 'Ex. : renouveler l’ordonnance chez le médecin traitant', large: true }
+    ],
+    supprimer: nouveau ? null : () => { instantane(); retirer(S.rappels, r.id); maj(); toast('Rappel supprimé.', { annuler: true }); },
+    enregistrer: v => {
+      if (!v.texte) v.texte = typeRappel(v.type)[2];
+      if (nouveau) S.rappels.push(Object.assign({ id: uid(), fait: false }, v)); else Object.assign(r, v);
+      maj(); toast('🔔 Rappel enregistré.');
+    }
+  });
+}
+function fenActivite(a, type) {
+  const nouvelle = !a;
+  formulaire({
+    titre: nouvelle ? `${activite(type || 'marche')[1]} Ajouter une activité` : '✏️ Modifier l’activité',
+    sous: 'Chaque minute compte, à votre rythme.',
+    valeurs: a || { type: type || 'marche', date: auj(), duree: type === 'etirements' ? 10 : 30, intensite: 'douce' },
+    champs: [
+      { k: 'type', l: 'Activité', t: 'select', o: optionsDe(ACTIVITES) },
+      { k: 'date', l: 'Date', t: 'date' },
+      { k: 'duree', l: 'Durée (minutes)', t: 'number', pas: 1 },
+      { k: 'intensite', l: 'Intensité ressentie', t: 'select', o: INTENSITES },
+      { k: 'note', l: 'Note', ph: 'Au parc, avec une amie…', large: true }
+    ],
+    supprimer: nouvelle ? null : () => { instantane(); retirer(S.activites, a.id); maj(); toast('Activité supprimée.', { annuler: true }); },
+    enregistrer: v => {
+      if (!v.duree) { toast('Indiquez une durée en minutes.', { alerte: true }); return false; }
+      if (nouvelle) S.activites.push(Object.assign({ id: uid() }, v)); else Object.assign(a, v);
+      maj(); toast(`${activite(v.type)[1]} ${v.duree} min ajoutées. Bien joué !`);
+    }
+  });
+}
+function fenNuit(n) {
+  const nouvelle = !n;
+  formulaire({
+    titre: nouvelle ? '🌙 Noter ma nuit' : '✏️ Modifier la nuit',
+    sous: 'La nuit est rangée au jour du réveil.',
+    valeurs: n || { date: auj(), coucher: R().coucherCible || '23:00', lever: '07:00', qualite: '' },
+    champs: [
+      { k: 'date', l: 'Jour du réveil', t: 'date', large: true },
+      { k: 'coucher', l: 'Heure de coucher', t: 'time' },
+      { k: 'lever', l: 'Heure de réveil', t: 'time' },
+      { k: 'qualite', l: 'Mon ressenti au réveil', t: 'select', o: [['', '— Je ne sais pas —'], ...QUALITES] },
+      { k: 'note', l: 'Note', ph: 'Réveillé·e une fois, rêve étrange…' }
+    ],
+    supprimer: nouvelle ? null : () => { instantane(); retirer(S.sommeil, n.id); maj(); toast('Nuit supprimée.', { annuler: true }); },
+    enregistrer: v => {
+      if (!v.date || !v.coucher || !v.lever) { toast('Indiquez le jour, l’heure de coucher et celle de réveil.', { alerte: true }); return false; }
+      v.qualite = Number(v.qualite) || 0;
+      const dejaLa = nuitDu(v.date);
+      if (nouvelle && dejaLa) Object.assign(dejaLa, v);
+      else if (nouvelle) S.sommeil.push(Object.assign({ id: uid() }, v));
+      else Object.assign(n, v);
+      maj(); toast(`🌙 ${duree(dureeNuit(v))} de sommeil notées.`);
+    }
+  });
+}
+function fenObjectif(o, type) {
+  const nouveau = !o, t = typeObjectif(o ? o.type : type || 'bouger');
+  formulaire({
+    titre: nouveau ? '🎯 Nouvel objectif' : '✏️ Modifier l’objectif',
+    sous: 'Choisissez une cible douce : on peut toujours l’ajuster ensuite.',
+    valeurs: o || { type: t[0], titre: t[2], cible: t[4] || '', debut: auj() },
+    champs: [
+      { k: 'type', l: 'Type d’objectif', t: 'select', o: TYPES_OBJECTIF.map(x => [x[0], x[1] + ' ' + x[2]]) },
+      { k: 'titre', l: 'Intitulé', ph: 'Ex. : mieux dormir' },
+      { k: 'cible', l: 'Cible', t: 'number', aide: 'Sommeil : heures par nuit · Souplesse : séances par semaine · Bouger : minutes par semaine · Eau : verres par jour · Personnel : inutile' },
+      { k: 'fin', l: 'Jusqu’au (facultatif)', t: 'date' },
+      ...(nouveau ? [] : [{ k: 'archive', l: 'Archiver cet objectif', t: 'case' }])
+    ],
+    apres: fen => {
+      const s = fen.querySelector('[name=type]'), ti = fen.querySelector('[name=titre]'), c = fen.querySelector('[name=cible]');
+      s.addEventListener('change', () => { const x = typeObjectif(s.value); if (!ti.value || TYPES_OBJECTIF.some(y => y[2] === ti.value)) ti.value = x[2]; c.value = x[4] || ''; });
+    },
+    supprimer: nouveau ? null : () => { instantane(); retirer(S.objectifs, o.id); maj(); toast('Objectif supprimé.', { annuler: true }); },
+    enregistrer: v => {
+      if (!v.titre) v.titre = typeObjectif(v.type)[2];
+      if (nouveau) { S.objectifs.push(Object.assign({ id: uid(), pas: [], vedette: !objectifsActifs().length }, v)); }
+      else Object.assign(o, v);
+      maj(); toast(nouveau ? '🎯 Objectif créé. Un pas après l’autre !' : 'Objectif mis à jour.');
+    }
+  });
+}
+function fenReglages() {
+  formulaire({
+    titre: '⚙️ Mes réglages',
+    sous: 'Vos objectifs à vous : il n’y a pas de bonne ou de mauvaise valeur.',
+    valeurs: R(),
+    champs: [
+      { k: 'prenom', l: 'Mon prénom (facultatif)', ph: 'Pour un bonjour personnalisé', large: true },
+      { k: 'objectifVerres', l: '💧 Verres d’eau par jour', t: 'number', pas: 1 },
+      { k: 'verreMl', l: '🥛 Taille d’un verre (ml)', t: 'number', pas: 10 },
+      { k: 'objectifSommeil', l: '🌙 Heures de sommeil visées', t: 'number', pas: .5 },
+      { k: 'coucherCible', l: '🛏️ Heure de coucher visée', t: 'time' },
+      { k: 'objectifMinutes', l: '🏃 Minutes d’activité par semaine', t: 'number', pas: 5 },
+      { k: 'objectifEtirements', l: '🙆 Séances d’étirements par semaine', t: 'number', pas: 1 }
+    ],
+    enregistrer: v => {
+      Object.assign(S.reglages, v, {
+        objectifVerres: Math.max(1, Math.round(v.objectifVerres) || 8), verreMl: Math.max(50, v.verreMl || 250),
+        objectifSommeil: borne(v.objectifSommeil || 8, 3, 14), objectifMinutes: Math.max(10, Math.round(v.objectifMinutes) || 150),
+        objectifEtirements: borne(Math.round(v.objectifEtirements) || 4, 1, 7)
+      });
+      maj(); toast('Réglages enregistrés.');
+    }
+  });
+}
+function fenEtirement(e) {
+  const nouveau = !e;
+  formulaire({
+    titre: nouveau ? '🙆 Ajouter un geste' : '✏️ Modifier le geste',
+    valeurs: e || { emoji: '🙆', secondes: 40 },
+    champs: [
+      { k: 'nom', l: 'Le geste', ph: 'Ex. : étirement des poignets', large: true },
+      { k: 'secondes', l: 'Durée (secondes)', t: 'number', pas: 5 },
+      { k: 'emoji', l: 'Symbole', t: 'emoji', o: ['🙆', '🤷', '🐈', '🙇', '🦵', '🧘', '🤸', '💪', '🌬️', '🖐️'] },
+      { k: 'conseil', l: 'Comment le faire', ph: 'Quelques mots pour vous en souvenir', large: true }
+    ],
+    supprimer: nouveau ? null : () => { instantane(); retirer(S.etirements.routine, e.id); maj(); toast('Geste retiré.', { annuler: true }); },
+    enregistrer: v => {
+      if (!v.nom) return false;
+      v.secondes = Math.max(5, Math.round(v.secondes) || 30);
+      if (nouveau) S.etirements.routine.push(Object.assign({ id: uid() }, v)); else Object.assign(e, v);
+      maj();
+    }
+  });
+}
+function fenMemo(m) {
+  const nouveau = !m;
+  formulaire({
+    titre: nouveau ? '💊 Ajouter au mémo' : '✏️ Modifier',
+    sous: 'Seulement pour ne pas oublier — sans conseil médical. Suivez les indications de votre médecin ou pharmacien.',
+    valeurs: m || { categorie: 'vitamine', moments: [] },
+    champs: [
+      { k: 'nom', l: 'Nom', ph: 'Tel qu’indiqué sur la boîte ou l’ordonnance', large: true },
+      { k: 'categorie', l: 'Catégorie', t: 'select', o: optionsDe(CATS_MEMO) },
+      { k: 'note', l: 'Note personnelle', ph: 'Ex. : selon l’ordonnance du Dr…' },
+      { k: 'moments', l: 'Moments de la journée (pour mémoire)', t: 'html', html: `<div class="cases" style="display:flex;gap:6px;flex-wrap:wrap">${MOMENTS.map(([k, l]) => `<label class="etiquette" style="cursor:pointer;padding:7px 12px;font-size:12.5px"><input type="checkbox" name="moments" value="${k}"${(m && m.moments.includes(k)) ? ' checked' : ''} style="accent-color:#8E7BD4"> ${l}</label>`).join('')}</div>` }
+    ],
+    supprimer: nouveau ? null : () => { instantane(); retirer(S.memo, m.id); maj(); toast('Retiré du mémo.', { annuler: true }); },
+    enregistrer: (v, f) => {
+      if (!v.nom) { toast('Indiquez un nom.', { alerte: true }); return false; }
+      v.moments = $$('[name=moments]:checked', f).map(x => x.value);
+      if (nouveau) S.memo.push(Object.assign({ id: uid(), pris: {} }, v)); else Object.assign(m, v);
+      maj();
+    }
+  });
+}
+function fenNotes() {
+  const n = S.notes;
+  formulaire({
+    titre: '🔒 Mes notes privées',
+    sous: 'Remplissez seulement ce que vous voulez. Tout est facultatif.',
+    valeurs: n,
+    champs: [
+      { k: 'groupe', l: '🩸 Groupe sanguin', t: 'select', o: [['', '— Non renseigné —'], ...['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'].map(x => [x, x])] },
+      { k: 'masquer', l: 'Flouter mes notes à l’ouverture', t: 'case' },
+      { k: 'allergies', l: '⚠️ Allergies', t: 'textarea', ph: 'Ex. : pénicilline, arachides…' },
+      { k: 'traitements', l: '💊 Traitements à ne pas oublier', t: 'textarea', ph: 'Tels qu’indiqués par votre médecin' },
+      { k: 'infos', l: '📝 Autres informations', t: 'textarea', ph: 'Médecin traitant, mutuelle, numéro de sécurité sociale…' }
+    ],
+    enregistrer: v => { Object.assign(n, v); maj(); toast('🔒 Notes enregistrées.'); }
+  });
+}
+function fenContact() {
+  formulaire({
+    titre: '📞 Contact d’urgence',
+    champs: [
+      { k: 'nom', l: 'Nom', ph: 'Prénom Nom', large: true },
+      { k: 'lien', l: 'Lien', ph: 'Conjoint·e, sœur, voisin…' },
+      { k: 'tel', l: 'Téléphone', t: 'tel', ph: '06 …' }
+    ],
+    enregistrer: v => { if (!v.nom) return false; S.notes.urgence.push(Object.assign({ id: uid() }, v)); maj(); }
+  });
+}
+
+/* ---------- la routine souplesse, guidée pas à pas ---------- */
+let minuteur = null;
+function lancerRoutine() {
+  const rt = S.etirements.routine; if (!rt.length) return;
+  let i = 0, reste = nombre(rt[0].secondes), pause = false;
+  const c = 2 * Math.PI * 52;
+  const dessiner = () => {
+    const e = rt[i], tot = nombre(e.secondes);
+    $('#modaleFen').innerHTML = `<h3 id="modaleTitre">🙆 Ma routine souplesse</h3><p class="sous">Geste ${i + 1} sur ${rt.length} · respirez calmement, sans forcer.</p>
+      <div class="minuteur"><div class="anneau"><svg viewBox="0 0 120 120" class="anneau"><circle class="fondc" cx="60" cy="60" r="52"/>
+        <circle class="valc" cx="60" cy="60" r="52" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c * (reste / tot)).toFixed(1)}" style="transition:stroke-dashoffset 1s linear"/></svg>
+        <div class="lab"><div><b>${reste}</b>secondes</div></div></div>
+        <div class="etape">${esc(e.emoji)} ${esc(e.nom)}</div>${e.conseil ? `<div class="conseil">${esc(e.conseil)}</div>` : ''}
+        ${rt[i + 1] ? `<div class="conseil">Ensuite : ${esc(rt[i + 1].nom)}</div>` : ''}</div>
+      <div class="pied-fen"><button class="btn fin" data-r="stop">Arrêter</button><div class="droite">
+        <button class="btn fin" data-r="pause">${pause ? '▶ Reprendre' : '⏸ Pause'}</button><button class="btn lavande" data-r="suivant">Passer ›</button></div></div>`;
+  };
+  const suivant = () => {
+    i++;
+    if (i >= rt.length) { finir(true); return; }
+    reste = nombre(rt[i].secondes); dessiner();
+  };
+  const finir = complete => {
+    clearInterval(minuteur); minuteur = null;
+    if (complete) {
+      S.etirements.jours[auj()] = Math.max(S.etirements.jours[auj()] || 0, Math.max(1, Math.round(somme(rt, e => nombre(e.secondes)) / 60)));
+      sauver();
+      $('#modaleFen').innerHTML = `<div class="cadenas"><span class="e">🌸</span><h3 id="modaleTitre" style="justify-content:center">Routine terminée !</h3>
+        <p class="ui muet" style="margin:0">Merci d’avoir pris ce moment pour vous. Elle est notée pour aujourd’hui.</p>
+        <button class="btn plein" data-r="stop">Fermer</button></div>`;
+    } else fermerModale();
+  };
+  ouvrirModale('', fen => {
+    dessiner();
+    fen.onclick = e => {
+      const b = e.target.closest('[data-r]'); if (!b) return;
+      if (b.dataset.r === 'stop') { if (minuteur) finir(false); else fermerModale(); }
+      if (b.dataset.r === 'pause') { pause = !pause; dessiner(); }
+      if (b.dataset.r === 'suivant') suivant();
+    };
+  });
+  fermetureModale = () => { clearInterval(minuteur); minuteur = null; $('#modaleFen').onclick = null; rendre(); };
+  minuteur = setInterval(() => {
+    if (pause) return;
+    reste--;
+    if (reste <= 0) suivant(); else {
+      const lab = $('#modaleFen .minuteur .lab b'), cer = $('#modaleFen .minuteur .valc');
+      if (lab) lab.textContent = reste;
+      if (cer) cer.setAttribute('stroke-dashoffset', (c * (reste / nombre(rt[i].secondes))).toFixed(1));
+    }
+  }, 1000);
+}
+
+/* ---------- sauvegarde & rechargement ---------- */
+function sauvegarder() {
+  const blob = new Blob([JSON.stringify({ outil: 'naosante', date: new Date().toISOString(), donnees: S }, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `NaoSante-sauvegarde-${auj()}.naosante`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('💾 Sauvegarde téléchargée.');
+}
+$('#fichierSauvegarde').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const lecteur = new FileReader();
+  lecteur.onload = () => {
+    try {
+      const j = JSON.parse(lecteur.result), d = j.donnees || j;
+      if (j.outil && j.outil !== 'naosante') throw new Error('autre outil');
+      instantane(); S = normaliser(d); maj(); toast('📂 Sauvegarde rechargée.', { annuler: true });
+    } catch (err) { toast('Ce fichier n’est pas une sauvegarde NaoSanté.', { alerte: true }); }
+  };
+  lecteur.readAsText(f); e.target.value = '';
+});
+
+/* ============================================================
+   LES CLICS : une seule écoute pour tout l'outil
+   ============================================================ */
+/* Réinitialiser : NaoSanté redevient vierge, comme au premier jour d'un nouvel utilisateur */
+function reinitialiser() {
+  ouvrirModale(`<h3 id="modaleTitre">♻️ Réinitialiser NaoSanté ?</h3>
+    <p class="sous">Tout ce qui a été saisi dans NaoSanté est <b>effacé définitivement</b> : hydratation, sommeil, activités, routine souplesse,
+      habitudes et séries, rendez-vous, rappels, humeur, objectifs, notes privées, mémo et réglages. L'outil repart vierge, comme pour une nouvelle personne.</p>
+    <p class="note-douce" style="margin:0 0 14px;display:flex;gap:10px;align-items:center">💾 <span style="flex:1">Conseil : gardez d'abord une sauvegarde, rechargeable plus tard avec 📂.</span>
+      <button type="button" class="btn petit" data-f="sauver">Sauvegarder</button></p>
+    <div class="champ"><label for="saisieEffacer">Pour confirmer, tapez <b style="color:var(--alerte);letter-spacing:.08em">EFFACER</b></label>
+      <input id="saisieEffacer" type="text" autocomplete="off" spellcheck="false" placeholder="EFFACER" style="text-align:center;letter-spacing:.12em;font-weight:700"></div>
+    <div class="pied-fen"><div class="droite"><button type="button" class="btn fin" data-f="annuler">Annuler</button>
+      <button type="button" class="btn danger" data-f="effacer" disabled style="opacity:.5">🗑 Tout effacer</button></div></div>`, fen => {
+    const saisie = fen.querySelector('#saisieEffacer'), bouton = fen.querySelector('[data-f="effacer"]');
+    fen.querySelector('[data-f="annuler"]').addEventListener('click', fermerModale);
+    fen.querySelector('[data-f="sauver"]').addEventListener('click', sauvegarder);
+    saisie.addEventListener('input', () => { const ok = saisie.value.trim().toUpperCase() === 'EFFACER'; bouton.disabled = !ok; bouton.style.opacity = ok ? 1 : .5; });
+    saisie.addEventListener('keydown', e => { if (e.key === 'Enter' && !bouton.disabled) bouton.click(); });
+    bouton.addEventListener('click', () => {
+      S = normaliser(null); annulation = null;
+      ['naosante.theme', 'naosante.calme', 'naosante.grand'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+      sauver();
+      const r = document.documentElement; r.dataset.theme = 'dark'; r.classList.remove('calme', 'grand');
+      Object.assign(U, { vue: 'aujourdhui', periode: 'semaine', decalage: 0, phrase: 0, devoile: false });
+      history.replaceState(null, '', '#aujourdhui');
+      fermerModale(); rendre(); scrollTo(0, 0);
+      toast('NaoSanté est vierge ✨ Bienvenue !');
+    });
+  });
+}
+
+const ACTIONS = {
+  vue: b => allerA(b.dataset.vue),
+  theme: () => { const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; document.documentElement.dataset.theme = t; ecrire('naosante.theme', t); },
+  calme: () => { const on = document.documentElement.classList.toggle('calme'); ecrire('naosante.calme', on ? '1' : '0'); toast(on ? '🕊️ Animations en pause.' : 'Animations relancées.'); },
+  grand: () => { const on = document.documentElement.classList.toggle('grand'); ecrire('naosante.grand', on ? '1' : '0'); },
+  sauvegarder,
+  recharger: () => $('#fichierSauvegarde').click(),
+  reinitialiser,
+  reglages: fenReglages,
+  phrase: () => { U.phrase++; maj(); },
+
+  boire: (b, e) => boire(e),
+  'retirer-verre': () => { S.eau[auj()] = Math.max(0, verres() - 1); maj(); },
+  verres: (b, e) => { const n = Number(b.dataset.n); const plus = n > verres(); S.eau[auj()] = n; maj(); if (plus) eclat(e.clientX, e.clientY, ['💧', '·', '💧']); },
+
+  energie: (b, e) => { const n = Number(b.dataset.n); S.energie[auj()] = S.energie[auj()] === n ? undefined : n; if (S.energie[auj()] == null) delete S.energie[auj()]; maj(); eclat(e.clientX, e.clientY); },
+  humeur: (b, e) => { const n = Number(b.dataset.n), h = S.humeur[auj()] || (S.humeur[auj()] = {}); h.h = h.h === n ? 0 : n; maj(); eclat(e.clientX, e.clientY); },
+
+  'ajouter-habitude': () => fenHabitude(),
+  'modifier-habitude': b => fenHabitude(trouver(S.habitudes, b.dataset.id)),
+  'habitudes-proposees': () => { HABITUDES_PROPOSEES.forEach(([e, n]) => { if (!S.habitudes.some(h => h.nom === n)) S.habitudes.push({ id: uid(), nom: n, emoji: e, cree: auj() }); }); maj(); toast('✨ Cinq habitudes douces ajoutées. Cochez-les au fil de la journée.'); },
+  'habitude-proposee': b => { S.habitudes.push({ id: uid(), nom: b.dataset.n, emoji: b.dataset.e, cree: auj() }); maj(); },
+  habitude: (b, e) => {
+    const d = auj(), l = S.faits[d] || (S.faits[d] = []), i = l.indexOf(b.dataset.id);
+    if (i >= 0) l.splice(i, 1); else { l.push(b.dataset.id); eclat(e.clientX, e.clientY); }
+    maj();
+    const t = tauxHabitudes(d);
+    if (i < 0 && t === 1) toast('🌟 Toutes vos habitudes du jour sont cochées. Quelle belle journée !');
+  },
+  'basculer-jour': b => {
+    const l = S.faits[b.dataset.d] || (S.faits[b.dataset.d] = []), i = l.indexOf(b.dataset.id);
+    if (i >= 0) l.splice(i, 1); else l.push(b.dataset.id);
+    maj();
+  },
+  defi: (b, e) => {
+    const l = S.defis[auj()] || (S.defis[auj()] = []), i = l.indexOf(b.dataset.k);
+    if (i >= 0) l.splice(i, 1); else { l.push(b.dataset.k); eclat(e.clientX, e.clientY, ['🌱', '✦', '♡', '✧']); toast(`🌱 Défi relevé : ${defi(b.dataset.k)[2].toLowerCase()}. Bravo !`); }
+    if (b.dataset.k === 'eau' && i < 0) S.eau[auj()] = verres() + 1;
+    maj();
+  },
+
+  'ajouter-rdv': () => fenRdv(),
+  'modifier-rdv': b => fenRdv(trouver(S.rdv, b.dataset.id)),
+  'ajouter-rappel': b => fenRappel(null, b.dataset.type),
+  'modifier-rappel': b => fenRappel(trouver(S.rappels, b.dataset.id)),
+  rappel: (b, e) => { const r = trouver(S.rappels, b.dataset.id); r.fait = !r.fait; if (r.fait) eclat(e.clientX, e.clientY); maj(); },
+
+  'ajouter-activite': b => fenActivite(null, b.dataset.type),
+  'modifier-activite': b => fenActivite(trouver(S.activites, b.dataset.id)),
+  'noter-nuit': b => fenNuit(b.dataset.id ? trouver(S.sommeil, b.dataset.id) : nuitDu(auj())),
+  routine: lancerRoutine,
+  'etirements-faits': (b, e) => {
+    const d = auj();
+    if (S.etirements.jours[d]) delete S.etirements.jours[d];
+    else { S.etirements.jours[d] = Math.max(1, Math.round(somme(S.etirements.routine, x => nombre(x.secondes)) / 60)); eclat(e.clientX, e.clientY); }
+    maj();
+  },
+  'modifier-etirement': b => fenEtirement(b.dataset.id ? trouver(S.etirements.routine, b.dataset.id) : null),
+
+  'ajouter-objectif': b => fenObjectif(null, b.dataset.type),
+  'modifier-objectif': b => fenObjectif(trouver(S.objectifs, b.dataset.id)),
+  vedette: b => { S.objectifs.forEach(o => { o.vedette = o.id === b.dataset.id; }); maj(); toast('⭐ Cet objectif s’affiche maintenant sur l’accueil.'); },
+  pas: b => { const o = trouver(S.objectifs, b.dataset.id), p = trouver(o.pas, b.dataset.p); p.fait = !p.fait; maj(); },
+  'retirer-pas': b => { const o = trouver(S.objectifs, b.dataset.id); retirer(o.pas, b.dataset.p); maj(); },
+
+  periode: b => { U.periode = b.dataset.p; U.decalage = 0; rendre(); },
+  decaler: b => { const n = Number(b.dataset.n); U.decalage = n === 0 ? 0 : Math.min(0, U.decalage + n); rendre(); },
+
+  'activer-notes': () => { S.notes.active = true; maj(); fenNotes(); },
+  'modifier-notes': fenNotes,
+  devoiler: () => { U.devoile = !U.devoile; rendre(); },
+  'ajouter-contact': fenContact,
+  'retirer-contact': b => { instantane(); retirer(S.notes.urgence, b.dataset.id); maj(); toast('Contact retiré.', { annuler: true }); },
+  'desactiver-notes': () => {
+    if (!confirm('Effacer toutes vos notes privées (groupe sanguin, allergies, traitements, contacts d’urgence) ?')) return;
+    S.notes = normaliser({}).notes; maj(); toast('Notes privées effacées.');
+  },
+  'ajouter-memo': () => fenMemo(),
+  'modifier-memo': b => fenMemo(trouver(S.memo, b.dataset.id)),
+  'memo-pris': (b, e) => { const m = trouver(S.memo, b.dataset.id); if (m.pris[auj()]) delete m.pris[auj()]; else { m.pris[auj()] = true; eclat(e.clientX, e.clientY); } maj(); }
+};
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const f = ACTIONS[b.dataset.act]; if (!f) return;
+  if (b.tagName === 'A') e.preventDefault();
+  f(b, e);
+});
+document.addEventListener('submit', e => {
+  const f = e.target.closest('[data-form]'); if (!f) return;
+  e.preventDefault();
+  if (f.dataset.form === 'ressenti') {
+    const h = S.humeur[auj()] || (S.humeur[auj()] = {}); h.ressenti = f.t.value.trim(); maj(); toast('📖 Ressenti enregistré. Merci de prendre soin de vous.');
+  } else if (f.dataset.form === 'pas') {
+    const t = f.t.value.trim(); if (!t) return;
+    trouver(S.objectifs, f.dataset.id).pas.push({ id: uid(), texte: t, fait: false }); maj();
+    const n = $(`[data-form="pas"][data-id="${f.dataset.id}"] input`); if (n) n.focus();
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modale').classList.contains('ouvert')) fermerModale(); });
+$('#modale').addEventListener('mousedown', e => { if (e.target.id === 'modale') fermerModale(); });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h !== U.vue && VUES.some(x => x[0] === h)) { U.vue = h; rendre(); } });
+/* une autre fenêtre (ou la synchronisation NaoGroup) a modifié les données */
+window.addEventListener('storage', e => { if (e.key === CLE) { S = charger(); rendre(); } });
+/* à minuit, « Aujourd'hui » change de jour */
+let jourAffiche = auj();
+setInterval(() => { if (auj() !== jourAffiche) { jourAffiche = auj(); if (!$('#modale').classList.contains('ouvert')) rendre(); } }, 60000);
+
+/* ============================================================
+   LE DÉCOR : des gélules qui dérivent, des gouttes qui se remplissent,
+   des cœurs qui battent, des croix douces, des feuilles —
+   et, de temps en temps, une ligne de pulsation qui traverse le ciel.
+   ============================================================ */
+const MOTIFS = {
+  gelule: '<g transform="rotate(-35 12 12)"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/><path class="demi" d="M12 8h5a4 4 0 0 1 0 8h-5z"/></g>',
+  comprime: '<circle cx="12" cy="12" r="8"/><path d="M6.8 17.2L17.2 6.8"/>',
+  plaquette: '<rect x="4" y="3.5" width="16" height="17" rx="3"/><circle cx="9" cy="8.5" r="1.9"/><circle cx="15" cy="8.5" r="1.9"/><circle cx="9" cy="13.5" r="1.9"/><circle class="plein" cx="15" cy="13.5" r="1.9"/><circle cx="12" cy="17.6" r="1.2" style="opacity:.5"/>',
+  goutte: '<path d="M12 3.2C12 3.2 5.5 10.8 5.5 15a6.5 6.5 0 0 0 13 0C18.5 10.8 12 3.2 12 3.2Z"/><path class="demi rempli" d="M6.2 15.5a5.8 5.8 0 0 0 11.6 0c0-.8-.2-1.6-.5-2.5H6.7c-.3.9-.5 1.7-.5 2.5Z"/>',
+  coeur: '<g class="bat"><path d="M12 19.5C6.2 15.6 3.8 12.6 3.8 9.3A4 4 0 0 1 12 7.2A4 4 0 0 1 20.2 9.3C20.2 12.6 17.8 15.6 12 19.5Z"/></g><path class="pouls" d="M1 12.5h5l1.6-3 2.4 6 2-4.5 1.2 1.5H23"/>',
+  croix: '<path d="M9.5 3.5h5v6h6v5h-6v6h-5v-6h-6v-5h6z" style="stroke-linejoin:round"/>',
+  feuille: '<path d="M5 19C5 10 10.5 5 19.5 4.5C19.5 13.5 14 19 5 19Z"/><path d="M5 19L14 10"/>',
+  stetho: '<path d="M6 3.5v5a4.5 4.5 0 0 0 9 0v-5"/><path d="M10.5 13v2.5a4.5 4.5 0 0 0 9 0V13"/><circle cx="19.5" cy="11" r="2"/>',
+  verre: '<path d="M6 4h12l-1.4 15.2a1.8 1.8 0 0 1-1.8 1.6H9.2a1.8 1.8 0 0 1-1.8-1.6z"/><path class="demi rempli" d="M7 11h10l-.9 8.1a1 1 0 0 1-1 .9H8.9a1 1 0 0 1-1-.9z"/>',
+  lune: '<path d="M19 14.5A7.5 7.5 0 1 1 10 5a6 6 0 0 0 9 9.5Z"/>'
+};
+function decor() {
+  const svg = $('#motifs'), W = innerWidth, H = innerHeight;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const noms = Object.keys(MOTIFS);
+  let hasard = 17; const alea = () => (hasard = (hasard * 9301 + 49297) % 233280) / 233280;
+  const cols = Math.max(3, Math.round(W / 250)), rangs = Math.max(3, Math.round(H / 220));
+  let m = '', k = 0;
+  /* une grille jetée au hasard : chaque motif dans sa case, jamais deux collés */
+  for (let r = 0; r < rangs; r++) for (let c = 0; c < cols; c++) {
+    if (alea() < .36) continue;
+    const n = noms[(k++ + Math.floor(alea() * 3)) % noms.length], t = 26 + alea() * 22;
+    const x = (c + .15 + alea() * .7) * W / cols, y = (r + .15 + alea() * .7) * H / rangs;
+    m += `<g class="m" style="opacity:${(.08 + alea() * .09).toFixed(2)};animation-duration:${(16 + alea() * 16).toFixed(1)}s;animation-delay:-${(alea() * 20).toFixed(1)}s;--d:${(6 + alea() * 6).toFixed(1)}s;--r:-${(alea() * 6).toFixed(1)}s">
+      <g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${(alea() * 36 - 18).toFixed(0)}) scale(${(t / 24).toFixed(2)}) translate(-12 -12)">${MOTIFS[n]}</g></g>`;
+  }
+  /* le ciel étoilé */
+  for (let i = 0; i < 24; i++) {
+    const x = alea() * W, y = alea() * H * .8, s = 1.6 + alea() * 2.6;
+    m += `<path class="etoile" style="animation-duration:${(2.5 + alea() * 4).toFixed(1)}s;animation-delay:-${(alea() * 5).toFixed(1)}s" d="M${x} ${y - s}Q${x + s * .18} ${y - s * .18} ${x + s} ${y}Q${x + s * .18} ${y + s * .18} ${x} ${y + s}Q${x - s * .18} ${y + s * .18} ${x - s} ${y}Q${x - s * .18} ${y - s * .18} ${x} ${y - s}Z"/>`;
+  }
+  /* la grande ligne de pulsation, qui passe lentement d'un bord à l'autre */
+  const yE = H * (.3 + alea() * .4); let p = `M0 ${yE}`, l = 0, xE = 0;
+  while (xE < W) {
+    const pas = 120 + alea() * 160; p += `H${(xE + pas).toFixed(0)}`; xE += pas;
+    p += `l8 -14l10 34l10 -44l9 30l7 -6h10`; xE += 54;
+    l += pas + 150;
+  }
+  m += `<path class="ecg" style="--l:${Math.round(l)}" d="${p}"/>`;
+  /* des gouttes et de petites gélules qui montent doucement, comme des bulles */
+  m += '<g class="bulles">';
+  for (let i = 0; i < 10; i++) {
+    const x = alea() * W, s = .7 + alea() * .6, g = i % 2;
+    m += `<g class="bulle" style="animation-duration:${(20 + alea() * 16).toFixed(1)}s;animation-delay:-${(alea() * 30).toFixed(1)}s"><g transform="translate(${x.toFixed(0)} ${H + 20}) scale(${s.toFixed(2)})">${g
+      ? '<path d="M0 -9C0 -9 -6 -2 -6 2.5a6 6 0 0 0 12 0C6 -2 0 -9 0 -9Z" fill="none" stroke="var(--motif)" stroke-width="1.4"/>'
+      : '<g transform="rotate(40)"><rect x="-9" y="-4" width="18" height="8" rx="4" fill="none" stroke="var(--motif)" stroke-width="1.4"/><path d="M0 -4v8" stroke="var(--motif)" stroke-width="1.4"/></g>'}</g></g>`;
+  }
+  m += '</g>';
+  svg.innerHTML = m;
+}
+let minuteurDecor = null;
+window.addEventListener('resize', () => { clearTimeout(minuteurDecor); minuteurDecor = setTimeout(decor, 300); });
+
+{ const h = location.hash.slice(1); if (VUES.some(x => x[0] === h)) U.vue = h; }
+/* l'entrée : la pulsation et le cœur, puis l'outil apparaît (un clic pour passer) */
+function entree() {
+  const intro = $('#intro');
+  const finir = () => { if (intro.isConnected) intro.remove(); };
+  const passer = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('calme');
+  if (passer) { document.body.classList.remove('entree'); return finir(); }
+  intro.addEventListener('click', () => { intro.style.animation = 'introSort .4s ease forwards'; document.querySelector('.page').style.animation = 'emerge .6s ease both'; setTimeout(finir, 420); });
+  intro.addEventListener('animationend', e => { if (e.animationName === 'introSort') finir(); });
+  setTimeout(finir, 4200);
+}
+decor();
+rendre();
+entree();
+</script>
+</body>
+</html>

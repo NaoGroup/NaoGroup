@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../naogroup-cloud.js" data-outil="naopet"></script>
+<!-- Accès de test (temporaire, à retirer une fois Supabase branché) -->
+<script src="../naogroup-local-auth.js" data-outil="naopet"></script>
+<title>NaoPets — Leur bien-être, bien organisé.</title>
+<meta name="description" content="NaoPets — l'outil NaoGroup pour organiser le quotidien, les soins, les rendez-vous, l'alimentation, le stock, les dépenses et les souvenirs de vos animaux.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%235B42CE'/><stop offset='.5' stop-color='%237F84F0'/><stop offset='1' stop-color='%23C6ACF6'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><g fill='%23fff'><ellipse cx='20' cy='12.2' rx='4.3' ry='3.3'/><circle cx='13.7' cy='8.4' r='1.95'/><circle cx='17.7' cy='5.3' r='1.95'/><circle cx='22.3' cy='5.3' r='1.95'/><circle cx='26.3' cy='8.4' r='1.95'/></g><path d='M12 31.5V19.5L28 31.5V19.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('naopet.theme') || 'dark'; } catch (e) {}</script>
+<link rel="stylesheet" href="naopet.css">
+</head>
+<body>
+
+<!-- ================= Marque =================
+     Même jeton que toute la famille NaoGroup (carré de 40, rayon 13) et même
+     N blanc d'un seul tracé, posé bas comme NaoAgenda, NaoBaby et NaoDaily.
+     Le dégradé part du violet profond, passe par un bleu-violet et finit en
+     lavande. L'accent de NaoPets : une petite empreinte de patte — un coussinet
+     et quatre doigts — en blanc plein, sur une lueur lavande.              -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <linearGradient id="np-degrade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5B42CE"/><stop offset=".5" stop-color="#7F84F0"/><stop offset="1" stop-color="#C6ACF6"/>
+    </linearGradient>
+    <radialGradient id="np-reflet" cx=".28" cy=".16" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="np-relief" x1="0" y1="0" x2="0" y2="1"><stop offset=".6" stop-color="#2A1C6E" stop-opacity="0"/><stop offset="1" stop-color="#2A1C6E" stop-opacity=".28"/></linearGradient>
+    <radialGradient id="np-lueur"><stop offset="0" stop-color="#EDE4FF" stop-opacity=".9"/><stop offset="1" stop-color="#EDE4FF" stop-opacity="0"/></radialGradient>
+    <linearGradient id="np-brille" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <symbol id="nao-logo" viewBox="0 0 40 40">
+      <rect width="40" height="40" rx="13" fill="url(#np-degrade)"/>
+      <rect width="40" height="40" rx="13" fill="url(#np-relief)"/>
+      <rect width="40" height="40" rx="13" fill="url(#np-reflet)"/>
+      <circle cx="20" cy="9.4" r="8" fill="url(#np-lueur)" opacity=".5"/>
+      <g fill="#fff"><ellipse cx="20" cy="12.2" rx="4.3" ry="3.3"/><circle cx="13.7" cy="8.4" r="1.95"/><circle cx="17.7" cy="5.3" r="1.95"/><circle cx="22.3" cy="5.3" r="1.95"/><circle cx="26.3" cy="8.4" r="1.95"/></g>
+      <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="fond" aria-hidden="true"><i></i><i></i><i></i><div class="ciel" id="ciel"></div><div class="motifs" id="motifs"></div><div class="traces" id="traces"></div></div>
+
+<!-- l'entrée dans l'outil : des pattes approchent, la patte se pose sur le jeton,
+     le N se trace et les compagnons viennent se ranger autour -->
+<div class="intro" id="intro" role="presentation" title="Cliquer pour entrer">
+  <div class="scene">
+    <div class="piste" id="introPas"></div>
+    <div class="halo-intro"></div>
+    <svg class="anneau" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="138" pathLength="1"/></svg>
+    <div class="orbite" id="introAmis"></div>
+    <div class="onde"></div><div class="onde o2"></div>
+    <div class="eclats" id="introEclats"></div>
+    <svg class="jeton" id="introJeton" viewBox="0 0 40 40" aria-hidden="true">
+      <rect width="40" height="40" rx="13" fill="url(#np-degrade)"/>
+      <rect width="40" height="40" rx="13" fill="url(#np-relief)"/>
+      <rect width="40" height="40" rx="13" fill="url(#np-reflet)"/>
+      <circle class="lueur" cx="20" cy="9.4" r="8" fill="url(#np-lueur)" opacity=".5"/>
+      <g class="patte-logo" fill="#fff"><ellipse cx="20" cy="12.2" rx="4.3" ry="3.3"/><circle cx="13.7" cy="8.4" r="1.95"/><circle cx="17.7" cy="5.3" r="1.95"/><circle cx="22.3" cy="5.3" r="1.95"/><circle cx="26.3" cy="8.4" r="1.95"/></g>
+      <path class="n-trace" d="M12 31.5V19.5L28 31.5V19.5" pathLength="1" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect class="brille" x="-30" width="20" height="40" fill="url(#np-brille)"/>
+    </svg>
+    <div class="nom" id="introNom">Nao<span>Pets</span></div>
+    <div class="phrase">Leur bien-être, <span>bien organisé.</span></div>
+    <div class="passer">Cliquer pour entrer</div>
+  </div>
+</div>
+
+<div class="shell">
+  <header class="entete">
+    <a class="marque" href="../NaoGroup.html" title="Revenir à NaoGroup">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoPets"><use href="#nao-logo"/></svg>
+      <div>
+        <h1>Nao<span>Pets</span></h1>
+        <div class="slogan">Leur bien-être, bien organisé.</div>
+      </div>
+    </a>
+    <div class="spacer"></div>
+    <div class="outils-mini">
+      <button class="theme" type="button" data-act="theme" role="switch" id="b-theme" title="Basculer clair / sombre"><span class="pouce" id="pouce">🌙</span></button>
+      <button class="btn" type="button" data-act="aide" title="Comment ça marche ?">❓ Comment ça marche</button>
+      <button class="btn" type="button" data-act="sauvegarde" title="Sauvegarder ou recharger le carnet">💾 Sauvegarder</button>
+      <button class="btn" type="button" data-act="reinitialiser" title="Effacer toutes les données et repartir d'un outil vierge">↺ Réinitialiser</button>
+      <input type="file" id="fichier" accept=".json,.naopet,application/json" hidden>
+      <input type="file" id="photo-in" accept="image/*" hidden>
+    </div>
+  </header>
+
+  <nav class="pages" id="pages" aria-label="Espaces"></nav>
+  <div class="selecteur" id="selecteur" aria-label="Choisir un animal"></div>
+  <div id="rappels" class="rappels"></div>
+  <main id="vue"></main>
+
+  <div class="pied-page">💜 NaoPets — tout reste sur cet ordinateur (stockage local du navigateur). Pensez à 💾 sauvegarder de temps en temps ·
+    <a href="../NaoGroup.html">NaoGroup</a>
+    <div class="avert">NaoPets est un outil d'organisation et de suivi personnel. Il n'établit aucun diagnostic, ne recommande aucun traitement,
+      ne modifie aucun dosage et ne remplace jamais l'avis de votre vétérinaire. Pour toute question de santé, contactez-le.</div></div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="np-core.js"></script>
+<script src="np-vues.js"></script>
+<script src="np-app.js"></script>
+<script src="np-aide.js"></script>
+</body>
+</html>
