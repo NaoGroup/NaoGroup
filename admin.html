@@ -1,0 +1,2531 @@
+<!DOCTYPE html>
+<html lang="fr" data-copie-libre>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — administration</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="naogroup-cloud.js"></script>
+<script src="naogroup-cadenas.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2319F0D8'/><stop offset='.48' stop-color='%238A5CFF'/><stop offset='1' stop-color='%23E99BFF'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5; --vert:#6FCB9C; --rose:#E58BA0; --ambre:#E3B872;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 18%, #7A5AE0 0%, #43309E 42%, #1A1240 100%);background-attachment:fixed;
+  padding:22px 22px 80px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.14) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 14%, #000 0 30%, transparent 72%);mask-image:radial-gradient(circle at 50% 14%, #000 0 30%, transparent 72%)}
+@keyframes monte{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+.wrap{position:relative;z-index:1;max-width:1640px;margin:0 auto}
+
+.haut{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.haut .jeton{width:46px;height:46px;border-radius:15px;box-shadow:0 10px 24px -10px rgba(0,0,0,.7)}
+h1{margin:0;font-size:27px;letter-spacing:-.02em;color:#fff}
+h1 span{color:var(--lilas)}
+.badge{font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--lilas);border:1px solid var(--bord);border-radius:999px;padding:5px 12px}
+.haut .sp{flex:1}
+.btn{font-family:var(--ui);font-style:normal;font-size:12.5px;font-weight:600;color:#fff;background:var(--verre);
+  border:1px solid var(--bord);border-radius:999px;padding:9px 16px;cursor:pointer;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--verre-2);border-color:var(--bord-2)}
+.btn.plein{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#EBDFFD);border-color:transparent}
+.btn.plein:hover{filter:brightness(1.06)}
+.btn.petit{padding:6px 11px;font-size:11.5px}
+.btn.danger{color:var(--rose);border-color:rgba(229,139,160,.4)}
+.btn.danger:hover{background:rgba(229,139,160,.12)}
+.btn:disabled{opacity:.5;cursor:wait}
+.lead{font-size:14.5px;color:var(--ink-2);margin:6px 0 24px;max-width:78ch}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--verre);border:1px solid var(--bord);border-radius:16px;padding:13px 16px}
+.stat b{display:block;font-size:24px;color:#fff;font-style:normal}
+.stat span{font-family:var(--ui);font-style:normal;font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+
+.panneau{background:var(--verre);border:1px solid var(--bord);border-radius:22px;padding:22px;margin-bottom:22px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .5s ease both}
+.panneau > h2{margin:0 0 4px;font-size:19px;color:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panneau > .aide{margin:0 0 16px;font-size:13px;color:var(--ink-3);max-width:80ch}
+.barre{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.barre .sp{flex:1}
+.champ-recherche{width:230px}
+
+label{display:block;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+input,select,textarea{width:100%;font-family:var(--ui);font-style:normal;font-size:13.5px;color:#fff;background:rgba(0,0,0,.22);
+  border:1px solid var(--bord);border-radius:12px;padding:10px 13px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--bord-2);background:rgba(0,0,0,.3)}
+input[type=checkbox]{width:auto}
+select option{background:#3A2E7A;color:#fff}
+::placeholder{color:var(--ink-3);font-style:italic}
+textarea{resize:vertical;min-height:64px}
+
+.tableau{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:var(--ui);font-style:normal;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:0 10px 10px;border-bottom:1px solid var(--bord);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle;color:var(--ink-2)}
+tr:hover td{background:rgba(255,255,255,.035)}
+td b{color:#fff;font-weight:600;display:block}
+td small{display:block;color:var(--ink-3);font-family:var(--ui);font-style:normal;font-size:11px}
+.vide{text-align:center;color:var(--ink-3);padding:34px 10px;font-size:14px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.pastille{display:inline-flex;align-items:center;font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.p-actif,.p-payee{background:rgba(47,143,99,.2);color:var(--vert)}
+.p-suspendu,.p-a_payer{background:rgba(196,144,63,.2);color:var(--ambre)}
+.p-bloque,.p-annulee{background:rgba(194,75,99,.22);color:var(--rose)}
+.p-admin,.p-en_cours{background:rgba(139,116,212,.28);color:var(--lilas)}
+.p-nouvelle{background:rgba(196,144,63,.24);color:var(--ambre)}
+.p-traitee{background:rgba(47,143,99,.2);color:var(--vert)}
+.p-archivee{background:rgba(255,255,255,.1);color:var(--ink-3)}
+.mini-jetons{display:flex;gap:4px;flex-wrap:wrap;max-width:290px}
+.mj{width:22px;height:22px;border-radius:7px}
+.mj.off{filter:grayscale(1);opacity:.28}
+.rouge{color:var(--rose)}
+.ambre{color:var(--ambre)}
+
+/* ---- mode maintenance (Paramètres) et son rappel en haut de chaque page ---- */
+.maint-rappel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:12px 16px;border-radius:16px;
+  font-family:var(--ui);font-style:normal;font-size:13.5px;color:#2A1606;background:linear-gradient(135deg,#FFD58A,#F6A96B)}
+.maint-rappel b{font-weight:800}
+.maint-rappel .sp{flex:1}
+.maint-rappel button{font:inherit;font-weight:700;color:#2A1606;background:rgba(255,255,255,.55);border:0;border-radius:999px;padding:6px 14px;cursor:pointer}
+.maint-rappel button:hover{background:#fff}
+.panneau.maint.on{border-color:rgba(246,169,107,.7);box-shadow:0 0 0 1px rgba(246,169,107,.35)}
+.btn.maint-go{color:#2A1606;background:linear-gradient(135deg,#FFD58A,#F6A96B);border-color:transparent;font-weight:700}
+
+/* ---- les pages : barre d'onglets ---- */
+.onglets{position:sticky;top:10px;z-index:30;display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+  width:max-content;max-width:100%;margin:14px 0 22px;padding:5px;border-radius:999px;border:1px solid var(--bord);
+  background:rgba(26,18,64,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 14px 30px -18px rgba(0,0,0,.8)}
+.onglets::-webkit-scrollbar{display:none}
+.onglet{flex:none;display:inline-flex;align-items:center;gap:7px;font-family:var(--ui);font-style:normal;font-size:13px;font-weight:600;
+  color:var(--ink-2);text-decoration:none;padding:9px 16px;border-radius:999px;transition:background .2s,color .2s;white-space:nowrap}
+.onglet:hover{background:var(--verre-2);color:#fff}
+.onglet.on{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#EBDFFD)}
+.onglet .nb{font-size:10.5px;font-weight:800;min-width:19px;height:19px;padding:0 6px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--ambre);color:#1C1636}
+.onglet:focus-visible{outline:2px solid var(--lilas);outline-offset:2px}
+
+/* ---- rubrique Statistiques : chiffres, graphiques, tableau des meilleurs ---- */
+.st-maj{font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3);font-weight:400}
+.st-maj.charge{color:var(--lilas)}
+.st-titre{margin:22px 0 10px;font-size:15px;color:#fff;display:flex;align-items:center;gap:8px}
+.st-titre:first-of-type{margin-top:6px}
+.st-graphs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:14px}
+.st-carte{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px 16px;min-width:0}
+.st-carte.large{grid-column:1/-1}
+.st-carte h4{margin:0 0 2px;font-size:13.5px;color:#fff}
+.st-carte .sous-g{margin:0 0 12px;font-family:var(--ui);font-style:normal;font-size:11px;color:var(--ink-3)}
+.st-carte .rien{font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-3);padding:18px 0;text-align:center}
+.hb{display:grid;grid-template-columns:minmax(92px,auto) 1fr auto;align-items:center;gap:6px 10px;font-family:var(--ui);font-style:normal;font-size:12px}
+.hb .nm{display:flex;align-items:center;gap:7px;color:var(--ink-2);white-space:nowrap}
+.hb .nm svg{width:18px;height:18px;border-radius:6px;flex:none}
+.hb .piste{height:12px;border-radius:0 4px 4px 0;position:relative;cursor:default}
+.hb .piste i{display:block;height:100%;border-radius:0 4px 4px 0;background:#C39BF3;min-width:2px;transition:width .5s ease}
+.hb .piste.zero i{background:rgba(255,255,255,.18)}
+.hb .piste:hover i{background:#DCC3FF}
+.hb .val{color:#fff;font-weight:600;text-align:right;white-space:nowrap}
+/* Statistiques : sous-onglets « Vue d'ensemble » / « Par profil » */
+.sous-onglets{display:flex;gap:4px;margin:0 0 16px;padding:4px;background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:14px;width:max-content;max-width:100%;overflow-x:auto}
+.sous-onglets button{font-family:var(--ui);font-style:normal;font-size:13px;font-weight:700;color:var(--ink-2);background:none;border:0;border-radius:10px;padding:8px 18px;cursor:pointer;white-space:nowrap;transition:.15s}
+.sous-onglets button:hover{color:#fff}
+.sous-onglets button.on{background:linear-gradient(90deg,rgba(25,240,216,.22),rgba(138,92,255,.34) 55%,rgba(233,155,255,.26));color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+/* Statistiques par profil : une carte par profil */
+.pp-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(470px,100%),1fr));gap:14px;margin-top:14px}
+.pp-carte{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:16px 18px;position:relative;overflow:hidden;min-width:0}
+.pp-carte::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#19F0D8,#8A5CFF 50%,#E99BFF)}
+.pp-carte.inactif::before{background:rgba(255,255,255,.14)}
+.pp-tete{display:flex;align-items:center;gap:12px}
+.pp-avatar{width:42px;height:42px;border-radius:14px;flex:none;display:grid;place-items:center;font-family:var(--ui);font-style:normal;font-weight:800;font-size:15px;color:#1A1240;background:linear-gradient(135deg,#19F0D8,#A98BFF 60%,#E99BFF)}
+.pp-carte.inactif .pp-avatar{background:rgba(255,255,255,.16);color:var(--ink-2)}
+.pp-id{flex:1;min-width:0}
+.pp-id b{display:block;color:#fff;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-id small{font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px}
+.pp-cnx{text-align:right;font-family:var(--ui);font-style:normal;flex:none}
+.pp-cnx span{display:block;font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.pp-cnx b{display:block;color:#19F0D8;font-size:13.5px;white-space:nowrap}
+.pp-cnx b.vieux{color:var(--ink-2)}
+.pp-chiffres{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 12px}
+.pp-chiffres div{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 10px;font-family:var(--ui);font-style:normal}
+.pp-chiffres b{display:block;color:#fff;font-size:16px}
+.pp-chiffres span{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.pp-prefere{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(233,155,255,.08);border:1px solid rgba(233,155,255,.25);font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
+.pp-prefere svg{width:30px;height:30px;border-radius:9px;flex:none}
+.pp-prefere b{color:#fff}
+.pp-prefere .med{font-size:18px}
+.pp-carte .hb .piste i{background:linear-gradient(90deg,#8A5CFF,#C39BF3)}
+.pp-carte .hb .piste.top i{background:linear-gradient(90deg,#19F0D8,#8A5CFF 60%,#E99BFF)}
+.pp-carte .hb .val small{display:block;font-weight:400;color:var(--ink-3);font-size:10.5px}
+.pp-dernier{font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3);margin:10px 0 0}
+.pp-dernier b{color:var(--ink-2)}
+.pp-jamais{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.12);font-family:var(--ui);font-style:normal;font-size:11px;color:var(--ink-3)}
+.pp-jamais .puces{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.pp-jamais .puces span{display:inline-flex;align-items:center;gap:5px;padding:3px 8px 3px 4px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);opacity:.75}
+.pp-jamais .puces svg{width:16px;height:16px;border-radius:5px;filter:grayscale(.6)}
+.pp-rien{font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-3);padding:6px 0 2px}
+@media (max-width:560px){.pp-chiffres{grid-template-columns:1fr 1fr}.pp-cnx b{font-size:12.5px}}
+/* page Satisfaction : chaque rubrique prend une couleur NaoGroup */
+.sat-t{--acc:#19F0D8}.sat-v{--acc:#A98BFF}.sat-r{--acc:#E99BFF}.sat-l{--acc:#C9B7F5}
+.st-carte.sat-t,.st-carte.sat-v,.st-carte.sat-r,.st-carte.sat-l{border-top:3px solid var(--acc)}
+.st-carte[class*="sat-"] .hb .piste i{background:var(--acc)}
+.st-carte[class*="sat-"] .hb .piste:hover i{filter:brightness(1.15)}
+.notes-outils{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:12px}
+.no-carte{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px 16px;font-family:var(--ui);font-style:normal;position:relative;overflow:hidden}
+.no-carte::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#19F0D8,#8A5CFF 50%,#E99BFF)}
+.no-tete{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.no-tete svg{width:34px;height:34px;border-radius:11px;flex:none}
+.no-tete b{color:#fff;font-size:14px;display:block}
+.no-tete small{color:var(--ink-3);font-size:11px}
+.no-note{margin-left:auto;text-align:right;white-space:nowrap}
+.no-note b{font-size:22px;color:#fff;font-family:var(--sans)}
+.no-note .et{color:#E99BFF;font-size:13px;letter-spacing:1px;display:block}
+.no-ligne{display:grid;grid-template-columns:92px 1fr 34px;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-2);margin-top:5px}
+.no-ligne .piste{height:7px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+.no-ligne .piste i{display:block;height:100%;border-radius:999px}
+.no-ligne .v{color:#fff;font-weight:600;text-align:right}
+.no-carte.sans{opacity:.55}
+.anneau{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.anneau svg{width:130px;height:130px;flex:none}
+.anneau .leg{display:flex;flex-direction:column;gap:6px;font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-2)}
+.anneau .leg span{display:flex;align-items:center;gap:8px}
+.anneau .leg i{width:11px;height:11px;border-radius:4px;flex:none}
+.anneau .leg b{color:#fff}
+.colonnes-nps{display:grid;grid-template-columns:repeat(11,1fr);gap:4px;align-items:end;height:110px;margin-top:4px}
+.colonnes-nps div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;font-family:var(--ui);font-style:normal;font-size:10.5px;color:var(--ink-3)}
+.colonnes-nps i{display:block;width:100%;border-radius:5px 5px 2px 2px;min-height:2px}
+.qui-id{display:inline-flex;align-items:center;gap:5px;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:700;color:#1C1636;background:#19F0D8;border-radius:999px;padding:2px 8px;margin-top:3px}
+.qui-anon{font-family:var(--ui);font-style:normal;font-size:10.5px;color:var(--ink-3)}
+.mini-notes{display:flex;gap:6px;flex-wrap:wrap;max-width:260px}
+.mini-notes span{display:inline-flex;align-items:center;gap:4px;font-family:var(--ui);font-style:normal;font-size:11px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:2px 8px 2px 3px}
+.mini-notes svg{width:16px;height:16px;border-radius:5px}
+.quest-etat{display:block;font-family:var(--ui);font-style:normal;font-size:10.5px;margin-top:3px}
+.colonnes{position:relative}
+.colonnes svg{width:100%;height:150px;display:block}
+.colonnes .axe{display:flex;justify-content:space-between;font-family:var(--ui);font-style:normal;font-size:10.5px;color:var(--ink-3);margin-top:4px}
+.infobulle{position:fixed;z-index:95;pointer-events:none;background:#1C1636;border:1px solid var(--bord-2);border-radius:10px;padding:6px 10px;
+  font-family:var(--ui);font-style:normal;font-size:12px;color:#fff;box-shadow:var(--ombre);white-space:nowrap;opacity:0;transition:opacity .12s}
+.infobulle.on{opacity:1}
+.infobulle small{display:block;color:var(--ink-3);font-size:10.5px}
+.meilleurs td:first-child{white-space:nowrap}
+.meilleurs .med{font-size:17px;margin-right:6px}
+.meilleurs .outil-m{display:flex;align-items:center;gap:9px}
+.meilleurs .outil-m svg{width:26px;height:26px;border-radius:8px;flex:none}
+
+/* ---- fenêtres ---- */
+.voile{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;
+  background:rgba(20,14,44,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.voile.ouvert{display:flex}
+.fen{width:100%;max-width:720px;background:linear-gradient(180deg,#43358A,#2A2160);border:1px solid var(--bord-2);border-radius:24px;padding:26px 28px;box-shadow:var(--ombre);animation:monte .3s ease both}
+.fen.etroite{max-width:460px}
+.fen h3{margin:0 0 4px;font-size:21px;color:#fff}
+.fen .sous{margin:0 0 18px;font-size:13px;color:var(--ink-3)}
+.grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.grille .large{grid-column:1/-1}
+/* témoignages : les outils concernés, en pastilles à cocher */
+.t-outils{display:flex;flex-wrap:wrap;gap:6px}
+.t-outils label{display:inline-flex;align-items:center;gap:6px;margin:0;padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.05);font-size:12.5px;text-transform:none;letter-spacing:0;cursor:pointer;transition:background .2s,border-color .2s}
+.t-outils label:has(input:checked){background:rgba(25,240,216,.16);border-color:rgba(25,240,216,.6);color:#fff}
+.t-outils input{margin:0;accent-color:#19F0D8}
+.bas{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:20px}
+.msg{margin-top:12px;font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--rose);display:none}
+.msg.visible{display:block}
+.matrice{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tuile{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.2);border:1px solid var(--bord);border-radius:14px;padding:10px 12px;cursor:pointer;transition:.15s;font-family:var(--ui);font-style:normal;text-transform:none;letter-spacing:0;margin:0}
+.tuile:hover{border-color:var(--bord-2)}
+.tuile.oui{background:rgba(139,116,212,.22);border-color:var(--lilas)}
+.tuile svg{width:30px;height:30px;border-radius:9px;flex:none}
+.tuile:not(.oui) svg{filter:grayscale(1);opacity:.4}
+.tuile b{display:block;font-size:13px;color:#fff;font-weight:600;font-family:var(--sans);font-style:italic}
+.tuile small{display:block;font-size:10.5px;color:var(--ink-3);text-transform:none}
+.tuile input{margin-left:auto}
+/* NaoFi : l'accès particulier ou professionnel, choisi dès que la tuile NaoFi est cochée */
+.acces-naofi{margin-top:12px;padding:12px 14px;border:1px solid var(--lilas);border-radius:14px;background:rgba(139,116,212,.12)}
+.acces-naofi[hidden]{display:none}
+.acces-naofi > b{display:block;font-size:13px;color:#fff;margin-bottom:8px}
+.acces-naofi .choix{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.acces-naofi label{display:flex;gap:9px;align-items:flex-start;margin:0;padding:9px 11px;border:1px solid var(--bord);border-radius:12px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink-2)}
+.acces-naofi label:has(input:checked){border-color:var(--lilas);background:rgba(139,116,212,.22);color:#fff}
+.acces-naofi label input{width:auto;padding:0;margin:2px 0 0;flex:none;accent-color:#8B74D4}
+.acces-naofi label > span{flex:1;min-width:0;font-family:var(--ui);font-style:normal;font-weight:600}
+.acces-naofi label small{font-weight:400}
+.acces-naofi label small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px}
+.acces-naofi .msg-acces{margin:8px 0 0;font-size:11.5px;color:#F0B860}
+.acces-naofi .msg-acces:empty{display:none}
+.remis{background:rgba(0,0,0,.28);border:1px dashed var(--bord-2);border-radius:14px;padding:14px 16px;margin:14px 0;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2)}
+.gmail{margin-top:16px;padding-top:14px;border-top:1px solid var(--bord)}
+.gmail-tete{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.gmail-tete small{font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.echanges{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-top:8px}
+.echanges:empty{display:none}
+.mail{border-radius:12px;padding:10px 13px;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2);background:rgba(0,0,0,.24);margin-right:40px}
+.mail.envoye{background:rgba(201,183,245,.13);margin:0 0 0 40px}
+.mail .q{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--ink-3);margin-bottom:4px}
+.mail .q a{color:var(--lilas)}
+.mail .t{white-space:pre-wrap;word-break:break-word}
+.rep-client{display:block;margin-top:3px;font-family:var(--ui);font-style:normal;font-size:11.5px;font-weight:700;color:#8BFFF1}
+.outils-texte{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:6px;background:rgba(0,0,0,.22);border:1px solid var(--bord);border-bottom:0;border-radius:12px 12px 0 0}
+.outils-texte select{width:auto;padding:5px 8px;font-size:12.5px}
+.outils-texte button{min-width:30px;height:30px;padding:0 7px;border:1px solid transparent;border-radius:8px;background:none;color:#fff;font:600 14px/1 Arial,sans-serif;cursor:pointer}
+.outils-texte button:hover{background:rgba(255,255,255,.12)}
+.outils-texte button.actif{background:rgba(201,183,245,.28);border-color:rgba(201,183,245,.5)}
+.outils-texte .sep{width:1px;height:20px;background:var(--bord);margin:0 3px}
+.outils-texte .cadre-icone{border:1.5px solid currentColor;border-radius:3px;padding:0 3px;font-size:11px}
+.teinte{display:inline-flex;align-items:center}
+.teinte button{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:8px 0 0 8px}
+.teinte button i{display:block;width:16px;height:3px;border-radius:2px}
+.teinte input[type=color]{width:18px;height:30px;padding:0;border:0;border-radius:0 8px 8px 0;background:none;cursor:pointer}
+.editeur{min-height:170px;max-height:420px;overflow-y:auto;background:#fff;color:#222;border:1px solid var(--bord);border-radius:0 0 12px 12px;padding:12px 14px;
+  font:14px/1.55 Georgia,serif;font-style:italic;outline:none;overflow-wrap:anywhere}   /* par défaut : Georgia italique, comme le mail envoyé */
+.editeur:focus{box-shadow:0 0 0 2px rgba(201,183,245,.55)}
+.signature-apercu{margin-top:6px;padding:10px 14px;background:#fff;color:#222;border-radius:12px;font-size:14px;line-height:1.5;transition:opacity .2s}
+.signature-apercu.off{opacity:.3}
+.pieces{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pieces > label.btn{margin:0;text-transform:none;letter-spacing:0;font-size:12px;cursor:pointer}
+.pieces-liste{display:flex;flex-wrap:wrap;gap:6px}
+.piece{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--bord);font-family:var(--ui);font-style:normal;font-size:12px;color:#fff}
+.piece small{color:var(--ink-3)}
+.piece button{border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:13px;padding:0 4px}
+.piece button:hover{color:var(--rose)}
+.mail .pj{margin-top:6px;font-size:11.5px;color:var(--lilas)}
+.case-gmail{display:flex;align-items:center;gap:7px;margin:0;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;color:var(--ink-2);cursor:pointer}
+.case-gmail input{width:auto;margin:0}
+.remis code{font-family:var(--mono);font-size:15px;color:#fff;background:rgba(255,255,255,.1);padding:3px 8px;border-radius:8px;user-select:all}
+.tampon-mini{display:inline-block;font-family:var(--ui);font-style:normal;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:2px solid;border-radius:7px;padding:2px 9px;transform:rotate(-4deg)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:90;background:#1C1636;border:1px solid var(--bord-2);color:#fff;
+  font-family:var(--ui);font-style:normal;font-size:13px;padding:11px 18px;border-radius:999px;box-shadow:var(--ombre);opacity:0;pointer-events:none;transition:.3s}
+.toast.on{opacity:1}
+.refus{max-width:480px;margin:90px auto;text-align:center}
+.refus h2{color:#fff}
+
+/* ---- la facture : feuille blanche, imprimable ---- */
+.feuille{background:#fff;color:#1d1a2b;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-style:normal;border-radius:6px;padding:40px 44px;max-width:780px;margin:0 auto;box-shadow:var(--ombre);position:relative;line-height:1.5}
+.feuille .ent{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:3px solid #7B5FD9;padding-bottom:18px;margin-bottom:22px}
+.feuille .marque{display:flex;gap:12px;align-items:center}
+.feuille .marque svg{width:46px;height:46px;border-radius:14px}
+.feuille .marque b{font-family:Georgia,serif;font-style:italic;font-size:22px}
+.feuille .marque b i{color:#7B5FD9}
+.feuille .ed{font-size:11.5px;color:#5b5670;line-height:1.5;margin-top:4px}
+.feuille .titre-doc{text-align:right}
+.feuille .titre-doc h4{margin:0;font-size:26px;letter-spacing:.08em;color:#7B5FD9}
+.feuille .titre-doc div{font-size:12.5px;color:#4a4560}
+.feuille .duo{display:flex;gap:30px;margin-bottom:22px}
+.feuille .duo > div{flex:1;background:#f6f3fc;border-radius:10px;padding:12px 16px;font-size:12.5px}
+.feuille .duo h5{margin:0 0 4px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7B5FD9}
+.feuille table{font-size:12.5px;margin-bottom:14px}
+.feuille th{color:#7B5FD9;border-bottom:2px solid #e3ddee;padding:0 8px 8px}
+.feuille td{color:#1d1a2b;border-bottom:1px solid #eee9f5;padding:9px 8px}
+.feuille td:nth-child(n+2),.feuille th:nth-child(n+2){text-align:right;white-space:nowrap}
+.feuille tr:hover td{background:none}
+.feuille .total{display:flex;justify-content:flex-end;margin:6px 0 18px}
+.feuille .total div{background:#7B5FD9;color:#fff;border-radius:10px;padding:10px 20px;font-size:15px;font-weight:700}
+.feuille .mentions{font-size:11px;color:#5b5670;border-top:1px solid #e3ddee;padding-top:12px}
+.feuille .tampon-paye{position:absolute;right:54px;top:150px;transform:rotate(-12deg);border:4px solid #2F8F63;color:#2F8F63;border-radius:12px;padding:6px 18px;font-weight:800;font-size:22px;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.feuille .tampon-paye small{display:block;font-size:11px;letter-spacing:.04em;text-transform:none;text-align:center}
+.barre-doc{max-width:780px;margin:0 auto 14px;display:flex;gap:10px;justify-content:flex-end}
+.voile.doc{background:rgba(20,14,44,.85)}
+@media print{
+  body{background:#fff!important;padding:0!important}
+  body::before,.wrap,.toast,.voile:not(#m-doc){display:none!important}
+  #m-doc{position:static!important;display:block!important;background:#fff!important;padding:0!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .barre-doc{display:none!important}
+  .feuille{box-shadow:none;border-radius:0;max-width:none;padding:0}
+}
+</style>
+</head>
+<body>
+<script src="naogroup-logos.js"></script>
+<script src="naogroup-lettre.js"></script>
+
+<div class="wrap">
+
+  <div id="refus" class="refus" hidden>
+    <h2 id="refusTitre">Accès réservé</h2>
+    <p id="refusTexte" style="color:var(--ink-2)"></p>
+    <a class="btn" href="NaoGroup.html">← Retour à NaoGroup</a>
+  </div>
+
+  <div id="app" hidden>
+    <div class="maint-rappel" id="maintRappel" role="status" hidden></div>
+    <div class="haut">
+      <svg class="jeton" viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+      <h1>Administration <span>NaoGroup</span></h1>
+      <span class="badge">Équipe NaoGroup — Administration</span>
+      <span class="sp"></span>
+      <a class="btn" href="NaoGroup.html">← Le site</a>
+      <button type="button" class="btn" id="btnMonMdp">Mon mot de passe</button>
+      <button type="button" class="btn" id="btnSortir">Déconnexion</button>
+    </div>
+
+    <!-- les pages de l'administration : une adresse chacune (admin.html#profils…) -->
+    <nav class="onglets" aria-label="Pages de l'administration">
+      <a class="onglet" href="#statistiques" data-page="statistiques">📊 Statistiques</a>
+      <a class="onglet" href="#profils" data-page="profils">👤 Profils</a>
+      <a class="onglet" href="#factures" data-page="factures">🧾 Factures <span class="nb" id="nbOngletFactures" hidden></span></a>
+      <a class="onglet" href="#demandes" data-page="demandes">✉️ Demandes <span class="nb" id="nbOngletDemandes" hidden></span></a>
+      <a class="onglet" href="#satisfaction" data-page="satisfaction">⭐ Satisfaction <span class="nb" id="nbOngletAvis" hidden></span></a>
+      <a class="onglet" href="#parametres" data-page="parametres">⚙️ Paramètres</a>
+    </nav>
+    <section class="page" data-page="statistiques" hidden>
+    <div class="stats" id="stats"></div>
+
+    <nav class="sous-onglets" aria-label="Pages des statistiques">
+      <button type="button" class="on" data-sous-onglet="ensemble">📊 Vue d'ensemble</button>
+      <button type="button" data-sous-onglet="profils">👤 Par profil</button>
+    </nav>
+
+    <div class="panneau" id="panneauUsage" data-sous="ensemble">
+      <h2>📊 Statistiques
+        <select id="periodeUsage" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option><option value="90">90 derniers jours</option><option value="tout">Depuis le début</option>
+        </select>
+        <button type="button" class="btn petit" id="btnActualiserUsage" title="Recharger les statistiques maintenant">↻ Actualiser</button>
+        <span class="st-maj" id="majUsage"></span></h2>
+      <p class="aide">Taux d'utilisation, taux de réutilisation et temps passé sur chaque outil, <b style="color:#fff">actualisés tout seuls toutes les 5 minutes</b>. Ne sont mesurés que <b style="color:#fff">le moment et la durée d'ouverture</b> — jamais ce que les profils y saisissent —
+        pour les profils clients actifs <b style="color:#fff">et pour vous</b> (vous comptez comme un profil qui a tous les outils). Le temps compte quand l'onglet est visible et qu'une action a eu lieu dans la dernière minute.
+        <b style="color:#fff">Votre propre usage n'est mesuré que depuis le 16 novembre 2026</b> : avant cette date, les outils ne le notaient pas, il ne peut donc pas être reconstitué.</p>
+
+      <h3 class="st-titre">Les chiffres clés</h3>
+      <div class="stats" id="kpiUsage" style="margin-bottom:0"></div>
+
+      <h3 class="st-titre">📖 Les vues de « Notre histoire »</h3>
+      <div class="stats" id="kpiVues" style="margin-bottom:12px"></div>
+      <div id="graphVues"></div>
+
+      <h3 class="st-titre">Les graphiques</h3>
+      <div class="st-graphs" id="graphUsage"></div>
+
+      <h3 class="st-titre">🏆 Le tableau des meilleurs</h3>
+      <div class="tableau"><table class="meilleurs">
+        <thead><tr><th>Palmarès</th><th>Outil</th><th>Résultat</th><th>Pourquoi</th></tr></thead>
+        <tbody id="corpsMeilleurs"></tbody>
+      </table><div class="vide" id="videMeilleurs" hidden>Le palmarès s'affiche dès que des profils ont utilisé leurs outils.</div></div>
+
+      <h3 class="st-titre">Le détail, outil par outil</h3>
+      <div class="tableau"><table>
+        <thead><tr><th>Outil</th><th>Ont l'accès</th><th>Utilisateurs actifs</th><th>Taux d'utilisation</th><th>Sessions</th><th>Temps moyen / session</th><th>Temps moyen / profil</th><th>Taux de réutilisation</th><th>Retour sous 7 j.</th></tr></thead>
+        <tbody id="corpsUsage"></tbody>
+      </table><div class="vide" id="videUsage" hidden>Pas encore de données : elles apparaissent dès que des profils ouvrent leurs outils.</div></div>
+      <p class="aide" style="margin-top:12px"><b style="color:#fff">Comment lire.</b> <i>Taux d'utilisation</i> = profils qui ont ouvert l'outil ÷ profils qui l'ont dans leur abonnement.
+        <i>Taux de réutilisation</i> = profils actifs sur l'outil qui y sont revenus au moins un 2<sup>e</sup> jour ÷ profils actifs.
+        <i>Retour sous 7 j.</i> = parmi ceux dont la 1<sup>re</sup> ouverture date d'au moins une semaine, part revenue dans les 7 jours qui ont suivi.
+        <i>Fidélité DAU/MAU</i> = part des profils actifs sur 30 jours qui le sont aussi aujourd'hui.</p>
+    </div>
+
+    <div class="panneau" id="panneauParProfil" data-sous="profils" hidden>
+      <h2>👤 Statistiques par profil
+        <select id="periodeProfils" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="1">Aujourd'hui</option><option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option><option value="90">90 derniers jours</option><option value="tout">Depuis le début</option>
+        </select>
+        <button type="button" class="btn petit" id="btnActualiserParProfil" title="Recharger les statistiques maintenant">↻ Actualiser</button>
+        <span class="st-maj" id="majParProfil"></span></h2>
+      <p class="aide">Pour chaque profil : <b style="color:#fff">sa dernière connexion</b>, <b style="color:#fff">le temps passé sur chaque outil</b> et <b style="color:#fff">l'outil qu'il utilise le plus</b>.
+        Mêmes mesures que la vue d'ensemble : le moment et la durée d'ouverture seulement (les ouvertures de moins de 5 secondes ne comptent pas), actualisées toutes les 5 minutes.
+        Votre propre usage n'est mesuré que depuis le 16 novembre 2026.</p>
+      <div class="stats" id="kpiParProfil" style="margin-bottom:16px"></div>
+      <div class="barre">
+        <input class="champ-recherche" type="search" id="rechParProfil" placeholder="Rechercher un profil…">
+        <select id="filtreParProfil" style="width:auto">
+          <option value="">Tous les profils</option><option value="actifs">Actifs sur la période</option><option value="inactifs">Sans utilisation sur la période</option><option value="clients">Clients seulement</option>
+        </select>
+        <select id="triParProfil" style="width:auto">
+          <option value="connexion">Trier par dernière connexion</option><option value="temps">Trier par temps passé</option><option value="sessions">Trier par sessions</option><option value="nom">Trier par nom</option>
+        </select>
+      </div>
+      <div class="pp-grille" id="listeParProfil"></div>
+      <div class="vide" id="videParProfil" hidden></div>
+    </div>
+    </section>
+
+    <section class="page" data-page="profils" hidden>
+    <p class="lead">Vous êtes la seule administratrice. Vous créez les profils, choisissez pour chacun les outils ouverts
+      (les autres restent visibles, grisés et fermés), suspendez ou bloquez un accès, suivez les abonnements et
+      établissez les factures. Chaque nouveau profil trouve tous ses outils vierges.</p>
+
+    <div class="panneau">
+      <h2>Profils</h2>
+      <p class="aide">Les clients créent eux-mêmes leur compte (page « Créer mon compte ») et choisissent leur formule : ils apparaissent ici avec
+        la mention <b>Inscrit seul</b>. Une formule payante crée une facture à régler sous 14 jours : si elle n'est pas payée, <b>Suspendre</b> ferme
+        ses outils (ses données restent). Un accès suspendu ou bloqué est refusé dès la connexion suivante, avec le motif saisi.</p>
+      <div class="barre">
+        <input class="champ-recherche" type="search" id="rech" placeholder="Rechercher un nom, un identifiant…">
+        <select id="filtre" style="width:auto">
+          <option value="">Tous les statuts</option><option value="actif">Actifs</option><option value="suspendu">Suspendus</option>
+          <option value="bloque">Bloqués</option><option value="echu">Abonnement échu</option><option value="impaye">Paiement en retard</option><option value="inscription">Inscrits seuls</option>
+        </select>
+        <span class="sp"></span>
+        <button type="button" class="btn" id="btnActualiserProfils" title="Recharger les profils et leurs dernières connexions">↻ Actualiser</button>
+        <button type="button" class="btn plein" id="btnAjout">+ Ajouter un profil</button>
+      </div>
+      <div class="tableau"><table>
+        <thead><tr><th>Profil</th><th>Espace</th><th>Abonnement</th><th>Outils ouverts</th><th>Statut</th><th>Connexion</th><th></th></tr></thead>
+        <tbody id="corpsProfils"></tbody>
+      </table><div class="vide" id="videProfils" hidden>Aucun profil pour l'instant — créez le premier avec « Ajouter un profil ».</div></div>
+    </div>
+
+    <p class="lead" style="font-size:12.5px;color:var(--ink-3)"><b>À savoir.</b> Les pages du site sont des fichiers : ce qui est réellement protégé
+      côté serveur, ce sont les comptes, les droits, les abonnements et les sauvegardes de chaque profil. Un profil suspendu, bloqué ou échu
+      ne peut plus lire ni enregistrer ses données.</p>
+    </section>
+
+    <section class="page" data-page="factures" hidden>
+    <div class="panneau">
+      <h2>Factures d'abonnement</h2>
+      <p class="aide">Numérotées <code>NG-AAAA-001</code>, prix toutes taxes comprises. Le bouton « Facture » d'un profil
+        pré-remplit le client, la formule et le prix. NaoFactu pourra les reprendre plus tard.</p>
+      <div class="barre"><span class="sp"></span><button type="button" class="btn plein" id="btnFacture">+ Nouvelle facture</button></div>
+      <div class="tableau"><table>
+        <thead><tr><th>Numéro</th><th>Client</th><th>Date</th><th>Période</th><th>Total TTC</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="corpsFactures"></tbody>
+      </table><div class="vide" id="videFactures" hidden>Aucune facture pour l'instant.</div></div>
+    </div>
+    </section>
+
+    <section class="page" data-page="demandes" hidden>
+    <div class="panneau" id="panneauDemandes">
+      <h2>Demandes reçues <span class="badge" id="nbDemandes"></span></h2>
+      <p class="aide">Les messages envoyés depuis la page Contact arrivent ici. Une souscription devient un profil d'un clic : nom, formule, prix et outils sont déjà remplis.</p>
+      <div class="barre">
+        <select id="filtreDemandes" style="width:auto">
+          <option value="">À traiter</option><option value="toutes">Toutes</option><option value="traitee">Traitées</option><option value="archivee">Archivées</option>
+        </select>
+      </div>
+      <div class="tableau"><table>
+        <thead><tr><th>Reçue</th><th>De</th><th>Sujet</th><th>Détail</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="corpsDemandes"></tbody>
+      </table><div class="vide" id="videDemandes" hidden>Aucune demande à traiter.</div></div>
+    </div>
+    </section>
+
+    <section class="page" data-page="satisfaction" hidden>
+    <div class="panneau" id="panneauSatisfaction">
+      <h2>⭐ Satisfaction — vue d'ensemble
+        <select id="periodeAvis" style="width:auto;font-size:12px;padding:6px 10px">
+          <option value="0">Depuis le début</option><option value="30">30 derniers jours</option><option value="90">90 derniers jours</option><option value="365">12 derniers mois</option>
+        </select></h2>
+      <p class="aide">Les réponses au questionnaire « Votre avis sur NaoGroup » (<a href="avis.html" target="_blank" style="color:inherit">avis.html</a>).
+        Le bouton <b style="color:#fff">⭐ Questionnaire</b> d'un profil (page Profils) lui envoie par e-mail un lien <b style="color:#fff">personnel</b> : sa réponse arrive ici avec son nom.
+        Les avis venus du lien public de l'accueil restent anonymes.</p>
+      <div class="stats" id="kpiAvis" style="margin-bottom:0"></div>
+
+      <h3 class="st-titre">⭐ La note de chaque outil</h3>
+      <div id="notesOutils"></div>
+
+      <h3 class="st-titre">Les graphiques</h3>
+      <div class="st-graphs" id="graphAvis"></div>
+
+      <h3 class="st-titre">✉️ Les questionnaires envoyés</h3>
+      <div class="tableau"><table>
+        <thead><tr><th>Profil</th><th>Envoyé</th><th>Réponse</th><th></th></tr></thead>
+        <tbody id="corpsInvitations"></tbody>
+      </table><div class="vide" id="videInvitations" hidden>Aucun questionnaire envoyé pour l'instant : utilisez « ⭐ Questionnaire » sur un profil.</div></div>
+    </div>
+
+    <div class="panneau" id="panneauAvis">
+      <h2>Chaque retour <span class="badge" id="nbAvis"></span></h2>
+      <p class="aide">« Ouvrir » montre tout le détail ; quand la personne a accepté la publication, « Publier en témoignage » l'ajoute aux témoignages de l'accueil.</p>
+      <div class="barre">
+        <input class="champ-recherche" type="search" id="rechAvis" placeholder="Rechercher un nom, un outil, un commentaire…">
+        <select id="filtreAvis" style="width:auto"><option value="">À lire et lus</option><option value="nouveau">Nouveaux</option><option value="identifies">Profils identifiés</option><option value="archive">Archivés</option><option value="tous">Tous</option></select>
+      </div>
+      <div class="tableau"><table>
+        <thead><tr><th>Reçu</th><th>Qui</th><th>Outils et notes</th><th>Recommande</th><th>Prix</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="corpsAvis"></tbody>
+      </table><div class="vide" id="videAvis" hidden>Aucun avis pour l'instant.</div></div>
+    </div>
+    </section>
+
+    <section class="page" data-page="parametres" hidden>
+    <div class="panneau maint" id="panneauMaintenance">
+      <h2>🛠️ Mode maintenance <span class="badge" id="maintEtat"></span></h2>
+      <p class="aide">En cas de souci : un clic ferme <b style="color:#fff">tout NaoGroup à tous les profils</b> (clients, inscrits, visiteurs en essai libre), avec le motif
+        ci-dessous affiché sur l'accueil, la page de connexion et chaque outil. <b style="color:#fff">Vous seule gardez l'accès.</b> Une fois <code>supabase-schema.sql</code> rejoué dans le projet Supabase du site,
+        le serveur bloque aussi lui-même la lecture et l'enregistrement des données. Les statuts des profils ne changent pas : à l'arrêt de la maintenance, chacun retrouve exactement son accès d'avant, avec toutes ses données
+        (un profil déjà suspendu le reste).</p>
+      <label for="maintMotif">Motif affiché à tous</label>
+      <input id="maintMotif" maxlength="200" placeholder="Logiciel en maintenance">
+      <div class="bas" style="justify-content:space-between;flex-wrap:wrap">
+        <span class="aide" id="maintInfo" style="margin:0"></span>
+        <span style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn" id="btnMaintMotif" hidden>Mettre à jour le motif</button>
+          <button type="button" class="btn maint-go" id="btnMaint">Mettre NaoGroup en maintenance</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="panneau">
+      <h2>Formules et tarifs</h2>
+      <p class="aide">Une formule propose des outils et un prix de départ ; vous pouvez toujours ajuster les outils profil par profil.
+        Prix toutes taxes comprises, par mois.</p>
+      <div id="listeFormules"></div>
+      <div class="bas" style="justify-content:space-between">
+        <button type="button" class="btn" id="btnAjoutFormule">+ Ajouter une formule</button>
+        <button type="button" class="btn plein" id="btnEnregFormules">Enregistrer les formules</button>
+      </div>
+      <div class="panneau" style="margin-top:18px;padding:16px">
+        <h2 style="margin-top:0">Sur mesure : les outils à l'unité</h2>
+        <p class="aide">À l'inscription, un client peut aussi choisir ses outils un par un. Voici le prix de chaque outil, par mois, TTC.</p>
+        <div class="grille" style="margin-bottom:12px">
+          <div><label for="t-base">Prix d'un outil (€ / mois)</label><input id="t-base" type="number" min="0" step="0.01"></div>
+          <div><label for="t-pro">Prix d'un outil « pro » (€ / mois)</label><input id="t-pro" type="number" min="0" step="0.01"></div>
+          <div><label for="t-mois">Mois offerts si payé à l'année</label><input id="t-mois" type="number" min="0" max="11" step="1"></div>
+          <div style="align-self:end"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;margin:0 0 8px;cursor:pointer">
+            <input type="checkbox" id="t-plafond"> Jamais plus cher que la formule qui contient tous les outils</label></div>
+        </div>
+        <label>Les outils « pro »</label>
+        <div class="matrice" id="t-pros"></div>
+        <div class="bas"><button type="button" class="btn plein" id="btnEnregTarif">Enregistrer le tarif à l'unité</button></div>
+      </div>
+    </div>
+
+    <div class="panneau" id="panneauTemoignages">
+      <h2>Témoignages</h2>
+      <p class="aide">Seulement de <b>vrais</b> avis, donnés avec l'accord de la personne : utilisez « Publier en témoignage » dans « Avis reçus »,
+        ou ajoutez-en un à la main. Un témoignage publié apparaît sur l'accueil.</p>
+      <div id="listeTemoignages"></div>
+      <div class="bas" style="justify-content:space-between">
+        <button type="button" class="btn" id="btnAjoutTemoignage">+ Ajouter un témoignage</button>
+        <button type="button" class="btn plein" id="btnEnregTemoignages">Enregistrer les témoignages</button>
+      </div>
+    </div>
+
+    <div class="panneau">
+      <h2>NaoGroup, l'éditeur</h2>
+      <p class="aide">Ces informations figurent en en-tête des factures.</p>
+      <div class="grille" id="formEditeur">
+        <div><label for="ed-nom">Nom commercial</label><input id="ed-nom"></div>
+        <div><label for="ed-forme">Forme juridique</label><input id="ed-forme"></div>
+        <div><label for="ed-siret">SIREN ou SIRET</label><input id="ed-siret"></div>
+        <div><label for="ed-email">E-mail</label><input id="ed-email"></div>
+        <div class="large"><label for="ed-adresse">Adresse</label><input id="ed-adresse" placeholder="Numéro, rue, code postal, ville"></div>
+        <div><label for="ed-rep">Représentante</label><input id="ed-rep"></div>
+        <div><label for="ed-qual">Qualité</label><input id="ed-qual"></div>
+        <div class="large"><label for="ed-tva">Mention de TVA</label><input id="ed-tva"></div>
+      </div>
+      <div class="bas"><button type="button" class="btn plein" id="btnEnregEditeur">Enregistrer</button></div>
+    </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ Fenêtre : ajouter / modifier un profil ============ -->
+<div class="voile" id="m-profil" role="dialog" aria-modal="true"><div class="fen">
+  <div id="etapeForm">
+    <h3 id="pTitre">Ajouter un profil</h3>
+    <p class="sous" id="pSous">Le profil trouvera tous ses outils vierges.</p>
+    <div class="grille">
+      <div><label for="p-prenom">Prénom</label><input id="p-prenom" autocomplete="off"></div>
+      <div><label for="p-nom">Nom</label><input id="p-nom" autocomplete="off"></div>
+      <div><label for="p-ident">Identifiant</label><input id="p-ident" autocomplete="off" spellcheck="false" placeholder="nom_p"></div>
+      <div><label for="p-espace">Espace</label>
+        <select id="p-espace"><option value="particulier">🏠 Particulier</option><option value="professionnel">💼 Professionnel</option><option value="les_deux">🏠💼 Les deux</option></select></div>
+      <div id="bloc-mdp"><label for="p-mdp">Mot de passe provisoire</label>
+        <div style="display:flex;gap:6px"><input id="p-mdp" autocomplete="off" spellcheck="false"><button type="button" class="btn petit" id="btnPropose">Proposer</button></div></div>
+      <div><label for="p-entreprise">Entreprise (facultatif)</label><input id="p-entreprise" autocomplete="off"></div>
+      <div class="large"><label for="p-email">E-mail (pour lui écrire : questionnaire, réponses)</label><input id="p-email" type="email" autocomplete="off" spellcheck="false" placeholder="prenom.nom@exemple.fr"></div>
+    </div>
+
+    <h3 style="font-size:16px;margin:22px 0 6px">Abonnement</h3>
+    <div class="grille">
+      <div><label for="p-formule">Formule</label><select id="p-formule"></select></div>
+      <div><label for="p-prix">Prix TTC (€)</label><input id="p-prix" type="number" min="0" step="0.01"></div>
+      <div><label for="p-periode">Facturation</label><select id="p-periode"><option value="mensuel">Mensuelle</option><option value="annuel">Annuelle</option></select></div>
+      <div><label for="p-debut">Début</label><input id="p-debut" type="date"></div>
+      <div><label for="p-fin">Fin (vide = sans échéance)</label><input id="p-fin" type="date"></div>
+    </div>
+
+    <h3 style="font-size:16px;margin:22px 0 6px">Outils ouverts à ce profil</h3>
+    <p class="sous" style="margin-bottom:10px">Cochés : ouverts. Les autres apparaîtront grisés et fermés sur son accueil. Modifiable à tout moment.
+      <button type="button" class="btn petit" id="btnTout" style="margin-left:6px">Tout cocher</button>
+      <button type="button" class="btn petit" id="btnRien">Tout décocher</button></p>
+    <div class="matrice" id="matrice"></div>
+    <div class="acces-naofi" id="bloc-acces-naofi" hidden>
+      <b>Accès NaoFi</b>
+      <div class="choix">
+        <label><input type="radio" name="acces-naofi" value="particulier"><span>🏠 Particulier<small>Simule son propre projet : courrier et simulation détaillée en PDF, sans accord de principe ni offre de prêt.</small></span></label>
+        <label><input type="radio" name="acces-naofi" value="pro"><span>💼 Professionnel<small>Banque, courtier : tous les documents, accord de principe et offres de prêt compris.</small></span></label>
+      </div>
+      <p class="msg-acces" id="msg-acces-naofi"></p>
+    </div>
+
+    <div style="margin-top:16px"><label for="p-notes">Notes</label><textarea id="p-notes" placeholder="D'où vient la demande, ce qui a été convenu…"></textarea></div>
+    <div class="msg" id="pMsg" role="alert"></div>
+    <div class="bas"><button type="button" class="btn" data-ferme="m-profil">Annuler</button><button type="button" class="btn plein" id="btnEnregProfil">Enregistrer</button></div>
+  </div>
+
+  <div id="etapeRemis" hidden>
+    <h3>Profil créé</h3>
+    <p class="sous">Communiquez ces deux informations à la personne, hors de cette page. Le mot de passe ne s'affichera plus jamais.</p>
+    <div class="remis">Identifiant : <code id="rId"></code><br><br>Mot de passe provisoire : <code id="rMdp"></code><br><br>
+      <span style="color:var(--ink-3)">À sa première connexion, elle choisira son propre mot de passe. Tous ses outils seront vierges.</span></div>
+    <p class="sous" style="margin-top:12px">Préparez sa <b>lettre d'accès</b> (un PDF avec le logo, vos mots et votre tampon), puis joignez-la à votre e-mail. Le message copié l'annonce, sans écrire le mot de passe.</p>
+    <div class="bas"><button type="button" class="btn" id="btnCopier">Copier le message</button><button type="button" class="btn plein" id="btnLettre">Préparer la lettre (PDF)</button><button type="button" class="btn" data-ferme="m-profil">Terminé</button></div>
+  </div>
+</div></div>
+
+<!-- ============ Fenêtre : suspendre / bloquer / réactiver ============ -->
+<div class="voile" id="m-statut" role="dialog" aria-modal="true"><div class="fen etroite">
+  <h3 id="sTitre">Suspendre l'accès</h3>
+  <p class="sous" id="sSous"></p>
+  <div id="sMotifBloc"><label for="sMotif">Motif — affiché à la personne quand elle se connecte</label>
+    <textarea id="sMotif" placeholder="Ex. : abonnement impayé — écrivez-nous pour régulariser."></textarea></div>
+  <div class="msg" id="sMsg"></div>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-statut">Annuler</button><button type="button" class="btn plein" id="btnValiderStatut">Valider</button></div>
+</div></div>
+
+<!-- ============ Fenêtre : une demande reçue ============ -->
+<div class="voile" id="m-demande" role="dialog" aria-modal="true"><div class="fen">
+  <h3>Demande reçue</h3>
+  <p class="sous">Répondez par e-mail, ou transformez-la en profil.</p>
+  <div id="dContenu"></div>
+  <!-- réponse envoyée par Gmail (support.naogroup@gmail.com) via le relais gmail-support.gs -->
+  <div id="dGmail" class="gmail">
+    <div class="gmail-tete"><label style="margin:0">Échanges par e-mail</label><small id="dGmailEtat"></small></div>
+    <div id="dEchanges" class="echanges"></div>
+    <div id="dEcrire">
+      <label for="dSujet" style="margin-top:12px">Objet</label><input id="dSujet" type="text">
+      <label for="dTexte" style="margin-top:10px">Votre réponse</label>
+      <div class="outils-texte" id="dOutils" role="toolbar" aria-label="Mise en forme">
+        <select id="dPolice" title="Police d'écriture : du texte sélectionné, ou de tout le message si rien n'est sélectionné">
+          <option value="Arial, Helvetica, sans-serif">Arial</option><option value="Georgia, serif" style="font-family:Georgia,serif">Georgia</option>
+          <option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option>
+          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option><option value="'Times New Roman', Times, serif">Times New Roman</option>
+          <option value="Garamond, Georgia, serif">Garamond</option><option value="'Courier New', monospace">Courier New</option></select>
+        <span class="sep"></span>
+        <button type="button" data-cmd="bold" title="Gras (Ctrl+B)"><b>G</b></button>
+        <button type="button" data-cmd="italic" title="Italique (Ctrl+I)"><i style="font-family:Georgia,serif">I</i></button>
+        <button type="button" data-cmd="underline" title="Souligner (Ctrl+U)"><u>S</u></button>
+        <button type="button" data-cmd="strikeThrough" title="Barrer"><s>abc</s></button>
+        <button type="button" id="dEncadrer" title="Encadrer / retirer le cadre"><span class="cadre-icone">abc</span></button>
+        <span class="sep"></span>
+        <span class="teinte" title="Couleur du texte"><button type="button" id="dCouleurOk" title="Couleur du texte"><span>A</span><i id="dCouleurBarre" style="background:#c0392b"></i></button><input type="color" id="dCouleur" value="#c0392b" title="Choisir la couleur du texte"></span>
+        <span class="teinte" title="Surligner"><button type="button" id="dSurligneOk" title="Surligner"><span style="font-size:13px">🖍</span><i id="dSurligneBarre" style="background:#fff176"></i></button><input type="color" id="dSurligne" value="#fff176" title="Choisir la couleur du surligneur"></span>
+        <span class="sep"></span>
+        <button type="button" data-cmd="removeFormat" title="Effacer la mise en forme">⌫</button>
+      </div>
+      <div id="dTexte" class="editeur" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Votre réponse" spellcheck="true"></div>
+      <div id="dSignature" class="signature-apercu" title="Votre signature Gmail, ajoutée sous la réponse"></div>
+      <div class="pieces">
+        <label class="btn petit" for="dFichiers" title="Joindre un ou plusieurs fichiers (20 Mo au total)">📎 Joindre des fichiers</label>
+        <input type="file" id="dFichiers" multiple hidden>
+        <div id="dPieces" class="pieces-liste"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:10px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+        <label class="case-gmail"><input type="checkbox" id="dSigner" checked> Ajouter ma signature</label>
+        <label class="case-gmail"><input type="checkbox" id="dCiter" checked> Reprendre le message de la demande sous la réponse</label></div>
+        <button type="button" class="btn plein" id="dEnvoyer">Envoyer depuis support.naogroup@gmail.com</button></div>
+    </div>
+    <div id="dGmailConfig" hidden>
+      <p style="margin:6px 0 10px;font-size:13px;color:var(--ink-2)">Pour écrire d'ici, installez une fois le relais Gmail
+        (mode d'emploi en tête du fichier <code>gmail-support.gs</code>), puis collez son adresse&nbsp;:</p>
+      <div style="display:flex;gap:8px"><input id="dRelais" type="url" placeholder="https://script.google.com/macros/s/…/exec">
+        <button type="button" class="btn plein" id="dRelaisOk">Enregistrer</button></div>
+    </div>
+  </div>
+  <div class="msg" id="dMsg"></div>
+  <div class="bas" style="justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:8px;align-items:center"><label style="margin:0">Statut</label>
+      <select id="dStatut" style="width:auto"><option value="nouvelle">Nouvelle</option><option value="en_cours">En cours</option><option value="traitee">Traitée</option><option value="archivee">Archivée</option></select>
+      <button type="button" class="btn petit danger" id="dSupprimer">Supprimer</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" id="dRepondre" href="#" target="_blank" rel="noopener">Ouvrir Gmail</a>
+      <button type="button" class="btn plein" id="dCreer">Créer le profil</button>
+      <button type="button" class="btn" data-ferme="m-demande">Fermer</button></div>
+  </div>
+</div></div>
+
+<!-- ============ Fenêtre : mot de passe provisoire ============ -->
+<div class="voile" id="m-mdp" role="dialog" aria-modal="true"><div class="fen etroite">
+  <h3>Nouveau mot de passe provisoire</h3>
+  <p class="sous" id="mSous"></p>
+  <div id="mForm"><label for="mMdp">Mot de passe provisoire</label>
+    <div style="display:flex;gap:6px"><input id="mMdp" autocomplete="off" spellcheck="false"><button type="button" class="btn petit" id="btnPropose2">Proposer</button></div>
+    <div class="msg" id="mMsg"></div>
+    <div class="bas"><button type="button" class="btn" data-ferme="m-mdp">Annuler</button><button type="button" class="btn plein" id="btnValiderMdp">Enregistrer</button></div></div>
+  <div id="mRemis" hidden><div class="remis">Mot de passe provisoire : <code id="mRemisMdp"></code></div>
+    <p class="sous">La personne le remplacera à sa prochaine connexion.</p>
+    <div class="bas"><button type="button" class="btn" id="btnCopierMdp">Copier le message</button><button type="button" class="btn plein" id="btnLettreMdp">Préparer la lettre (PDF)</button><button type="button" class="btn" data-ferme="m-mdp">Terminé</button></div></div>
+</div></div>
+
+<!-- ============ Fenêtre : mon mot de passe ============ -->
+<div class="voile" id="m-moi" role="dialog" aria-modal="true"><div class="fen etroite">
+  <h3>Mon mot de passe</h3><p class="sous">Le vôtre, celui de l'administratrice.</p>
+  <label for="moi1">Nouveau mot de passe — 8 caractères au moins</label><input id="moi1" type="password" autocomplete="new-password">
+  <div style="height:12px"></div><label for="moi2">Confirmation</label><input id="moi2" type="password" autocomplete="new-password">
+  <div class="msg" id="moiMsg"></div>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-moi">Annuler</button><button type="button" class="btn plein" id="btnValiderMoi">Enregistrer</button></div>
+</div></div>
+
+<!-- ============ Fenêtre : nouvelle facture ============ -->
+<div class="voile" id="m-facture" role="dialog" aria-modal="true"><div class="fen">
+  <h3>Nouvelle facture</h3><p class="sous">Prix toutes taxes comprises.</p>
+  <div class="grille">
+    <div class="large"><label for="f-client">Client</label><select id="f-client"></select></div>
+    <div class="large"><label for="f-adresse">Adresse du client (facultatif)</label><input id="f-adresse" placeholder="Numéro, rue, code postal, ville"></div>
+    <div><label for="f-date">Date d'émission</label><input id="f-date" type="date"></div>
+    <div><label for="f-ech">Échéance</label><input id="f-ech" type="date"></div>
+    <div class="large"><label for="f-periode">Période facturée</label><input id="f-periode" placeholder="Ex. : octobre 2026"></div>
+  </div>
+  <h3 style="font-size:16px;margin:20px 0 8px">Lignes</h3>
+  <div id="f-lignes"></div>
+  <button type="button" class="btn petit" id="btnAjoutLigne">+ Ajouter une ligne</button>
+  <div class="msg" id="fMsg"></div>
+  <div class="bas"><button type="button" class="btn" data-ferme="m-facture">Annuler</button><button type="button" class="btn plein" id="btnCreerFacture">Créer la facture</button></div>
+</div></div>
+
+<!-- ============ La facture, imprimable ============ -->
+<div class="voile doc" id="m-doc" role="dialog" aria-modal="true"><div style="width:100%">
+  <div class="barre-doc"><button type="button" class="btn plein" id="btnImprimer">Imprimer / PDF</button><button type="button" class="btn" data-ferme="m-doc">Fermer</button></div>
+  <div class="feuille" id="feuille"></div>
+</div></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(s, el){ return (el||document).querySelector(s); };
+var esc = Nao.esc;
+var C = null, MOI = null, PROFILS = [], FACT = [], REGL = {}, DEMANDES = [], AVIS = [], avisOuvert = {}, demandeOuverte = null, demandePourProfil = null;
+var GMAIL_NOUVEAUX = {};   /* réponses non lues des clients dans la boîte support, par adresse de demande */
+var TYPES_DEMANDE = {question:'Question', souscription:'Souscription', acces:'Ouverture d\'un outil', mdp:'Mot de passe oublié', autre:'Autre'};
+
+/* ---------- valeurs de départ ---------- */
+var TOUS = Nao.outils.map(function(o){ return o.id; });
+var FORMULES_DEFAUT = JSON.parse(JSON.stringify(Nao.formulesDefaut));
+var EDITEUR_DEFAUT = {nom:'NaoGroup', forme:"Entreprise individuelle (EI), régime micro-entrepreneur", siret:'', adresse:'', email:'support.naogroup@gmail.com',
+  representante:'L\'équipe NaoGroup', qualite:'', tva:'TVA non applicable, article 293 B du CGI'};
+
+/* ---------- petits outils ---------- */
+function euros(n){ return (Number(n)||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}); }
+function ajd(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function plusJours(iso,n){ var d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dateFr(iso){ return iso ? new Date(iso+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '—'; }
+function dateHeure(iso){ return iso ? new Date(iso).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'jamais'; }
+function moisAnnee(){ return new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'}); }
+function toast(t){ var e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(function(){ e.classList.remove('on'); },2600); }
+function ouvrir(id){ $('#'+id).classList.add('ouvert'); }
+function fermer(id){ $('#'+id).classList.remove('ouvert'); }
+function msg(id,t){ var e=$('#'+id); e.textContent=t||''; e.classList.toggle('visible',!!t); }
+function copier(t){ if(navigator.clipboard) return navigator.clipboard.writeText(t).then(function(){ toast('Copié.'); }); }
+function nomComplet(p){ return [p.prenom, String(p.nom||'').toUpperCase()].filter(Boolean).join(' ') || p.identifiant; }
+function jetonsDe(p){ return Nao.outils.map(function(o){ var ok = Nao.aAcces(p,o.id) || (p.role!=='admin' && (p.outils||[]).indexOf(o.id)>=0);
+  return '<svg class="mj'+(ok?'':' off')+'" viewBox="0 0 40 40" title="'+esc(o.nom)+'"><title>'+esc(o.nom)+'</title><use href="#'+o.symbole+'"/></svg>'; }).join(''); }
+function joursAvant(fin){ return fin ? Math.ceil((new Date(fin+'T23:59:59') - new Date())/86400000) : null; }
+function formuleDe(id){ return (REGL.formules||[]).filter(function(f){ return f.id===id; })[0] || null; }
+
+/* ---------- appel à la fonction serveur ---------- */
+function appelAdmin(corps){
+  return C.functions.invoke('admin-profils', {body:corps}).then(function(r){
+    if (r.error) {
+      var m = r.error.message || 'Erreur.';
+      var suite = (r.error.context && r.error.context.json) ? r.error.context.json().then(function(j){ return (j && j.erreur) || m; }, function(){ return m; }) : Promise.resolve(m);
+      return suite.then(function(t){ throw new Error(t); });
+    }
+    if (r.data && r.data.erreur) throw new Error(r.data.erreur);
+    return r.data;
+  });
+}
+
+/* ---------- chargement ---------- */
+function charger(){
+  return Promise.all([
+    C.from('profils').select('*').order('created_at'),
+    C.from('reglages').select('*'),
+    C.from('factures').select('*').order('date_emission',{ascending:false}).order('numero',{ascending:false}),
+    C.from('notes_profils').select('*'),
+    C.from('demandes').select('*').order('created_at',{ascending:false}),
+    C.from('avis').select('*').order('created_at',{ascending:false})
+  ]).then(function(r){
+    AVIS = r[5].error ? [] : (r[5].data || []);   /* table absente : supabase-schema.sql à relancer */
+    var er = r[0].error || r[1].error || r[2].error || r[3].error;
+    if (er) throw new Error(er.message);
+    DEMANDES = r[4].error ? [] : (r[4].data || []);   /* table absente : SQL à relancer, sans bloquer le reste */
+    /* sans table « avis » sur le serveur, les questionnaires arrivent dans « demandes » (periode = 'avis') : on les remet avec les avis */
+    var ST_AVIS = {nouvelle:'nouveau', en_cours:'lu', traitee:'lu', archivee:'archive'};
+    DEMANDES.filter(function(d){ return d.periode==='avis'; }).forEach(function(d){
+      AVIS.push(Object.assign({}, d.formules||{}, {id:d.id, created_at:d.created_at, statut:ST_AVIS[d.statut]||'lu', _demande:true}));
+    });
+    AVIS.sort(function(a,b){ return a.created_at < b.created_at ? 1 : -1; });
+    DEMANDES = DEMANDES.filter(function(d){ return d.periode!=='avis'; });
+    if (r[4].error) setTimeout(function(){ toast('Demandes indisponibles : relancez supabase-schema.sql.'); }, 600);
+    PROFILS = r[0].data || [];
+    var notes = {}; (r[3].data||[]).forEach(function(n){ notes[n.user_id] = n.notes; });
+    PROFILS.forEach(function(p){ p.notes = notes[p.user_id] || ''; });
+    REGL = {};
+    (r[1].data||[]).forEach(function(x){ REGL[x.cle] = x.valeur; });
+    if (!Array.isArray(REGL.formules)) REGL.formules = JSON.parse(JSON.stringify(FORMULES_DEFAUT));
+    REGL.tarif = Nao.lireTarif(REGL.formules);
+    /* la maintenance a sa copie publique dans une entrée cachée des formules (voir enregMaint) */
+    var eMaint = REGL.formules.filter(function(f){ return f.id === 'maintenance'; })[0];
+    if (eMaint && eMaint.maintenance) REGL.maintenance = eMaint.maintenance;
+    REGL.formules = REGL.formules.filter(function(f){ return f.id !== 'sur-mesure' && f.id !== 'maintenance'; });
+    REGL.editeur = Object.assign({}, EDITEUR_DEFAUT, REGL.editeur||{});
+    FACT = r[2].data || [];
+    COLONNE_EMAIL = PROFILS.length ? PROFILS.some(function(x){ return 'email' in x; }) : null;
+    if (COLONNE_EMAIL === false) { var em = emailsSecours(); PROFILS.forEach(function(p){ p.email = em[p.user_id] || ''; }); }
+  });
+}
+/* bouton « ↻ Actualiser » de la page Profils : relit seulement les profils (dernières connexions, statuts) et leurs notes */
+function actualiserProfils(){
+  return Promise.all([
+    C.from('profils').select('*').order('created_at'),
+    C.from('notes_profils').select('*')
+  ]).then(function(r){
+    var er = r[0].error || r[1].error;
+    if (er) throw new Error(er.message);
+    PROFILS = r[0].data || [];
+    var notes = {}; (r[1].data||[]).forEach(function(n){ notes[n.user_id] = n.notes; });
+    PROFILS.forEach(function(p){ p.notes = notes[p.user_id] || ''; });
+    COLONNE_EMAIL = PROFILS.length ? PROFILS.some(function(x){ return 'email' in x; }) : null;
+    if (COLONNE_EMAIL === false) { var em = emailsSecours(); PROFILS.forEach(function(p){ p.email = em[p.user_id] || ''; }); }
+    rendre();
+  });
+}
+function enregReglage(cle, valeur){
+  return C.from('reglages').upsert({cle:cle, valeur:valeur, updated_at:new Date().toISOString()}).then(function(r){ if(r.error) throw new Error(r.error.message); });
+}
+/* L'adresse e-mail d'un profil : dans sa fiche (colonne « email » de profils) ou, tant que cette colonne
+   manque dans Supabase (supabase-schema.sql pas relancé), dans le réglage « emails_profils »
+   = { user_id: adresse }, que seule l'administratrice lit. L'enregistrement d'une fiche ne bloque plus. */
+var COLONNE_EMAIL = null;   /* null : on ne sait pas encore ; vrai / faux après lecture des profils */
+function emailsSecours(){ var e = REGL.emails_profils; return e && typeof e === 'object' && !Array.isArray(e) ? e : {}; }
+function colonneEmailManque(err){ var m = String(err && err.message || ''); return /email/i.test(m) && /column|colonne|schema cache/i.test(m); }
+function enregEmail(uid, email){
+  if (COLONNE_EMAIL !== false) {
+    return C.from('profils').update({email:email}).eq('user_id', uid).then(function(r){
+      if (!r.error) return;
+      if (!colonneEmailManque(r.error)) throw new Error(r.error.message);
+      COLONNE_EMAIL = false; return enregEmail(uid, email);
+    });
+  }
+  var l = Object.assign({}, emailsSecours());
+  if (email) l[uid] = email; else delete l[uid];
+  return enregReglage('emails_profils', l).then(function(){ REGL.emails_profils = l; });
+}
+
+/* ---------- rendu ---------- */
+function rendre(){ rendreStats(); rendreDemandes(); rendreProfils(); rendreFactures(); rendreFormules(); rendreTarif(); rendreEditeur(); rendreTemoignages(); rendreAvis(); }
+
+/* ---------- satisfaction : le questionnaire avis.html, les liens personnels, la vue d'ensemble ---------- */
+function moyenne(l){ l = l.filter(function(x){ return typeof x === 'number' && !isNaN(x); }); return l.length ? Math.round(l.reduce(function(s,x){ return s+x; },0)/l.length*10)/10 : null; }
+function nomOutil(id){ var o = Nao.outilParId(id); return o ? o.nom : (id==='autre' ? 'Autre' : id); }
+function virgule(x){ return x===null || x===undefined ? '—' : String(x).replace('.', ','); }
+function emailValide(a){ return /^[^\s@<>"(){}]+@[^\s@<>"(){}]+\.[^\s@<>"(){}]+$/.test(String(a||'')); }
+/* les liens envoyés : reglages « invitations_avis » = { clé: {user_id, nom, email, envoye, envois} } (lisible par l'administratrice seule) */
+function invitations(){ var v = REGL.invitations_avis; return (v && typeof v==='object' && !Array.isArray(v)) ? v : {}; }
+function profilDe(uid){ return uid ? PROFILS.filter(function(x){ return x.user_id===uid; })[0] || null : null; }
+/* qui a répondu : par la clé du lien personnel (sûr), sinon par le compte connecté au moment de répondre */
+function quiAvis(a){
+  var n = a.notes || {}, inv = n._invitation ? invitations()[n._invitation] || null : null;
+  var p = inv ? profilDe(inv.user_id) : null, compte = false;
+  if (!p && !inv && n._compte) { p = profilDe(n._compte); compte = !!p; }
+  return { p:p, inv:inv, compte:compte, identifie: !!(p || inv),
+    nom: p ? nomComplet(p) : (inv ? inv.nom : ''), email: (p && p.email) || (inv && inv.email) || a.email || '' };
+}
+function outilsNotes(a){ return Object.keys(a.notes||{}).filter(function(k){ return k.charAt(0) !== '_'; }); }
+function reponseInvitation(cle){ return AVIS.filter(function(a){ return (a.notes||{})._invitation === cle; })[0] || null; }
+function etatQuestionnaire(p){
+  var l = Object.keys(invitations()).map(function(k){ return Object.assign({cle:k}, invitations()[k]); }).filter(function(x){ return x.user_id===p.user_id; });
+  if (!l.length) return null;
+  l.sort(function(a,b){ return a.envoye < b.envoye ? 1 : -1; });
+  var rep = null; l.some(function(x){ rep = reponseInvitation(x.cle); return !!rep; });
+  return { dernier:l[0], reponse:rep };
+}
+
+/* la période choisie en haut de la page */
+function avisPeriode(){
+  var j = Number($('#periodeAvis').value) || 0;
+  if (!j) return AVIS;
+  var depuis = Date.now() - j*86400000;
+  return AVIS.filter(function(a){ return new Date(a.created_at).getTime() >= depuis; });
+}
+function compter(liste, cle, ordre){
+  var c = {};
+  liste.forEach(function(a){ var v = cle(a); if (!v) return; (Array.isArray(v) ? v : [v]).forEach(function(x){ c[x] = (c[x]||0) + 1; }); });
+  var l = Object.keys(c).map(function(k){ return {nom:k, n:c[k]}; });
+  if (ordre) l.sort(function(a,b){ var ia = ordre.indexOf(a.nom), ib = ordre.indexOf(b.nom); return (ia<0?99:ia) - (ib<0?99:ib); });
+  else l.sort(function(a,b){ return b.n - a.n; });
+  return l;
+}
+function pctTxt(a, b){ return b ? Math.round(a/b*100) + ' %' : '—'; }
+/* barres horizontales simples (une rubrique = une couleur NaoGroup) */
+function carteBarres(classe, titre, sous, lignes, total){
+  var max = Math.max.apply(null, lignes.map(function(x){ return x.n; }).concat([0]));
+  var corps = max ? '<div class="hb">' + lignes.map(function(x){
+      return '<div class="nm">'+(x.jeton||'')+esc(x.nom)+'</div>'+
+        '<div class="piste" data-tip="'+esc(x.nom+' : '+x.n+' réponse'+(x.n>1?'s':''))+'" data-tip2="'+esc(pctTxt(x.n, total)+' des réponses')+'"><i style="width:'+(x.n/max*100)+'%"></i></div>'+
+        '<div class="val">'+x.n+' <small style="color:var(--ink-3);font-weight:400">'+pctTxt(x.n, total)+'</small></div>';
+    }).join('') + '</div>' : '<div class="rien">Pas encore de réponse à cette question.</div>';
+  return '<div class="st-carte '+classe+'"><h4>'+titre+'</h4><p class="sous-g">'+sous+'</p>'+corps+'</div>';
+}
+function etoilesTxt(m){ var r = Math.round(m||0); return '★★★★★'.slice(0, r) + '<span style="opacity:.25">' + '★★★★★'.slice(0, 5-r) + '</span>'; }
+
+function rendreSatisfaction(){
+  var L = avisPeriode(), total = L.length;
+  var identifies = L.filter(function(a){ return quiAvis(a).identifie; }).length;
+  var inv = invitations(), cles = Object.keys(inv), repondues = cles.filter(reponseInvitation).length;
+  var recos = L.map(function(a){ return a.recommandation; }).filter(function(x){ return typeof x === 'number'; });
+  var promo = recos.filter(function(x){ return x >= 9; }).length, detr = recos.filter(function(x){ return x <= 6; }).length, pass = recos.length - promo - detr;
+  var nps = recos.length ? Math.round((promo - detr) / recos.length * 100) : null;
+  var toutesNotes = []; L.forEach(function(a){ outilsNotes(a).forEach(function(id){ var x = a.notes[id]||{}; if (x.note) toutesNotes.push(x.note); }); });
+  var noteG = moyenne(toutesNotes), reco = moyenne(recos);
+  $('#kpiAvis').innerHTML =
+    '<div class="stat"><b>'+total+'</b><span>Réponses'+(Number($('#periodeAvis').value)?' sur la période':'')+'</span></div>'+
+    '<div class="stat"><b>'+identifies+'</b><span>Dont profils identifiés</span></div>'+
+    '<div class="stat"><b>'+(cles.length ? pctTxt(repondues, cles.length) : '—')+'</b><span>Taux de réponse ('+repondues+' / '+cles.length+' envoyés)</span></div>'+
+    '<div class="stat"><b>'+virgule(noteG)+(noteG!==null?' ★':'')+'</b><span>Note moyenne des outils</span></div>'+
+    '<div class="stat"><b>'+virgule(reco)+(reco!==null?' / 10':'')+'</b><span>Recommandation moyenne</span></div>'+
+    '<div class="stat"><b>'+(nps===null?'—':(nps>0?'+':'')+nps)+'</b><span>Score de recommandation (NPS)</span></div>';
+
+  /* la note de chaque outil */
+  var parOutil = Nao.outils.map(function(o){
+    var x = L.map(function(a){ return (a.notes||{})[o.id]; }).filter(Boolean);
+    return { o:o, n:x.filter(function(v){ return v.note; }).length, essais:L.filter(function(a){ return (a.outils||[]).indexOf(o.id)>=0; }).length,
+      note:moyenne(x.map(function(v){ return v.note; })), fl:moyenne(x.map(function(v){ return v.fluidite; })), fa:moyenne(x.map(function(v){ return v.facilite; })) };
+  });
+  var notes = parOutil.filter(function(x){ return x.n; }).sort(function(a,b){ return b.note - a.note || b.n - a.n; });
+  var sans = parOutil.filter(function(x){ return !x.n; });
+  var ligne = function(lib, v, coul){ return '<div class="no-ligne"><span>'+lib+'</span><div class="piste"><i style="width:'+((v||0)/5*100)+'%;background:'+coul+'"></i></div><span class="v">'+virgule(v)+'</span></div>'; };
+  $('#notesOutils').innerHTML = (notes.length || sans.length) ? '<div class="notes-outils">' + notes.map(function(x){
+      return '<div class="no-carte"><div class="no-tete"><svg viewBox="0 0 40 40"><use href="#'+x.o.symbole+'"/></svg><div><b>'+esc(x.o.nom)+'</b><small>'+x.n+' note'+(x.n>1?'s':'')+(x.essais>x.n?' · '+x.essais+' essais':'')+'</small></div>'+
+        '<div class="no-note"><b>'+virgule(x.note)+'</b><span class="et">'+etoilesTxt(x.note)+'</span></div></div>'+
+        ligne('Note', x.note, '#19F0D8')+ligne('Fluidité', x.fl, '#A98BFF')+ligne('Prise en main', x.fa, '#E99BFF')+'</div>';
+    }).join('') + (total ? sans.map(function(x){
+      return '<div class="no-carte sans"><div class="no-tete" style="margin:0"><svg viewBox="0 0 40 40"><use href="#'+x.o.symbole+'"/></svg><div><b>'+esc(x.o.nom)+'</b><small>pas encore noté</small></div></div></div>';
+    }).join('') : '') + '</div>' : '';
+  if (!total) $('#notesOutils').innerHTML = '<div class="st-carte"><div class="rien">Les notes apparaîtront ici dès les premières réponses.</div></div>';
+
+  /* les graphiques */
+  var R = 52, C2 = 2*Math.PI*R, seg = [[promo,'#19F0D8','Promoteurs (9-10)'],[pass,'#C9B7F5','Passifs (7-8)'],[detr,'#E58BA0','Détracteurs (0-6)']], off = 0;
+  var anneau = recos.length ? '<div class="anneau"><svg viewBox="0 0 130 130"><circle cx="65" cy="65" r="'+R+'" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="16"/>'+
+      seg.map(function(s){ if (!s[0]) return ''; var l = s[0]/recos.length*C2, h = '<circle cx="65" cy="65" r="'+R+'" fill="none" stroke="'+s[1]+'" stroke-width="16" stroke-dasharray="'+l+' '+(C2-l)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 65 65)"><title>'+s[2]+' : '+s[0]+'</title></circle>'; off += l; return h; }).join('')+
+      '<text x="65" y="63" text-anchor="middle" fill="#fff" font-size="26" font-family="Georgia,serif">'+(nps>0?'+':'')+nps+'</text><text x="65" y="82" text-anchor="middle" fill="rgba(243,239,251,.55)" font-size="10" font-family="Segoe UI,Arial,sans-serif">NPS</text></svg>'+
+      '<div class="leg">'+seg.map(function(s){ return '<span><i style="background:'+s[1]+'"></i>'+s[2]+' : <b>'+s[0]+'</b> ('+pctTxt(s[0], recos.length)+')</span>'; }).join('')+'</div></div>'
+    : '<div class="rien">Pas encore de recommandation.</div>';
+  var parNote = []; for (var v = 0; v <= 10; v++) parNote.push(recos.filter(function(x){ return x===v; }).length);
+  var maxN = Math.max.apply(null, parNote.concat([0]));
+  var colonnes = maxN ? '<div class="colonnes-nps">'+parNote.map(function(c, i){
+      var coul = i<=6 ? '#E58BA0' : i<=8 ? '#C9B7F5' : '#19F0D8';
+      return '<div data-tip="'+c+' réponse'+(c>1?'s':'')+'" data-tip2="Note '+i+' / 10"><span style="color:#fff">'+(c||'')+'</span><i style="height:'+(c/maxN*80)+'%;background:'+(c?coul:'rgba(255,255,255,.12)')+'"></i>'+i+'</div>';
+    }).join('')+'</div>' : '<div class="rien">Pas encore de recommandation.</div>';
+  var autreGroupe = function(v){ return /^Autre/.test(v||'') ? 'Autre' : v; };
+  var essais = compter(L, function(a){ return (a.outils||[]).map(function(id){ return id==='autre' ? 'Autre' : nomOutil(id); }); }).map(function(x){ var o = Nao.outils.filter(function(t){ return t.nom===x.nom; })[0]; if (o) x.jeton = '<svg viewBox="0 0 40 40"><use href="#'+o.symbole+'"/></svg>'; return x; });
+  var precisions = L.map(function(a){ return [a.profil, a.connu]; }).reduce(function(s,x){ return s.concat(x); }, []).filter(function(v){ return /^Autre : /.test(v||''); }).map(function(v){ return v.slice(8); });
+  $('#graphAvis').innerHTML =
+    '<div class="st-carte sat-t"><h4>Recommanderaient NaoGroup</h4><p class="sous-g">Score = % de promoteurs − % de détracteurs ('+recos.length+' réponse'+(recos.length>1?'s':'')+')</p>'+anneau+'</div>'+
+    '<div class="st-carte sat-v"><h4>Notes de recommandation</h4><p class="sous-g">Combien de réponses pour chaque note, de 0 à 10</p>'+colonnes+'</div>'+
+    carteBarres('sat-r', 'Le prix paraît…', 'Perception du prix', compter(L, function(a){ return a.prix_percu; }, ['Trop cher','Correct','Bon marché','Je ne sais pas']), total)+
+    carteBarres('sat-l', 'Prêts à payer par mois', 'Montant mensuel accepté', compter(L, function(a){ return a.montant; }, ['Rien','Moins de 5 €','5 à 10 €','10 à 20 €','Plus de 20 €']), total)+
+    carteBarres('sat-t', 'Formule préférée', 'Par outil, pack ou abonnement global', compter(L, function(a){ return a.formule_preferee; }), total)+
+    carteBarres('sat-v', 'Les outils les plus essayés', 'Nombre de réponses qui citent l\'outil', essais, total)+
+    carteBarres('sat-r', 'Comment ils ont connu NaoGroup', 'Les « Autre » sont précisés plus bas', compter(L, function(a){ return autreGroupe(a.connu); }), total)+
+    carteBarres('sat-l', 'Profils', 'Particulier, indépendant, entreprise…', compter(L, function(a){ return autreGroupe(a.profil); }), total)+
+    (precisions.length ? '<div class="st-carte large sat-t"><h4>Les « Autre » précisés</h4><p class="sous-g">Ce que les personnes ont écrit en choisissant « Autre »</p><p style="margin:0;font-size:13px;color:var(--ink-2)">'+precisions.map(esc).join(' · ')+'</p></div>' : '');
+
+  /* les questionnaires envoyés */
+  var lignesInv = cles.map(function(k){ return Object.assign({cle:k}, inv[k]); }).sort(function(a,b){ return a.envoye < b.envoye ? 1 : -1; });
+  $('#videInvitations').hidden = lignesInv.length > 0;
+  $('#corpsInvitations').innerHTML = lignesInv.map(function(x){
+    var p = profilDe(x.user_id), rep = reponseInvitation(x.cle);
+    return '<tr><td><b>'+esc(p ? nomComplet(p) : (x.nom||'Profil supprimé'))+'</b><small>'+esc(x.email||'')+'</small></td>'+
+      '<td>'+dateHeure(x.envoye)+(x.envois>1?'<small>'+x.envois+' envois</small>':'')+'</td>'+
+      '<td>'+(rep ? '<span class="pastille p-traitee">Répondu</span><small>'+dateHeure(rep.created_at)+(rep.recommandation!=null?' · '+rep.recommandation+'/10':'')+'</small>' : '<span class="pastille p-en_cours">En attente</span>')+'</td>'+
+      '<td><div class="actions">'+(rep ? '<button class="btn petit" data-inv="voir" data-id="'+esc(rep.id)+'">Voir sa réponse</button>' : (p ? '<button class="btn petit" data-inv="relancer" data-uid="'+esc(x.user_id)+'">Relancer</button>' : ''))+
+      '<button class="btn petit danger" data-inv="retirer" data-cle="'+esc(x.cle)+'" title="Le lien ne sera plus reconnu : une réponse arriverait sans nom">Retirer</button></div></td></tr>';
+  }).join('');
+}
+$('#periodeAvis').addEventListener('change', rendreSatisfaction);
+$('#corpsInvitations').addEventListener('click', function(e){
+  var b = e.target.closest('[data-inv]'); if (!b) return;
+  var act = b.getAttribute('data-inv');
+  if (act==='voir') return montrerAvis(b.getAttribute('data-id'));
+  if (act==='relancer') { var p = profilDe(b.getAttribute('data-uid')); if (p) envoyerQuestionnaire(p, b); return; }
+  if (act==='retirer') {
+    if (!confirm('Retirer ce lien ? Une réponse envoyée plus tard par ce lien arriverait sans nom.')) return;
+    var l = Object.assign({}, invitations()); delete l[b.getAttribute('data-cle')];
+    enregReglage('invitations_avis', l).then(function(){ REGL.invitations_avis = l; rendreAvis(); rendreProfils(); toast('Lien retiré.'); }).catch(function(x){ alert(x.message); });
+  }
+});
+function montrerAvis(id){
+  var a = AVIS.filter(function(x){ return x.id===id; })[0];
+  if (!a) return toast('Cet avis n\'existe plus (supprimé).');
+  if (a.statut==='archive' && $('#filtreAvis').value!=='tous' && $('#filtreAvis').value!=='archive') $('#filtreAvis').value = 'tous';
+  $('#rechAvis').value = '';
+  avisOuvert[a.id] = true;
+  if (a.statut==='nouveau') majAvis(a, {statut:'lu'}).catch(function(){ rendreAvis(); }); else rendreAvis();
+  var bt = document.querySelector('[data-av="ouvrir"][data-id="'+a.id+'"]');
+  (bt ? bt.closest('tr') : $('#panneauAvis')).scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* ---------- le bouton « ⭐ Questionnaire » d'un profil : un e-mail avec son lien personnel ---------- */
+var SITE_PUBLIC = 'https://naogroup.github.io/NaoGroup/';
+function lienQuestionnaire(cle){
+  /* l'adresse publique du site, sauf si l'administration est elle-même ouverte en ligne */
+  var enLigne = location.protocol === 'https:' && !/^(localhost|127\.|\[::1\])/.test(location.hostname);
+  return (enLigne ? Nao.url('avis.html') : SITE_PUBLIC + 'avis.html') + '?j=' + cle;
+}
+function nouvelleCle(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  var b = new Uint8Array(16); crypto.getRandomValues(b);
+  return Array.prototype.map.call(b, function(x){ return ('0'+x.toString(16)).slice(-2); }).join('');
+}
+function mailQuestionnaire(p, lien){
+  var prenom = p.prenom || nomComplet(p);
+  var texte = 'Bonjour '+prenom+',\n\nVous utilisez les outils NaoGroup, et votre avis nous aide à les améliorer.\n'+
+    'Pourriez-vous prendre 3 minutes pour répondre à notre questionnaire de satisfaction ?\n\n'+lien+'\n\n'+
+    'Ce lien vous est personnel : votre réponse nous parvient avec votre nom, pour que nous puissions vous répondre.\n\nMerci beaucoup !\n\n'+SIGNATURE.texte;
+  var html = '<div style="background:#F4F1FB;padding:28px 12px;font-family:Georgia,serif">'+
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #E4DCF7">'+
+    '<tr><td style="height:6px;background:#8A5CFF;background-image:linear-gradient(90deg,#19F0D8,#8A5CFF 48%,#E99BFF)"></td></tr>'+
+    '<tr><td style="padding:30px 32px 8px;text-align:center"><div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8A5CFF;font-family:Arial,sans-serif;font-weight:bold">NaoGroup</div>'+
+    '<h1 style="margin:10px 0 0;font-size:26px;font-weight:normal;color:#1A1240">Votre avis compte</h1></td></tr>'+
+    '<tr><td style="padding:16px 32px 6px;font-size:15.5px;line-height:1.6;color:#2B2440;font-style:italic">'+
+    '<p style="margin:0 0 12px">Bonjour '+esc(prenom)+',</p>'+
+    '<p style="margin:0 0 12px">Vous utilisez les outils NaoGroup, et votre avis nous aide à les améliorer.</p>'+
+    '<p style="margin:0 0 6px">Pourriez-vous prendre <b style="color:#1A1240">3 minutes</b> pour répondre à notre questionnaire de satisfaction ?</p></td></tr>'+
+    '<tr><td style="padding:18px 32px 10px;text-align:center"><a href="'+esc(lien)+'" style="display:inline-block;background:#8A5CFF;background-image:linear-gradient(90deg,#19F0D8,#8A5CFF 48%,#E99BFF);color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:16px;padding:14px 34px;border-radius:999px">Donner mon avis →</a></td></tr>'+
+    '<tr><td style="padding:8px 32px 24px;text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#7A7290">Ce lien vous est personnel : votre réponse nous parvient avec votre nom.</td></tr>'+
+    '<tr><td style="padding:0 32px 28px">'+SIGNATURE.html+'</td></tr>'+
+    '</table></div>';
+  return { sujet:'Votre avis sur NaoGroup — 3 minutes ?', texte:texte, html:html };
+}
+function envoyerQuestionnaire(p, bouton){
+  if (!relaisGmail()) return alert('Le relais Gmail n\'est pas encore installé : ouvrez une demande (page Demandes) pour coller son adresse, puis revenez ici.');
+  var email = String(p.email||'').trim().toLowerCase();
+  if (!emailValide(email)) {
+    email = String(prompt('Quelle est l\'adresse e-mail de '+nomComplet(p)+' ?\n(Elle sera enregistrée dans sa fiche.)', '') || '').trim().toLowerCase();
+    if (!email) return;
+    if (!emailValide(email)) return alert('Cette adresse e-mail ne semble pas valide.');
+  }
+  var etat = etatQuestionnaire(p), l = Object.assign({}, invitations()), cle;
+  if (etat && etat.reponse) {
+    if (!confirm(nomComplet(p)+' a déjà répondu le '+dateHeure(etat.reponse.created_at)+'.\nLui envoyer un nouveau questionnaire ?')) return;
+    cle = nouvelleCle();
+  } else if (etat) {
+    if (!confirm('Questionnaire déjà envoyé à '+nomComplet(p)+' le '+dateHeure(etat.dernier.envoye)+'.\nLe renvoyer (même lien) ?')) return;
+    cle = etat.dernier.cle;
+  } else cle = nouvelleCle();
+  var avant = l[cle];
+  l[cle] = { user_id:p.user_id, nom:nomComplet(p), email:email, envoye:new Date().toISOString(), envois:(avant && avant.envois || 0) + 1 };
+  var m = mailQuestionnaire(p, lienQuestionnaire(cle));
+  var txt = bouton ? bouton.textContent : ''; if (bouton) { bouton.disabled = true; bouton.textContent = 'Envoi…'; }
+  /* l'adresse saisie rejoint la fiche du profil */
+  var fiche = email !== String(p.email||'').toLowerCase()
+    ? enregEmail(p.user_id, email).then(function(){ p.email = email; })
+    : Promise.resolve();
+  fiche.then(function(){ return enregReglage('invitations_avis', l); }).then(function(){
+    REGL.invitations_avis = l;
+    return appelGmail({action:'envoyer', a:email, sujet:m.sujet, texte:m.texte, html:m.html}).catch(function(e){
+      /* l'e-mail n'est pas parti : le lien n'est pas compté comme envoyé */
+      var r = Object.assign({}, l); if (avant) r[cle] = avant; else delete r[cle];
+      return enregReglage('invitations_avis', r).then(function(){ REGL.invitations_avis = r; }, function(){}).then(function(){ throw e; });
+    });
+  }).then(function(){
+    toast('Questionnaire envoyé à '+email+'.');
+  }).catch(function(e){ alert('Envoi impossible : '+e.message); }).then(function(){
+    if (bouton) { bouton.disabled = false; bouton.textContent = txt; }
+    rendreProfils(); rendreAvis();
+  });
+}
+
+function rendreAvis(){
+  rendreSatisfaction();
+  var f = $('#filtreAvis').value, q = Nao.sansAccent($('#rechAvis').value.trim());
+  var liste = AVIS.filter(function(a){
+    var okF = f==='tous' ? true : f==='identifies' ? quiAvis(a).identifie : f ? a.statut===f : a.statut!=='archive';
+    if (!okF) return false;
+    if (!q) return true;
+    var w = quiAvis(a);
+    return Nao.sansAccent([w.nom, w.email, a.profil, a.connu, a.commentaires, a.outil_souhaite, a.autre_outil, (a.outils||[]).map(nomOutil).join(' '),
+      outilsNotes(a).map(function(id){ var x = a.notes[id]||{}; return (x.plu||'')+' '+(x.manque||''); }).join(' ')].join(' ')).indexOf(q) !== -1;
+  });
+  var n = AVIS.filter(function(a){ return a.statut==='nouveau'; }).length;
+  if (pageActive) majOnglets();
+  $('#nbAvis').textContent = n ? n+' nouveau'+(n>1?'x':'') : (AVIS.length ? AVIS.length+' au total' : '');
+  $('#videAvis').hidden = liste.length > 0;
+  $('#corpsAvis').innerHTML = liste.map(function(a){
+    var w = quiAvis(a);
+    var notes = outilsNotes(a);
+    var jetons = notes.map(function(id){ var o = Nao.outilParId(id), x = a.notes[id]||{};
+      return o ? '<span title="'+esc(o.nom)+'"><svg viewBox="0 0 40 40"><use href="#'+o.symbole+'"/></svg>'+(x.note ? x.note+' ★' : '—')+'</span>' : ''; }).join('') +
+      ((a.outils||[]).indexOf('autre')>=0 ? '<span style="padding-left:8px">'+esc(a.autre_outil||'Autre')+'</span>' : '');
+    var act = '<button class="btn petit'+(a.statut==='nouveau'?' plein':'')+'" data-av="ouvrir" data-id="'+a.id+'">'+(avisOuvert[a.id]?'Fermer':'Ouvrir')+'</button>';
+    if (a.temoignage_accord && a.temoignage_texte) act += '<button class="btn petit" data-av="publier" data-id="'+a.id+'">Publier en témoignage</button>';
+    act += a.statut==='archive' ? '<button class="btn petit" data-av="desarchiver" data-id="'+a.id+'">Désarchiver</button>' : '<button class="btn petit" data-av="archiver" data-id="'+a.id+'">Archiver</button>';
+    act += '<button class="btn petit danger" data-av="supprimer" data-id="'+a.id+'">Supprimer</button>';
+    var qui = w.identifie
+      ? '<b>'+esc(w.nom)+'</b><small>'+esc(w.email||'')+'</small><span class="qui-id" title="'+(w.compte?'Connecté à son compte au moment de répondre':'Réponse arrivée par son lien personnel')+'">✓ '+(w.compte?'compte connecté':'lien personnel')+'</span>'
+      : '<b>'+esc(a.profil||'—')+'</b><small>'+esc(a.mode||'')+(a.email?' · '+esc(a.email):'')+'</small><span class="qui-anon">anonyme</span>';
+    var reco = a.recommandation==null ? '—' : '<b style="color:'+(a.recommandation>=9?'#19F0D8':a.recommandation>=7?'#C9B7F5':'#E58BA0')+'">'+a.recommandation+' / 10</b>';
+    var ligne = '<tr><td>'+dateHeure(a.created_at)+'</td><td>'+qui+'</td>'+
+      '<td><div class="mini-notes">'+jetons+'</div></td><td>'+reco+'</td><td>'+esc(a.prix_percu||'—')+'<small>'+esc(a.montant||'')+'</small></td>'+
+      '<td><span class="pastille p-'+(a.statut==='nouveau'?'nouvelle':a.statut==='archive'?'archivee':'traitee')+'">'+({nouveau:'Nouveau',lu:'Lu',archive:'Archivé'}[a.statut])+'</span>'+
+      (a.temoignage_accord?'<small style="color:#8BFFF1">publication acceptée</small>':'')+'</td><td><div class="actions">'+act+'</div></td></tr>';
+    if (!avisOuvert[a.id]) return ligne;
+    var blocs = notes.map(function(id){ var x = a.notes[id]||{};
+      return '<div style="margin:0 0 10px"><b>'+esc(nomOutil(id))+'</b> — note '+(x.note?x.note+' ★':'—')+' · fluidité '+(x.fluidite||'—')+'/5 · prise en main '+(x.facilite||'—')+'/5'+
+        (x.plu?'<br><small>👍 '+esc(x.plu)+'</small>':'')+(x.manque?'<br><small>✋ '+esc(x.manque)+'</small>':'')+'</div>'; }).join('');
+    var det = '<div style="font-size:13px;line-height:1.55">'+
+      '<p style="margin:0 0 8px">Profil : <b>'+esc(a.profil||'—')+'</b> · Connu par : <b>'+esc(a.connu||'—')+'</b> · Formule préférée : <b>'+esc(a.formule_preferee||'—')+'</b>'+(a.autre_outil?' · Autre outil : <b>'+esc(a.autre_outil)+'</b>':'')+'</p>'+
+      blocs+(a.outil_souhaite?'<p style="margin:8px 0 0">💡 Outil souhaité : '+esc(a.outil_souhaite)+'</p>':'')+
+      (a.commentaires?'<p style="margin:8px 0 0">💬 '+esc(a.commentaires)+'</p>':'')+
+      (a.temoignage_accord?'<p style="margin:8px 0 0">⭐ Témoignage accepté : « '+esc(a.temoignage_texte||'')+' » — '+esc(a.temoignage_nom||'')+'</p>':'')+
+      (w.email?'<p style="margin:8px 0 0"><a class="btn petit" href="'+esc(gmailEcrire(w.email, 'Votre avis sur NaoGroup', w.p && w.p.prenom ? 'Bonjour '+w.p.prenom+',\n\n' : ''))+'" target="_blank" rel="noopener">Répondre par e-mail</a></p>':'')+'</div>';
+    return ligne+'<tr><td colspan="7" style="background:rgba(255,255,255,.03)">'+det+'</td></tr>';
+  }).join('');
+}
+$('#filtreAvis').addEventListener('change', rendreAvis);
+$('#rechAvis').addEventListener('input', rendreAvis);
+function majAvis(a, champs){
+  if (a._demande) {   /* avis rangé dans « demandes » : seul le statut s'y enregistre */
+    var st = {nouveau:'nouvelle', lu:'traitee', archive:'archivee'}[champs.statut];
+    if (!st) return Promise.reject(new Error('Modification impossible sur cet avis.'));
+    return C.from('demandes').update({statut:st}).eq('id', a.id).then(function(r){
+      if (r.error) throw new Error(r.error.message);
+      a.statut = champs.statut; rendreAvis();
+    });
+  }
+  return C.from('avis').update(champs).eq('id', a.id).select().single().then(function(r){
+    if (r.error) throw new Error(r.error.message);
+    Object.assign(a, r.data); rendreAvis();
+  });
+}
+$('#corpsAvis').addEventListener('click', function(e){
+  var b = e.target.closest('[data-av]'); if (!b) return;
+  var a = AVIS.filter(function(x){ return x.id===b.getAttribute('data-id'); })[0], act = b.getAttribute('data-av'); if (!a) return;
+  if (act==='ouvrir') { avisOuvert[a.id] = !avisOuvert[a.id]; if (a.statut==='nouveau') majAvis(a, {statut:'lu'}).catch(function(){ rendreAvis(); }); else rendreAvis(); return; }
+  if (act==='archiver') return majAvis(a, {statut:'archive'}).catch(function(x){ alert(x.message); });
+  if (act==='desarchiver') return majAvis(a, {statut:'lu'}).catch(function(x){ alert(x.message); });
+  if (act==='supprimer') {
+    if (!confirm('Supprimer définitivement cet avis ? Cette action ne peut pas être annulée.')) return;
+    return C.from(a._demande ? 'demandes' : 'avis').delete().eq('id', a.id).then(function(r){ if (r.error) return alert(r.error.message); AVIS = AVIS.filter(function(x){ return x.id!==a.id; }); rendreAvis(); toast('Avis supprimé.'); });
+  }
+  if (act==='publier') {
+    var l = Array.isArray(REGL.temoignages) ? REGL.temoignages.slice() : [];
+    if (l.some(function(t){ return t.avis===a.id; })) return toast('Déjà dans les témoignages.');
+    var outils = (a.outils||[]).filter(function(id){ return Nao.outilParId(id); });
+    l.push({ nom:a.temoignage_nom || 'Un client', outils:outils, texte:a.temoignage_texte, publie:true, avis:a.id });
+    enregReglage('temoignages', l).then(function(){ REGL.temoignages = l; rendreTemoignages(); toast('Témoignage publié sur l\'accueil.'); }).catch(function(x){ alert(x.message); });
+  }
+});
+
+/* ---------- paiements : une facture « à payer » dont l'échéance est passée ---------- */
+function impayes(p){ return FACT.filter(function(f){ return f.user_id===p.user_id && f.statut==='a_payer'; }); }
+function enRetard(p){ return impayes(p).filter(function(f){ return f.echeance && f.echeance < ajd(); }); }
+
+/* ---------- témoignages (reglages « temoignages », lisibles par tous) ---------- */
+function rendreTemoignages(){
+  var l = Array.isArray(REGL.temoignages) ? REGL.temoignages : [];
+  $('#listeTemoignages').innerHTML = l.length ? l.map(function(t, i){
+    return '<div class="panneau" style="margin-bottom:12px;padding:14px" data-t="'+i+'" data-avis="'+esc(t.avis||'')+'"><div class="grille" style="margin-bottom:10px">'+
+      '<div><label>Prénom et initiale</label><input data-tc="nom" maxlength="60" value="'+esc(t.nom||'')+'"></div>'+
+      '<div class="large" style="order:9"><label>Outils concernés (facultatif · plusieurs possibles)</label><div class="t-outils">'+Nao.outils.map(function(o){
+        return '<label><input type="checkbox" data-to="'+esc(o.id)+'"'+(outilsTem(t).indexOf(o.id)>=0?' checked':'')+'> '+esc(o.nom)+'</label>'; }).join('')+'</div></div>'+
+      '<div style="align-self:end"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;margin:0 0 8px;cursor:pointer"><input type="checkbox" data-tc="publie" '+(t.publie===false?'':'checked')+'> Publié sur l\'accueil</label>'+
+      '<div style="text-align:right"><button class="btn petit danger" data-supt="'+i+'">Supprimer</button></div></div></div>'+
+      '<label>Témoignage</label><textarea data-tc="texte" rows="2" maxlength="400" style="width:100%">'+esc(t.texte||'')+'</textarea></div>';
+  }).join('') : '<p class="aide">Aucun témoignage pour l\'instant : la section reste cachée sur l\'accueil.</p>';
+}
+/* les outils d'un témoignage : liste d'identifiants (« outils »), ou l'ancien champ « outil » (un seul nom) */
+function outilsTem(t){
+  if (Array.isArray(t.outils)) return t.outils;
+  var o = t.outil ? Nao.outils.filter(function(x){ return x.nom===t.outil || x.id===t.outil; })[0] : null;
+  return o ? [o.id] : [];
+}
+function lireTemoignages(){
+  return Array.prototype.map.call($('#listeTemoignages').querySelectorAll('[data-t]'), function(b){
+    var outils = Array.prototype.filter.call(b.querySelectorAll('[data-to]'), function(c){ return c.checked; }).map(function(c){ return c.getAttribute('data-to'); });
+    var t = { nom:$('[data-tc=nom]',b).value.trim(), outils:outils, texte:$('[data-tc=texte]',b).value.trim(), publie:$('[data-tc=publie]',b).checked };
+    if (b.getAttribute('data-avis')) t.avis = b.getAttribute('data-avis');
+    return t;
+  });
+}
+$('#btnAjoutTemoignage').addEventListener('click', function(){
+  REGL.temoignages = lireTemoignages().concat([{ nom:'', outils:[], texte:'', publie:false }]); rendreTemoignages();
+});
+$('#listeTemoignages').addEventListener('click', function(e){
+  var b = e.target.closest('[data-supt]'); if (!b) return;
+  var l = lireTemoignages(); l.splice(Number(b.getAttribute('data-supt')), 1); REGL.temoignages = l; rendreTemoignages();
+});
+$('#btnEnregTemoignages').addEventListener('click', function(){
+  var l = lireTemoignages().filter(function(t){ return t.texte; });
+  enregReglage('temoignages', l).then(function(){ REGL.temoignages = l; rendreTemoignages(); toast('Témoignages enregistrés.'); }).catch(function(e){ alert(e.message); });
+});
+
+function rendreStats(){
+  var clients = PROFILS.filter(function(p){ return p.role!=='admin'; });
+  var actifs = clients.filter(function(p){ return p.statut==='actif' && !Nao.abonnementExpire(p); }).length;
+  var arret = clients.filter(function(p){ return p.statut!=='actif'; }).length;
+  var echus = clients.filter(function(p){ return Nao.abonnementExpire(p); }).length;
+  var mois = ajd().slice(0,7);
+  var encaisse = FACT.filter(function(f){ return f.statut==='payee' && String(f.date_paiement||'').slice(0,7)===mois; }).reduce(function(s,f){ return s+Number(f.total); },0);
+  var attente = FACT.filter(function(f){ return f.statut==='a_payer'; }).reduce(function(s,f){ return s+Number(f.total); },0);
+  var aTraiter = DEMANDES.filter(function(d){ return d.statut==='nouvelle' || d.statut==='en_cours'; }).length;
+  $('#stats').innerHTML =
+    '<div class="stat"><b>'+aTraiter+'</b><span>Demandes à traiter</span></div>'+
+    '<div class="stat"><b>'+actifs+'</b><span>Profils actifs</span></div>'+
+    '<div class="stat"><b>'+arret+'</b><span>Suspendus / bloqués</span></div>'+
+    '<div class="stat"><b>'+echus+'</b><span>Abonnements échus</span></div>'+
+    '<div class="stat"><b>'+euros(encaisse)+'</b><span>Encaissé ce mois</span></div>'+
+    '<div class="stat"><b>'+euros(attente)+'</b><span>À encaisser</span></div>';
+  majOnglets();
+}
+
+/* ---------- les pages (onglets) ---------- */
+var PAGES = {statistiques:'Statistiques', profils:'Profils', factures:'Factures', demandes:'Demandes', satisfaction:'Satisfaction', parametres:'Paramètres'}, pageActive = '';
+function afficherPage(nom, garderPosition){
+  if (!PAGES[nom]) nom = 'statistiques';
+  var change = nom !== pageActive; pageActive = nom;
+  document.querySelectorAll('.page').forEach(function(s){ s.hidden = s.getAttribute('data-page') !== nom; });
+  document.querySelectorAll('.onglet').forEach(function(a){
+    var on = a.getAttribute('data-page') === nom; a.classList.toggle('on', on);
+    if (on) { a.setAttribute('aria-current', 'page'); a.parentNode.scrollLeft = a.offsetLeft - 24; }   /* sur téléphone, l'onglet choisi reste visible */
+    else a.removeAttribute('aria-current');
+  });
+  document.title = 'NaoGroup — administration · ' + PAGES[nom];
+  if (change && !garderPosition) window.scrollTo(0, 0);
+  if (nom === 'statistiques' && C && (usageEnRetard || (usageDerniere && Date.now() - usageDerniere >= USAGE_DELAI))) chargerUsage();
+}
+window.addEventListener('hashchange', function(){ afficherPage(location.hash.slice(1)); });
+function pastilleOnglet(id, n, titre){ var e = $('#'+id); e.hidden = !n; e.textContent = n; e.title = n ? titre : ''; }
+function majOnglets(){
+  var d = DEMANDES.filter(function(x){ return x.statut==='nouvelle' || x.statut==='en_cours' || !!repClient(x); }).length;
+  var a = AVIS.filter(function(x){ return x.statut==='nouveau'; }).length;
+  var r = DEMANDES.filter(repClient).length;
+  pastilleOnglet('nbOngletDemandes', d, d+' demande'+(d>1?'s':'')+' à traiter'+(r?' (dont '+r+' avec une réponse du client)':''));
+  pastilleOnglet('nbOngletAvis', a, a+' avis nouveau'+(a>1?'x':''));
+  var f = FACT.filter(function(x){ return x.statut==='a_payer'; }).length;
+  pastilleOnglet('nbOngletFactures', f, f+' facture'+(f>1?'s':'')+' à encaisser');
+}
+
+function rendreProfils(){
+  var q = Nao.sansAccent($('#rech').value.trim()), f = $('#filtre').value;
+  var liste = PROFILS.filter(function(p){
+    var okQ = !q || Nao.sansAccent(nomComplet(p)+' '+p.identifiant+' '+(p.email||'')+' '+(p.entreprise||'')).indexOf(q) !== -1;
+    var okF = !f || (f==='echu' ? Nao.abonnementExpire(p) : f==='impaye' ? enRetard(p).length>0 : f==='inscription' ? p.origine==='inscription' : p.statut===f);
+    return okQ && okF;
+  });
+  $('#videProfils').hidden = liste.length > 0;
+  $('#corpsProfils').innerHTML = liste.map(function(p){
+    var admin = p.role==='admin', ab = p.abonnement||{}, fm = formuleDe(ab.formule), reste = joursAvant(ab.fin);
+    var abTxt = admin ? '<span class="pastille p-admin">Créatrice</span>' :
+      '<b>'+esc(fm ? fm.nom : (ab.formule||'—'))+'</b><small>'+(ab.prix!=null&&ab.prix!==''?euros(ab.prix)+' / '+(ab.periode==='annuel'?'an':'mois'):'')+
+      (ab.fin ? ' · '+(reste<0?'<span class="rouge">échu depuis le '+dateFr(ab.fin)+'</span>':(reste<=30?'<span class="ambre">échéance '+dateFr(ab.fin)+' (J-'+reste+')</span>':'jusqu\'au '+dateFr(ab.fin))) : ' · sans échéance')+'</small>';
+    var esp = {particulier:'🏠 Particulier', professionnel:'💼 Professionnel', les_deux:'🏠💼 Les deux'}[p.espace]||'';
+    if (!admin && accesNaoFiDuProfil(p) && (p.outils||[]).indexOf('naofi')>=0) esp += '<small>NaoFi '+(accesNaoFiDuProfil(p)==='pro' ? 'professionnel' : 'particulier')+'</small>';
+    var act = '<button class="btn petit" data-a="modifier" data-id="'+p.user_id+'">Modifier</button>';
+    if (!admin) {
+      act += p.statut==='actif'
+        ? '<button class="btn petit" data-a="suspendre" data-id="'+p.user_id+'">Suspendre</button><button class="btn petit danger" data-a="bloquer" data-id="'+p.user_id+'">Bloquer</button>'
+        : '<button class="btn petit" data-a="reactiver" data-id="'+p.user_id+'">Réactiver</button>';
+      act += '<button class="btn petit" data-a="questionnaire" data-id="'+p.user_id+'" title="Lui envoyer par e-mail le questionnaire de satisfaction, avec un lien personnel">⭐ Questionnaire</button>';
+      act += '<button class="btn petit" data-a="mdp" data-id="'+p.user_id+'">Mot de passe</button>'+
+             '<button class="btn petit" data-a="facture" data-id="'+p.user_id+'">Facture</button>'+
+             '<button class="btn petit danger" data-a="vider" data-id="'+p.user_id+'">Vider ses outils</button>'+
+             '<button class="btn petit danger" data-a="supprimer" data-id="'+p.user_id+'">Supprimer</button>';
+    }
+    var retard = admin ? [] : enRetard(p), aRegler = admin ? [] : impayes(p);
+    if (ab.a_choisir) abTxt = '<b>Sans formule</b><small>'+(ab.motif==='essai_deja_utilise'?'essai déjà utilisé avec cette adresse':'formule à choisir')+'</small>';
+    var statut = '<span class="pastille p-'+p.statut+'">'+({actif:'Actif',suspendu:'Suspendu',bloque:'Bloqué'}[p.statut])+'</span>'+
+      (retard.length ? '<small class="rouge">paiement en retard ('+euros(retard.reduce(function(s,f){ return s+Number(f.total); },0))+')</small>'
+        : aRegler.length ? '<small class="ambre">facture à régler</small>' : '')+
+      (p.mdp_provisoire && !admin ? '<small>mot de passe provisoire</small>' : '')+((p.motif && p.statut!=='actif') ? '<small>'+esc(p.motif)+'</small>' : '');
+    var eq = admin ? null : etatQuestionnaire(p);
+    if (eq) statut += eq.reponse
+      ? '<a class="quest-etat" href="#satisfaction" data-voir-avis="'+esc(eq.reponse.id)+'" style="color:#19F0D8">⭐ a répondu le '+dateFr(String(eq.reponse.created_at).slice(0,10))+'</a>'
+      : '<span class="quest-etat" style="color:var(--ambre)">⭐ questionnaire envoyé le '+dateFr(String(eq.dernier.envoye).slice(0,10))+'</span>';
+    return '<tr><td><b>'+esc(nomComplet(p))+'</b><small>'+esc(p.email||p.identifiant)+(p.entreprise?' · '+esc(p.entreprise):'')+'</small>'+
+      (p.origine==='inscription' ? '<small style="color:#8BFFF1">Inscrit seul · '+dateFr(String(p.created_at||'').slice(0,10))+'</small>' : '')+'</td>'+
+      '<td>'+esp+'</td><td>'+abTxt+'</td><td><div class="mini-jetons">'+jetonsDe(p)+'</div></td><td>'+statut+'</td><td style="white-space:nowrap">'+dateHeure(p.derniere_connexion)+'</td>'+
+      '<td><div class="actions">'+act+'</div></td></tr>';
+  }).join('');
+}
+
+function rendreDemandes(){
+  var f = $('#filtreDemandes').value;
+  var liste = DEMANDES.filter(function(d){ return f==='' ? (d.statut==='nouvelle'||d.statut==='en_cours'||!!repClient(d)) : f==='toutes' ? true : d.statut===f; });
+  /* une demande dont le client vient de répondre remonte en haut */
+  liste.sort(function(a, b){ var ra = repClient(a), rb = repClient(b); return (rb ? rb[0].date : '') > (ra ? ra[0].date : '') ? 1 : (rb ? rb[0].date : '') < (ra ? ra[0].date : '') ? -1 : 0; });
+  var n = DEMANDES.filter(function(d){ return d.statut==='nouvelle'; }).length, nr = DEMANDES.filter(repClient).length;
+  $('#nbDemandes').textContent = (n || nr) ? [n ? n+' nouvelle'+(n>1?'s':'') : '', nr ? nr+' réponse'+(nr>1?'s':'')+' de client'+(nr>1?'s':'') : ''].filter(Boolean).join(' · ') : 'rien de nouveau';
+  $('#videDemandes').hidden = liste.length > 0;
+  $('#corpsDemandes').innerHTML = liste.map(function(d){
+    var detail = d.type==='souscription'
+      ? (d.formules||[]).map(function(x){ return esc(x.nom); }).join(', ')+'<small>facturation '+(d.periode==='annuel'?'annuelle':'mensuelle')+'</small>'
+      : esc(String(d.message||'').slice(0,90))+(String(d.message||'').length>90?'…':'');
+    var rep = repClient(d);
+    if (rep) detail = '<span class="rep-client" style="margin:0 0 3px">💬 '+esc(rep[0].extrait.slice(0,90))+(rep[0].extrait.length>90?'…':'')+'</span>'+detail;
+    return '<tr><td>'+dateHeure(d.created_at)+'</td><td><b>'+esc(d.nom)+'</b><small>'+esc(d.email)+'</small>'+
+      (rep ? '<span class="rep-client">💬 '+(rep.length>1?rep.length+' nouvelles réponses':'Nouvelle réponse')+' · '+dateHeure(rep[0].date)+'</span>' : '')+'</td><td>'+esc(TYPES_DEMANDE[d.type]||d.type)+'</td>'+
+      '<td style="max-width:280px">'+detail+'</td><td><span class="pastille p-'+d.statut+'">'+({nouvelle:'Nouvelle',en_cours:'En cours',traitee:'Traitée',archivee:'Archivée'}[d.statut])+'</span></td>'+
+      '<td><div class="actions"><button class="btn petit'+(d.statut==='nouvelle'||rep?' plein':'')+'" data-d="voir" data-id="'+d.id+'">Ouvrir</button></div></td></tr>';
+  }).join('');
+}
+
+function rendreFactures(){
+  $('#videFactures').hidden = FACT.length > 0;
+  $('#corpsFactures').innerHTML = FACT.map(function(f){
+    var cl = f.client||{};
+    var act = '<button class="btn petit" data-fa="voir" data-id="'+f.id+'">Voir</button>';
+    if (f.statut==='a_payer') act += '<button class="btn petit" data-fa="payer" data-id="'+f.id+'">Marquer payée</button><button class="btn petit danger" data-fa="annuler" data-id="'+f.id+'">Annuler</button>';
+    return '<tr><td><b>'+esc(f.numero)+'</b></td><td>'+esc(cl.nom||'—')+'<small>'+esc(cl.identifiant||'')+'</small></td><td>'+dateFr(f.date_emission)+'</td><td>'+esc(f.periode||'')+'</td>'+
+      '<td><b>'+euros(f.total)+'</b></td><td><span class="pastille p-'+f.statut+'">'+({a_payer:'À payer',payee:'Payée',annulee:'Annulée'}[f.statut])+'</span>'+
+      (f.statut==='payee'?'<small>le '+dateFr(f.date_paiement)+'</small>':'')+'</td><td><div class="actions">'+act+'</div></td></tr>';
+  }).join('');
+}
+
+function tuilesOutils(cochees, prefixeId, avecInput){
+  return Nao.outils.map(function(o){
+    var oui = cochees.indexOf(o.id) >= 0;
+    return '<label class="tuile'+(oui?' oui':'')+'"><svg viewBox="0 0 40 40"><use href="#'+o.symbole+'"/></svg><div><b>'+esc(o.nom)+'</b><small>'+esc(o.role)+'</small></div>'+
+      '<input type="checkbox" data-outil="'+o.id+'" '+(oui?'checked':'')+'></label>';
+  }).join('');
+}
+document.addEventListener('change', function(e){
+  var t = e.target; if (t && t.matches && t.matches('.tuile input[type=checkbox]')) t.closest('.tuile').classList.toggle('oui', t.checked);
+});
+function outilsCoches(conteneur){ return Array.prototype.map.call(conteneur.querySelectorAll('input[data-outil]:checked'), function(i){ return i.getAttribute('data-outil'); }); }
+function cocher(conteneur, liste){
+  conteneur.querySelectorAll('input[data-outil]').forEach(function(i){ i.checked = liste.indexOf(i.getAttribute('data-outil'))>=0; i.closest('.tuile').classList.toggle('oui', i.checked); });
+  if (conteneur.id === 'matrice') majAccesNaoFi();
+}
+/* ---------- NaoFi : accès particulier ou professionnel ----------
+   Colonne « acces_naofi » de la table profils (voir supabase-schema.sql).
+   Le choix n'apparaît que si la tuile NaoFi est cochée ; il se modifie
+   à tout moment par « Modifier ». Seule l'administratrice l'écrit : le
+   profil le lit, il ne peut pas se donner l'accès professionnel. Tant que
+   la colonne n'existe pas dans Supabase, le choix est montré mais pas
+   enregistré, et un message le dit. */
+var COLONNE_ACCES_NAOFI = null;   /* null : on ne sait pas encore ; vrai / faux après lecture des profils */
+function accesNaoFiDefaut(espace){ return espace === 'professionnel' || espace === 'les_deux' ? 'pro' : 'particulier'; }
+/* Le choix enregistré : la colonne quand elle existe, sinon la copie gardée dans l'abonnement du profil
+   (lisible par le profil lui-même, donc par NaoFi, et modifiable par l'administratrice seule). */
+function accesNaoFiDuProfil(p){
+  if (!p) return '';
+  var v = ('acces_naofi' in p) ? p.acces_naofi : (p.abonnement && p.abonnement.acces_naofi);
+  return v === 'pro' || v === 'particulier' ? v : '';
+}
+function accesNaoFiChoisi(){ var r = document.querySelector('input[name="acces-naofi"]:checked'); return r ? r.value : 'particulier'; }
+function poserAccesNaoFi(v){ document.querySelectorAll('input[name="acces-naofi"]').forEach(function(r){ r.checked = r.value === v; }); }
+function majAccesNaoFi(){
+  var bloc = $('#bloc-acces-naofi'); if (!bloc) return;
+  var admin = edition && edition.role === 'admin';
+  var t = document.querySelector('#matrice input[data-outil="naofi"]');
+  bloc.hidden = admin || !(t && t.checked);
+  $('#msg-acces-naofi').textContent = '';
+}
+document.addEventListener('change', function(e){ if (e.target && e.target.matches && e.target.matches('#matrice input[data-outil="naofi"]')) majAccesNaoFi(); });
+
+function rendreFormules(){
+  $('#listeFormules').innerHTML = REGL.formules.map(function(f, i){
+    return '<div class="panneau" style="margin-bottom:14px;padding:16px" data-f="'+i+'"><div class="grille" style="margin-bottom:12px">'+
+      '<div><label>Nom de la formule</label><input data-champ="nom" value="'+esc(f.nom)+'"></div>'+
+      '<div><label>Prix TTC par mois (€)</label><input data-champ="prix" type="number" min="0" step="0.01" value="'+esc(f.prix)+'"></div>'+
+      '<div style="align-self:end"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;margin:0 0 8px;cursor:pointer"><input type="checkbox" data-champ="publique" '+(f.publique===false?'':'checked')+'> Proposée aux clients (accueil et « Créer mon compte »)</label>'+
+      '<div style="text-align:right"><button class="btn petit danger" data-supf="'+i+'">Supprimer</button></div></div></div>'+
+      '<div class="matrice">'+tuilesOutils(f.outils||[])+'</div></div>';
+  }).join('');
+}
+function lireFormules(){
+  return Array.prototype.map.call($('#listeFormules').children, function(bloc, i){
+    var nom = $('[data-champ=nom]',bloc).value.trim() || 'Formule '+(i+1);
+    var ancien = REGL.formules[i] || {};
+    return {id: ancien.id || (Nao.sansAccent(nom).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'f'+Date.now()), nom:nom, prix:Number($('[data-champ=prix]',bloc).value)||0, publique:$('[data-champ=publique]',bloc).checked, outils:outilsCoches(bloc)};
+  });
+}
+/* le tarif à l'unité voyage dans le même réglage que les formules, sous une entrée cachée */
+function entreeTarif(){ return { id:'sur-mesure', nom:'Sur mesure (tarif à l\'unité)', prix:0, publique:false, outils:[], tarif:REGL.tarif }; }
+/* les entrées cachées gardées à chaque enregistrement des formules : le tarif à l'unité, et la maintenance */
+function entreesCachees(m){
+  m = m || REGL.maintenance;
+  return [entreeTarif()].concat(m ? [{ id:'maintenance', nom:'Maintenance (réglage caché)', prix:0, publique:false, outils:[], maintenance:m }] : []);
+}
+function rendreTarif(){
+  var t = REGL.tarif;
+  $('#t-base').value = t.base; $('#t-pro').value = t.pro; $('#t-mois').value = t.moisOfferts; $('#t-plafond').checked = !!t.plafond;
+  $('#t-pros').innerHTML = tuilesOutils(t.outilsPro || []);
+}
+$('#btnEnregTarif').addEventListener('click', function(){
+  var t = { base:Number($('#t-base').value)||0, pro:Number($('#t-pro').value)||0, moisOfferts:Math.max(0, Math.min(11, parseInt($('#t-mois').value,10)||0)),
+    plafond:$('#t-plafond').checked, outilsPro:outilsCoches($('#t-pros')) };
+  var avant = REGL.tarif; REGL.tarif = t;
+  enregReglage('formules', REGL.formules.concat(entreesCachees())).then(function(){ toast('Tarif à l\'unité enregistré.'); })
+    .catch(function(e){ REGL.tarif = avant; alert(e.message); });
+});
+function rendreEditeur(){
+  var e = REGL.editeur;
+  $('#ed-nom').value=e.nom; $('#ed-forme').value=e.forme; $('#ed-siret').value=e.siret; $('#ed-email').value=e.email;
+  $('#ed-adresse').value=e.adresse; $('#ed-rep').value=e.representante; $('#ed-qual').value=e.qualite; $('#ed-tva').value=e.tva;
+}
+
+/* ---------- profil : ajouter / modifier ---------- */
+var edition = null, identTouche = false;
+function remplirFormules(){
+  $('#p-formule').innerHTML = REGL.formules.map(function(f){ return '<option value="'+esc(f.id)+'">'+esc(f.nom)+'</option>'; }).join('')+'<option value="">Sur mesure</option>';
+}
+function ouvrirProfil(p, demande){
+  edition = p || null; identTouche = !!p; demandePourProfil = demande || null;
+  remplirFormules();
+  $('#etapeForm').hidden = false; $('#etapeRemis').hidden = true; msg('pMsg','');
+  var admin = p && p.role==='admin';
+  $('#pTitre').textContent = p ? 'Modifier '+nomComplet(p) : 'Ajouter un profil';
+  $('#pSous').textContent = p ? (admin ? 'Votre fiche d\'administratrice : tous les outils vous sont ouverts.' : 'Les changements d\'outils s\'appliquent à sa prochaine ouverture.') : 'Le profil trouvera tous ses outils vierges.';
+  $('#bloc-mdp').hidden = !!p;
+  $('#p-prenom').value = p ? p.prenom : ''; $('#p-nom').value = p ? p.nom : '';
+  $('#p-ident').value = p ? p.identifiant : ''; $('#p-espace').value = p ? p.espace : 'particulier';
+  $('#p-entreprise').value = p ? p.entreprise : '';
+  $('#p-email').value = p ? (p.email||'') : (demande && demande.email) || '';
+  $('#p-mdp').value = p ? '' : Nao.motDePasseProvisoire();
+  var ab = (p && p.abonnement) || {};
+  var f0 = ab.formule !== undefined ? ab.formule : REGL.formules[0].id;
+  $('#p-formule').value = f0; if ($('#p-formule').value !== f0) $('#p-formule').value = '';
+  $('#p-prix').value = ab.prix != null ? ab.prix : ((formuleDe(f0)||{}).prix || 0);
+  $('#p-periode').value = ab.periode || 'mensuel'; $('#p-debut').value = ab.debut || ajd(); $('#p-fin').value = ab.fin || '';
+  $('#p-notes').value = p ? p.notes : '';
+  $('#matrice').innerHTML = tuilesOutils(admin ? TOUS : (p ? p.outils||[] : (formuleDe(f0)||{outils:[]}).outils));
+  ['p-formule','p-prix','p-periode','p-debut','p-fin','btnTout','btnRien'].forEach(function(id){ $('#'+id).disabled = !!admin; });
+  $('#matrice').querySelectorAll('input').forEach(function(i){ i.disabled = !!admin; });
+  if (COLONNE_ACCES_NAOFI === null && PROFILS.length) COLONNE_ACCES_NAOFI = PROFILS.some(function(x){ return 'acces_naofi' in x; });
+  poserAccesNaoFi(accesNaoFiDuProfil(p) || accesNaoFiDefaut(p ? p.espace : 'particulier'));
+  majAccesNaoFi();
+  ouvrir('m-profil'); $('#p-prenom').focus();
+}
+function proposerIdent(){ if(!identTouche) $('#p-ident').value = Nao.identifiantPropose($('#p-prenom').value, $('#p-nom').value); }
+$('#p-prenom').addEventListener('input', proposerIdent); $('#p-nom').addEventListener('input', proposerIdent);
+$('#p-ident').addEventListener('input', function(){ identTouche = true; });
+$('#btnPropose').addEventListener('click', function(){ $('#p-mdp').value = Nao.motDePasseProvisoire(); });
+$('#btnTout').addEventListener('click', function(){ cocher($('#matrice'), TOUS); });
+/* un nouveau profil : l'espace propose l'accès NaoFi qui va avec (modifiable) */
+$('#p-espace').addEventListener('change', function(){ if (!edition) poserAccesNaoFi(accesNaoFiDefaut(this.value)); });
+$('#btnRien').addEventListener('click', function(){ cocher($('#matrice'), []); });
+$('#p-formule').addEventListener('change', function(){
+  var f = formuleDe(this.value); if (!f) return;
+  $('#p-prix').value = f.prix; cocher($('#matrice'), f.outils||[]);
+  /* l'essai gratuit dure 14 jours (comme pour un client qui s'inscrit seul) */
+  if (!Number(f.prix) && f.id !== 'offert') $('#p-fin').value = plusJours(ajd(), Nao.dureeEssai || 14);
+});
+
+$('#btnEnregProfil').addEventListener('click', function(){
+  var b = this; msg('pMsg','');
+  var id = Nao.normIdentifiant($('#p-ident').value);
+  var prenom = $('#p-prenom').value.trim(), nom = $('#p-nom').value.trim();
+  if (!prenom && !nom) return msg('pMsg','Indiquez au moins un prénom ou un nom.');
+  if (!/^[a-z0-9._-]+$/.test(id)) return msg('pMsg','Identifiant : lettres, chiffres et _ - . seulement, sans espace ni accent.');
+  var admin = edition && edition.role==='admin';
+  var ab = { formule:$('#p-formule').value, prix:Number($('#p-prix').value)||0, periode:$('#p-periode').value, debut:$('#p-debut').value, fin:$('#p-fin').value };
+  if (!admin) ab.acces_naofi = accesNaoFiChoisi();   /* gardé aussi dans l'abonnement : enregistré même sans la colonne acces_naofi */
+  var champs = { prenom:prenom, nom:nom, espace:$('#p-espace').value, entreprise:$('#p-entreprise').value.trim(), notes:$('#p-notes').value.trim() };
+  var email = $('#p-email').value.trim().toLowerCase();
+  if (email && !emailValide(email)) return msg('pMsg','Cette adresse e-mail ne semble pas valide.');
+  b.disabled = true;
+  var suite;
+  if (!edition) {
+    var mdp = $('#p-mdp').value;
+    if (mdp.length < 8) { b.disabled=false; return msg('pMsg','Le mot de passe provisoire doit contenir 8 caractères au moins.'); }
+    suite = appelAdmin({action:'creer', identifiant:id, mdp:mdp, prenom:prenom, nom:nom, espace:champs.espace, entreprise:champs.entreprise,
+      outils:outilsCoches($('#matrice')), abonnement:ab, notes:champs.notes}).then(function(r){
+      r.profil.notes = champs.notes;
+      PROFILS.push(r.profil);
+      if (email) enregEmail(r.profil.user_id, email).then(function(){ r.profil.email = email; rendreProfils(); },
+        function(x){ toast('E-mail non enregistré : '+x.message); });
+      if (COLONNE_ACCES_NAOFI !== false && ('acces_naofi' in r.profil || COLONNE_ACCES_NAOFI)) {
+        var acc = accesNaoFiChoisi();
+        C.from('profils').update({acces_naofi:acc}).eq('user_id', r.profil.user_id).then(function(x){
+          if (x.error) toast("Accès NaoFi non enregistré : "+x.error.message); else r.profil.acces_naofi = acc;
+        });
+      }
+      if (demandePourProfil) {                       /* la demande à l'origine de ce profil est traitée */
+        var dem = demandePourProfil; demandePourProfil = null;
+        C.from('demandes').update({statut:'traitee'}).eq('id', dem.id).select().single().then(function(x){
+          if (x.data) { DEMANDES[DEMANDES.indexOf(dem)] = x.data; rendre(); }
+        });
+      }
+      $('#rId').textContent = id; $('#rMdp').textContent = mdp;
+      var fm = formuleDe(ab.formule);
+      lettreRemis = { prenom:prenom, nom:nom, entreprise:champs.entreprise, identifiant:id, mdp:mdp,
+        formule: fm ? fm.nom : '', outils: outilsCoches($('#matrice')) };
+      $('#etapeForm').hidden = true; $('#etapeRemis').hidden = false;
+    });
+  } else {
+    var avant = edition.identifiant;
+    suite = (id !== avant ? appelAdmin({action:'identifiant', user_id:edition.user_id, identifiant:id}) : Promise.resolve()).then(function(){
+      var maj = { prenom:champs.prenom, nom:champs.nom, espace:champs.espace, entreprise:champs.entreprise, identifiant:id };
+      if (!admin) { maj.outils = outilsCoches($('#matrice')); maj.abonnement = ab; }
+      if (!admin && ('acces_naofi' in edition)) maj.acces_naofi = accesNaoFiChoisi();
+      return C.from('profils').update(maj).eq('user_id', edition.user_id).select().single();
+    }).then(function(r){
+      if (r.error) throw new Error(r.error.message);
+      var mail = email !== String(edition.email||'').toLowerCase() ? enregEmail(edition.user_id, email) : Promise.resolve();
+      return mail.then(function(){ return C.from('notes_profils').upsert({user_id:edition.user_id, notes:champs.notes}); }).then(function(n){
+        if (n.error) throw new Error(n.error.message);
+        var i = PROFILS.findIndex(function(x){ return x.user_id===edition.user_id; });
+        r.data.notes = champs.notes; r.data.email = email; PROFILS[i] = r.data;
+        fermer('m-profil'); toast('Profil enregistré.');
+      });
+    });
+  }
+  suite.then(function(){ b.disabled=false; rendre(); }).catch(function(e){ b.disabled=false; msg('pMsg', e.message); });
+});
+/* la lettre d'accès (naogroup-lettre.js) et le message qui l'accompagne : le mot de passe n'est écrit que dans la lettre */
+var lettreRemis = null;
+$('#btnCopier').addEventListener('click', function(){ if (lettreRemis) copier(NaoLettre.texteMail(lettreRemis)); });
+$('#btnLettre').addEventListener('click', function(){ if (lettreRemis) NaoLettre.ouvrir(lettreRemis); });
+
+/* ---------- statut ---------- */
+var cibleStatut = null, actionStatut = '';
+function ouvrirStatut(p, action){
+  cibleStatut = p; actionStatut = action; msg('sMsg','');
+  var t = {suspendre:'Suspendre l\'accès', bloquer:'Bloquer l\'accès', reactiver:'Réactiver l\'accès'}[action];
+  $('#sTitre').textContent = t; $('#sSous').textContent = nomComplet(p) + ' · ' + p.identifiant;
+  $('#sMotifBloc').hidden = action === 'reactiver'; $('#sMotif').value = '';
+  ouvrir('m-statut');
+}
+$('#btnValiderStatut').addEventListener('click', function(){
+  var b = this; b.disabled = true;
+  var s = {suspendre:'suspendu', bloquer:'bloque', reactiver:'actif'}[actionStatut];
+  C.from('profils').update({statut:s, motif: s==='actif' ? '' : $('#sMotif').value.trim()}).eq('user_id', cibleStatut.user_id).select().single().then(function(r){
+    b.disabled = false;
+    if (r.error) return msg('sMsg', r.error.message);
+    var i = PROFILS.findIndex(function(x){ return x.user_id===cibleStatut.user_id; }); r.data.notes = PROFILS[i].notes; PROFILS[i] = r.data;
+    fermer('m-statut'); toast(s==='actif' ? 'Accès rétabli.' : 'Accès '+(s==='bloque'?'bloqué':'suspendu')+' dès sa prochaine connexion.'); rendre();
+  });
+});
+
+/* ---------- mot de passe provisoire d'un profil ---------- */
+var cibleMdp = null;
+function ouvrirMdp(p){
+  cibleMdp = p; msg('mMsg','');
+  $('#mSous').textContent = nomComplet(p)+' · '+p.identifiant+'. Son mot de passe actuel ne peut pas être lu : on en donne un provisoire.';
+  $('#mMdp').value = Nao.motDePasseProvisoire(); $('#mForm').hidden = false; $('#mRemis').hidden = true; ouvrir('m-mdp');
+}
+$('#btnPropose2').addEventListener('click', function(){ $('#mMdp').value = Nao.motDePasseProvisoire(); });
+var lettreMdp = null;
+$('#btnCopierMdp').addEventListener('click', function(){ if (lettreMdp) copier(NaoLettre.texteMail(lettreMdp)); });
+$('#btnLettreMdp').addEventListener('click', function(){ if (lettreMdp) NaoLettre.ouvrir(lettreMdp); });
+$('#btnValiderMdp').addEventListener('click', function(){
+  var b = this, v = $('#mMdp').value;
+  if (v.length < 8) return msg('mMsg','8 caractères au moins.');
+  b.disabled = true;
+  appelAdmin({action:'mdp', user_id:cibleMdp.user_id, mdp:v}).then(function(){
+    b.disabled = false; cibleMdp.mdp_provisoire = true; $('#mRemisMdp').textContent = v; $('#mForm').hidden = true; $('#mRemis').hidden = false; rendre();
+    lettreMdp = { prenom:cibleMdp.prenom, nom:cibleMdp.nom, entreprise:cibleMdp.entreprise, identifiant:cibleMdp.identifiant, mdp:v, nouveauMdp:true };
+  }).catch(function(e){ b.disabled = false; msg('mMsg', e.message); });
+});
+$('#btnMonMdp').addEventListener('click', function(){ $('#moi1').value=''; $('#moi2').value=''; msg('moiMsg',''); ouvrir('m-moi'); });
+$('#btnValiderMoi').addEventListener('click', function(){
+  var a = $('#moi1').value, c = $('#moi2').value;
+  if (a.length < 8) return msg('moiMsg','8 caractères au moins.');
+  if (a !== c) return msg('moiMsg','Les deux saisies ne sont pas identiques.');
+  Nao.changerMotDePasse(a).then(function(r){ if(!r.ok) return msg('moiMsg', r.message||'Impossible.'); fermer('m-moi'); toast('Mot de passe modifié.'); });
+});
+
+/* ---------- suppression ---------- */
+function supprimer(p){
+  if (!confirm('Supprimer le profil de '+nomComplet(p)+' ?\n\nSon accès et toutes ses sauvegardes seront effacés. Ses factures restent conservées.')) return;
+  appelAdmin({action:'supprimer', user_id:p.user_id}).then(function(){
+    PROFILS = PROFILS.filter(function(x){ return x.user_id!==p.user_id; }); rendre(); toast('Profil supprimé.');
+  }).catch(function(e){ alert(e.message); });
+}
+
+/* ---------- factures ---------- */
+function numeroSuivant(){
+  var an = ajd().slice(0,4), max = 0;
+  FACT.forEach(function(f){ var m = /^NG-(\d{4})-(\d+)$/.exec(f.numero); if (m && m[1]===an) max = Math.max(max, Number(m[2])); });
+  return 'NG-'+an+'-'+String(max+1).padStart(3,'0');
+}
+function ligneHtml(l){
+  return '<div class="grille" style="grid-template-columns:3fr 1fr 1.3fr auto;margin-bottom:8px;align-items:end" data-ligne>'+
+    '<div><label>Désignation</label><input data-l="d" value="'+esc(l.d||'')+'"></div>'+
+    '<div><label>Qté</label><input data-l="q" type="number" min="1" step="1" value="'+(l.q||1)+'"></div>'+
+    '<div><label>Prix unit. TTC</label><input data-l="p" type="number" min="0" step="0.01" value="'+(l.p||0)+'"></div>'+
+    '<button type="button" class="btn petit danger" data-supl>✕</button></div>';
+}
+function ouvrirFacture(profilId){
+  msg('fMsg','');
+  $('#f-client').innerHTML = PROFILS.filter(function(p){ return p.role!=='admin'; }).map(function(p){ return '<option value="'+p.user_id+'">'+esc(nomComplet(p))+' — '+esc(p.identifiant)+'</option>'; }).join('');
+  if (!$('#f-client').options.length) { toast('Créez d\'abord un profil.'); return; }
+  if (profilId) $('#f-client').value = profilId;
+  $('#f-date').value = ajd(); $('#f-ech').value = plusJours(ajd(), 30); $('#f-periode').value = moisAnnee(); $('#f-adresse').value = '';
+  preLignes(); ouvrir('m-facture');
+}
+function preLignes(){
+  var p = PROFILS.filter(function(x){ return x.user_id===$('#f-client').value; })[0], ab = (p && p.abonnement)||{}, fm = formuleDe(ab.formule);
+  $('#f-lignes').innerHTML = ligneHtml({d:'Abonnement NaoGroup — '+(fm?fm.nom:'sur mesure')+(ab.periode==='annuel'?' (année)':' (mois)'), q:1, p:ab.prix||0});
+}
+$('#f-client').addEventListener('change', preLignes);
+$('#btnAjoutLigne').addEventListener('click', function(){ $('#f-lignes').insertAdjacentHTML('beforeend', ligneHtml({q:1,p:0})); });
+$('#f-lignes').addEventListener('click', function(e){ var b = e.target.closest('[data-supl]'); if (b && $('#f-lignes').children.length>1) b.closest('[data-ligne]').remove(); });
+$('#btnCreerFacture').addEventListener('click', function(){
+  var b = this, p = PROFILS.filter(function(x){ return x.user_id===$('#f-client').value; })[0];
+  var lignes = Array.prototype.map.call($('#f-lignes').querySelectorAll('[data-ligne]'), function(r){
+    return {d:$('[data-l=d]',r).value.trim(), q:Number($('[data-l=q]',r).value)||1, p:Number($('[data-l=p]',r).value)||0};
+  }).filter(function(l){ return l.d; });
+  if (!lignes.length) return msg('fMsg','Ajoutez au moins une ligne.');
+  var total = Math.round(lignes.reduce(function(s,l){ return s+l.q*l.p; },0)*100)/100;
+  b.disabled = true;
+  var ligne = { numero:numeroSuivant(), user_id:p.user_id, client:{nom:nomComplet(p), identifiant:p.identifiant, entreprise:p.entreprise||'', adresse:$('#f-adresse').value.trim(), espace:p.espace},
+    lignes:lignes, total:total, date_emission:$('#f-date').value||ajd(), echeance:$('#f-ech').value||null, periode:$('#f-periode').value.trim(), statut:'a_payer' };
+  C.from('factures').insert(ligne).select().single().then(function(r){
+    b.disabled = false;
+    if (r.error) return msg('fMsg', r.error.message);
+    FACT.unshift(r.data); fermer('m-facture'); rendre(); voirFacture(r.data); toast('Facture '+r.data.numero+' créée.');
+  });
+});
+function voirFacture(f){
+  var e = REGL.editeur, cl = f.client||{}, pro = cl.espace && cl.espace !== 'particulier';
+  var lignes = (f.lignes||[]).map(function(l){ return '<tr><td>'+esc(l.d)+'</td><td>'+l.q+'</td><td>'+euros(l.p)+'</td><td>'+euros(l.q*l.p)+'</td></tr>'; }).join('');
+  $('#feuille').innerHTML =
+    (f.statut==='payee' ? '<div class="tampon-paye">Payée<small>le '+dateFr(f.date_paiement)+'</small></div>' : '')+
+    (f.statut==='annulee' ? '<div class="tampon-paye" style="border-color:#C24B63;color:#C24B63">Annulée</div>' : '')+
+    '<div class="ent"><div><div class="marque"><svg viewBox="0 0 40 40"><use href="#l-gr"/></svg><b>Nao<i>Group</i></b></div>'+
+    '<div class="ed"><b>'+esc(e.nom)+'</b><br>'+esc(e.forme)+(e.siret?'<br>SIREN/SIRET : '+esc(e.siret):'')+(e.adresse?'<br>'+esc(e.adresse):'')+(e.email?'<br>'+esc(e.email):'')+'</div></div>'+
+    '<div class="titre-doc"><h4>FACTURE</h4><div><b>'+esc(f.numero)+'</b></div><div>Émise le '+dateFr(f.date_emission)+'</div>'+(f.echeance?'<div>Échéance : '+dateFr(f.echeance)+'</div>':'')+'</div></div>'+
+    '<div class="duo"><div><h5>Émetteur</h5>'+esc(e.nom)+'<br>'+esc(e.representante)+(e.qualite?', '+esc(e.qualite):'')+'</div>'+
+    '<div><h5>Client</h5><b>'+esc(cl.nom||'')+'</b>'+(cl.entreprise?'<br>'+esc(cl.entreprise):'')+(cl.adresse?'<br>'+esc(cl.adresse):'')+'<br>Identifiant : '+esc(cl.identifiant||'')+'</div></div>'+
+    (f.periode ? '<p style="font-size:12.5px;margin:0 0 10px"><b>Période :</b> '+esc(f.periode)+'</p>' : '')+
+    '<table><thead><tr><th>Désignation</th><th>Qté</th><th>Prix unitaire TTC</th><th>Total TTC</th></tr></thead><tbody>'+lignes+'</tbody></table>'+
+    '<div class="total"><div>Total TTC : '+euros(f.total)+'</div></div>'+
+    '<div class="mentions">'+esc(e.tva)+'<br>Paiement à l\'échéance indiquée'+(f.echeance?' ('+dateFr(f.echeance)+')':'')+'.'+
+    (pro ? ' En cas de retard de paiement : pénalités au taux de trois fois le taux d\'intérêt légal et indemnité forfaitaire de 40 € pour frais de recouvrement (professionnels).' : '')+'</div>';
+  ouvrir('m-doc');
+}
+$('#btnImprimer').addEventListener('click', function(){ window.print(); });
+$('#corpsFactures').addEventListener('click', function(e){
+  var b = e.target.closest('[data-fa]'); if(!b) return;
+  var f = FACT.filter(function(x){ return x.id===b.getAttribute('data-id'); })[0], a = b.getAttribute('data-fa');
+  if (a==='voir') return voirFacture(f);
+  var maj = a==='payer' ? {statut:'payee', date_paiement:ajd()} : {statut:'annulee'};
+  if (a==='annuler' && !confirm('Annuler la facture '+f.numero+' ?')) return;
+  C.from('factures').update(maj).eq('id', f.id).select().single().then(function(r){
+    if (r.error) return toast(r.error.message);
+    FACT[FACT.indexOf(f)] = r.data; rendre(); toast(a==='payer' ? 'Facture marquée payée.' : 'Facture annulée.');
+  });
+});
+
+/* ---------- formules et éditeur ---------- */
+$('#btnAjoutFormule').addEventListener('click', function(){ REGL.formules = lireFormules(); REGL.formules.push({id:'f'+Date.now(), nom:'Nouvelle formule', prix:0, outils:[]}); rendreFormules(); });
+$('#listeFormules').addEventListener('click', function(e){
+  var b = e.target.closest('[data-supf]'); if(!b) return;
+  REGL.formules = lireFormules();
+  if (REGL.formules.length <= 1) return toast('Gardez au moins une formule.');
+  REGL.formules.splice(Number(b.getAttribute('data-supf')),1); rendreFormules();
+});
+$('#btnEnregFormules').addEventListener('click', function(){
+  var f = lireFormules(); enregReglage('formules', f.concat(entreesCachees())).then(function(){ REGL.formules = f; rendre(); toast('Formules enregistrées.'); }).catch(function(e){ alert(e.message); });
+});
+$('#btnEnregEditeur').addEventListener('click', function(){
+  var e = {nom:$('#ed-nom').value.trim(), forme:$('#ed-forme').value.trim(), siret:$('#ed-siret').value.trim(), email:$('#ed-email').value.trim(),
+    adresse:$('#ed-adresse').value.trim(), representante:$('#ed-rep').value.trim(), qualite:$('#ed-qual').value.trim(), tva:$('#ed-tva').value.trim()};
+  enregReglage('editeur', e).then(function(){ REGL.editeur = e; toast('Informations enregistrées.'); }).catch(function(x){ alert(x.message); });
+});
+
+/* ---------- statistiques d'usage ---------- */
+function duree(s){
+  s = Math.round(Number(s)||0);
+  if (s < 60) return s + ' s';
+  if (s < 3600) return Math.round(s/60) + ' min';
+  return Math.floor(s/3600) + ' h ' + String(Math.round((s%3600)/60)).padStart(2,'0');
+}
+function pct(a, b){ return b > 0 ? Math.round(a / b * 100) : null; }
+function barre(v){ return v === null ? '<span style="color:var(--ink-3)">—</span>' :
+  '<div style="display:flex;align-items:center;gap:8px"><div style="width:70px;height:7px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden"><div style="height:100%;width:'+Math.min(100,v)+'%;background:linear-gradient(90deg,#8E7BD4,#C39BF3)"></div></div><b style="min-width:38px;white-space:nowrap">'+v+' %</b></div>'; }
+/* actualisation : toutes les 5 minutes (si l'onglet est caché, dès qu'il redevient visible) + bouton « Actualiser » */
+var USAGE_DELAI = 5 * 60 * 1000, usageMinuteur = null, usageEnCours = null, usageDerniere = 0, usageEnRetard = false;
+function heureCourte(t){ var d = new Date(t); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+function planifierUsage(){
+  clearTimeout(usageMinuteur);
+  usageMinuteur = setTimeout(function(){
+    if (document.hidden || pageActive !== 'statistiques') { usageEnRetard = true; return; }   /* rattrapé en revenant sur la page */
+    chargerUsage();
+  }, USAGE_DELAI);
+}
+/* Les statistiques d'usage, calculées dans la page à partir de usage_outils (même résultat que stats_usage du serveur) :
+   profils clients actifs sur les outils qu'ils ont aujourd'hui, ET vous, qui comptez comme un profil qui a tous les outils.
+   jours = 0 : depuis le premier usage noté. */
+function jourParis(d){ return new Date(d).toLocaleDateString('fr-CA', {timeZone:'Europe/Paris'}); }
+function lireUsageBrut(){
+  var tout = [], pas = 1000;
+  function page(i){
+    return C.from('usage_outils').select('user_id,session_id,outil,debut,duree_s').order('debut').range(i, i + pas - 1).then(function(r){
+      if (r.error) throw new Error(r.error.message);
+      tout = tout.concat(r.data || []);
+      return (r.data || []).length === pas ? page(i + pas) : tout;
+    });
+  }
+  return page(0);
+}
+var USAGE_BRUT = null;   /* le relevé brut, gardé pour la page « Par profil » */
+function statsUsageLocales(jours){
+  return lireUsageBrut().then(function(rows){
+    USAGE_BRUT = rows;
+    var maintenant = Date.now(), auj = jourParis(maintenant);
+    var tousOutils = {};
+    PROFILS.forEach(function(p){ (p.outils||[]).forEach(function(o){ tousOutils[o] = 1; }); });
+    rows.forEach(function(x){ tousOutils[x.outil] = 1; });
+    var cl = {}; PROFILS.filter(function(p){ return (p.role==='client' || p.role==='admin') && p.statut==='actif'; }).forEach(function(p){
+      cl[p.user_id] = p.role==='admin' ? Object.keys(tousOutils) : (p.outils||[]);
+    });
+    var brut = rows.filter(function(x){ return cl[x.user_id] && cl[x.user_id].indexOf(x.outil) >= 0 && x.duree_s >= 5; })
+      .map(function(x){ return {user_id:x.user_id, outil:x.outil, duree_s:x.duree_s, t:new Date(x.debut).getTime(), jour:jourParis(x.debut)}; });
+    var premier = brut.length ? Math.min.apply(null, brut.map(function(x){ return x.t; })) : maintenant;
+    var n = jours > 0 ? jours : Math.max(1, Math.ceil((maintenant - premier) / 86400000));
+    var depuis = maintenant - n * 86400000;
+    var u = brut.filter(function(x){ return x.t >= depuis; });
+    var distinct = function(l, f){ var s = {}; l.forEach(function(x){ s[f(x)] = 1; }); return Object.keys(s).length; };
+    var dans = function(ms){ return distinct(brut.filter(function(x){ return x.t >= maintenant - ms; }), function(x){ return x.user_id; }); };
+    var moyenneArr = function(l){ return l.length ? Math.round(l.reduce(function(s,x){ return s + x; }, 0) / l.length) : 0; };
+    var plusJ = function(iso, k){ var d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + k); return d.toISOString().slice(0,10); };
+    var liste = {}; u.forEach(function(x){ liste[x.outil] = 1; }); Object.keys(cl).forEach(function(k){ cl[k].forEach(function(o){ liste[o] = 1; }); });
+    var outils = Object.keys(liste).map(function(o){
+      var uo = u.filter(function(x){ return x.outil === o; });
+      var parUser = {}; uo.forEach(function(x){ (parUser[x.user_id] = parUser[x.user_id] || []).push(x); });
+      var users = Object.keys(parUser), tot = uo.reduce(function(s,x){ return s + x.duree_s; }, 0);
+      var reut = 0, elig = 0, rev = 0, limite = plusJ(auj, -7);
+      users.forEach(function(id){
+        var jrs = parUser[id].map(function(x){ return x.jour; }), j1 = jrs.slice().sort()[0];
+        if (distinct(jrs, function(x){ return x; }) >= 2) reut++;
+        if (j1 <= limite) { elig++; if (jrs.some(function(jr){ return jr > j1 && jr <= plusJ(j1, 7); })) rev++; }
+      });
+      return { outil:o, avec_acces: Object.keys(cl).filter(function(k){ return cl[k].indexOf(o) >= 0; }).length,
+        actifs:users.length, sessions:uo.length, temps_total_s:tot, temps_moyen_session_s:moyenneArr(uo.map(function(x){ return x.duree_s; })),
+        temps_moyen_utilisateur_s: users.length ? Math.round(tot / users.length) : 0, reutilisateurs:reut, retour7_eligibles:elig, retour7:rev };
+    }).sort(function(a,b){ return b.actifs - a.actifs || (a.outil < b.outil ? -1 : 1); });
+    var serie = {}; u.forEach(function(x){ (serie[x.jour] = serie[x.jour] || {})[x.user_id] = 1; });
+    var parU = {}; u.forEach(function(x){ (parU[x.user_id] = parU[x.user_id] || {})[x.outil] = 1; });
+    var nbO = Object.keys(parU).map(function(k){ return Object.keys(parU[k]).length; });
+    return { jours:n, depuis_debut: !(jours > 0), premier: brut.length ? new Date(premier).toISOString() : null,
+      global: { clients_actifs:Object.keys(cl).length, dau:dans(86400000), wau:dans(7*86400000), mau:dans(30*86400000),
+        utilisateurs_periode:distinct(u, function(x){ return x.user_id; }), sessions:u.length,
+        temps_moyen_session_s:moyenneArr(u.map(function(x){ return x.duree_s; })),
+        outils_par_utilisateur: nbO.length ? Math.round(nbO.reduce(function(s,x){ return s + x; }, 0) / nbO.length * 10) / 10 : 0 },
+      outils:outils,
+      serie: Object.keys(serie).sort().map(function(k){ return {jour:k, actifs:Object.keys(serie[k]).length}; }) };
+  });
+}
+function chargerUsage(){
+  if (usageEnCours) return usageEnCours;
+  var btn = $('#btnActualiserUsage');
+  btn.disabled = true; $('#majUsage').textContent = 'Actualisation…'; $('#majUsage').classList.add('charge');
+  var v = $('#periodeUsage').value, j = v === 'tout' ? 0 : (Number(v) || 30);
+  var vues = Promise.resolve(C.rpc('stats_vues', {p_page:'histoire', jours:j || 3650})).then(rendreVues, function(e){ rendreVues({error:e}); });
+  /* calculé ici, depuis le relevé brut : vous comptez toujours, quelle que soit la version de stats_usage sur le serveur ;
+     repli sur le calcul du serveur si le relevé ne se lit pas */
+  var calc = statsUsageLocales(j).catch(function(){
+    return Promise.resolve(C.rpc('stats_usage', {jours:j || 3650})).then(function(r){ if (r.error) throw r.error; return r.data || {}; });
+  });
+  usageEnCours = Promise.all([calc, vues]).then(function(rr){
+    rendreUsage(rr[0] || {});
+    usageDerniere = Date.now();
+    $('#majUsage').textContent = 'Mis à jour à ' + heureCourte(usageDerniere) + ' · prochaine actualisation à ' + heureCourte(usageDerniere + USAGE_DELAI);
+    rendreParProfil();
+  }).catch(function(e){
+    if (!usageDerniere) {
+      $('#kpiUsage').innerHTML = ''; $('#graphUsage').innerHTML = ''; $('#corpsUsage').innerHTML = ''; $('#corpsMeilleurs').innerHTML = '';
+      $('#videUsage').hidden = false; $('#videUsage').textContent = 'Statistiques indisponibles : relancez supabase-schema.sql (' + (e && e.message || e) + ').';
+    }
+    $('#majUsage').textContent = 'Actualisation impossible' + (usageDerniere ? ' — chiffres de ' + heureCourte(usageDerniere) : '') + ' · nouvel essai dans 5 min';
+    rendreParProfil();
+  }).then(function(){
+    usageEnCours = null; btn.disabled = false; $('#majUsage').classList.remove('charge'); usageEnRetard = false;
+    planifierUsage();
+  });
+  return usageEnCours;
+}
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden || !C || pageActive !== 'statistiques') return;
+  if (usageEnRetard || (usageDerniere && Date.now() - usageDerniere >= USAGE_DELAI)) chargerUsage();
+});
+$('#btnActualiserUsage').addEventListener('click', function(){ chargerUsage().then(function(){ if (usageDerniere) toast('Statistiques actualisées.'); }); });
+
+/* petite bulle au survol des graphiques */
+var bulle = document.createElement('div'); bulle.className = 'infobulle'; document.body.appendChild(bulle);
+['#panneauUsage', '#panneauParProfil', '#panneauSatisfaction'].forEach(function(sel){
+  $(sel).addEventListener('mousemove', function(e){
+    var c = e.target.closest('[data-tip]');
+    if (!c) { bulle.classList.remove('on'); return; }
+    bulle.innerHTML = '<b>' + esc(c.getAttribute('data-tip')) + '</b>' + (c.getAttribute('data-tip2') ? '<small>' + esc(c.getAttribute('data-tip2')) + '</small>' : '');
+    var x = e.clientX + 14, y = e.clientY - 12 - bulle.offsetHeight;
+    if (x + bulle.offsetWidth > innerWidth - 8) x = e.clientX - 14 - bulle.offsetWidth;
+    bulle.style.left = Math.max(8, x) + 'px'; bulle.style.top = Math.max(8, y) + 'px'; bulle.classList.add('on');
+  });
+  $(sel).addEventListener('mouseleave', function(){ bulle.classList.remove('on'); });
+});
+
+function nomOutil(id){ var t = Nao.outilParId(id); return t ? t.nom : id; }
+function jetonOutil(id){ var t = Nao.outilParId(id); return t ? '<svg viewBox="0 0 40 40"><use href="#'+t.symbole+'"/></svg>' : ''; }
+/* barres horizontales : une seule série, classée du plus grand au plus petit */
+function barresH(titre, sous, lignes, val, texte){
+  var l = lignes.slice().sort(function(a,b){ return val(b) - val(a) || nomOutil(a.outil).localeCompare(nomOutil(b.outil)); });
+  var max = Math.max.apply(null, l.map(val).concat([0]));
+  var corps = max > 0 ? '<div class="hb">' + l.map(function(o){
+      var v = val(o), w = max ? v / max * 100 : 0;
+      return '<div class="nm">'+jetonOutil(o.outil)+esc(nomOutil(o.outil))+'</div>'+
+        '<div class="piste'+(v?'':' zero')+'" data-tip="'+esc(nomOutil(o.outil)+' : '+texte(v))+'" data-tip2="'+esc(o.actifs+' actif'+(o.actifs>1?'s':'')+' · '+o.sessions+' session'+(o.sessions>1?'s':'')+' · '+duree(o.temps_total_s)+' au total')+'"><i style="width:'+w+'%"></i></div>'+
+        '<div class="val">'+texte(v)+'</div>';
+    }).join('') + '</div>' : '<div class="rien">Rien à montrer sur la période.</div>';
+  return '<div class="st-carte"><h4>'+titre+'</h4><p class="sous-g">'+sous+'</p>'+corps+'</div>';
+}
+/* colonnes par jour : profils actifs (par défaut) ou vues d'une page */
+var COL_ACTIFS = {cle:'actifs', titre:'Profils actifs par jour', vide:'Personne n\'a encore utilisé d\'outil sur la période.',
+  bulle:function(v){ return v+' profil'+(v>1?'s':'')+' actif'+(v>1?'s':''); },
+  sous:function(max, total, n){ return 'Jusqu\'à '+max+' profil'+(max>1?'s':'')+' le même jour · '+total+' journées-profil sur '+n+' jours'; }};
+function colonnesJours(d, o){
+  o = o || COL_ACTIFS;
+  var serie = {}; (d.serie||[]).forEach(function(x){ serie[x.jour] = x[o.cle]; });
+  var n = Number(d.jours) || 30, jours = [], max = 0;
+  for (var i = n - 1; i >= 0; i--) { var dt = new Date(); dt.setDate(dt.getDate() - i); var k = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); jours.push([k, serie[k]||0, dt]); max = Math.max(max, serie[k]||0); }
+  var fmt = function(dt){ return dt.toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'short'}); };
+  var court = function(dt){ return dt.toLocaleDateString('fr-FR', {day:'numeric', month:'short'}); };
+  var W = jours.length * 10, H = 100, pas = 10, gl = '';
+  [.5, 1].forEach(function(f){ if (max) gl += '<line x1="0" x2="'+W+'" y1="'+(H - f*92)+'" y2="'+(H - f*92)+'" stroke="rgba(255,255,255,.1)" stroke-width="1" vector-effect="non-scaling-stroke"/>'; });
+  var total = jours.reduce(function(s,x){ return s + x[1]; }, 0);
+  var corps = max ? '<div class="colonnes"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+gl+
+      jours.map(function(x, i){ var h = x[1] / max * 92;
+        return '<g data-tip="'+esc(o.bulle(x[1]))+'" data-tip2="'+esc(fmt(x[2]))+'">'+
+          '<rect x="'+(i*pas)+'" y="0" width="'+pas+'" height="'+H+'" fill="transparent"/>'+
+          (x[1] ? '<rect x="'+(i*pas+1.5)+'" y="'+(H-h)+'" width="'+(pas-3)+'" height="'+h+'" fill="#C39BF3"/>' : '<rect x="'+(i*pas+1.5)+'" y="'+(H-1.5)+'" width="'+(pas-3)+'" height="1.5" fill="rgba(255,255,255,.18)"/>')+'</g>'; }).join('')+
+      '</svg><div class="axe"><span>'+court(jours[0][2])+'</span><span>'+court(jours[Math.floor(jours.length/2)][2])+'</span><span>aujourd\'hui</span></div></div>'
+    : '<div class="rien">'+o.vide+'</div>';
+  return '<div class="st-carte large"><h4>'+o.titre+'</h4><p class="sous-g">'+(max ? o.sous(max, total, n) : n+' derniers jours')+'</p>'+corps+'</div>';
+}
+/* les vues de « Notre histoire » (histoire.html les note, voir Nao.compterVue) */
+var COL_VUES = {cle:'vues', titre:'Vues par jour', vide:'Aucune vue sur la période.',
+  bulle:function(v){ return v+' vue'+(v>1?'s':''); },
+  sous:function(max, total, n){ return total+' vue'+(total>1?'s':'')+' sur '+n+' jours · jusqu\'à '+max+' le même jour'; }};
+function rendreVues(r){
+  if (r.error) {
+    $('#kpiVues').innerHTML = ''; $('#graphVues').innerHTML = '<div class="st-carte"><div class="rien">Compteur pas encore branché : exécutez dans Supabase la partie « Les vues de Notre histoire » de supabase-schema.sql ('+esc(r.error.message||String(r.error))+').</div></div>';
+    return;
+  }
+  var d = r.data || {}, v = Number(d.vues)||0;
+  $('#kpiVues').innerHTML =
+    '<div class="stat"><b>'+v+'</b><span>Vues sur la période</span></div>'+
+    '<div class="stat"><b>'+(d.depuis_accueil||0)+(v?' <small style="font-size:13px;color:var(--ink-3)">('+pct(d.depuis_accueil||0, v)+' %)</small>':'')+'</b><span>Par le lien de l\'accueil</span></div>'+
+    '<div class="stat"><b>'+(d.connectes||0)+'</b><span>Par des profils connectés</span></div>'+
+    '<div class="stat"><b>'+(d.aujourdhui||0)+'</b><span>Vues aujourd\'hui</span></div>'+
+    '<div class="stat"><b>'+(d.total||0)+'</b><span>Depuis le début</span></div>';
+  $('#graphVues').innerHTML = colonnesJours(d, COL_VUES);
+}
+
+/* le tableau des meilleurs : chaque palmarès garde les ex æquo */
+function palmares(lignes, filtre, cle, sens){
+  var l = lignes.filter(filtre); if (!l.length) return null;
+  var cmp = function(a, b){ var ka = cle(a), kb = cle(b); for (var i = 0; i < ka.length; i++) { if (ka[i] !== kb[i]) return (ka[i] - kb[i]) * sens; } return 0; };
+  l.sort(function(a,b){ return cmp(b, a); });
+  return l.filter(function(o){ return cmp(o, l[0]) === 0; });
+}
+function rendreMeilleurs(lignes, actif){
+  var tx = function(a, b){ return b > 0 ? a / b : 0; };
+  var cats = !actif ? [] : [
+    {m:'🥇', t:'L\'outil le plus utilisé', p:'le plus de profils actifs (puis de sessions)', f:function(){ return true; },
+      k:function(o){ return [o.actifs, o.sessions, o.temps_total_s]; }, s:1, r:function(o){ return o.actifs+' profil'+(o.actifs>1?'s':'')+' · '+o.sessions+' session'+(o.sessions>1?'s':''); }},
+    {m:'🔻', t:'L\'outil le moins utilisé', p:'le moins de profils actifs, parmi les outils ouverts à au moins un profil', f:function(o){ return o.avec_acces > 0; },
+      k:function(o){ return [o.actifs, o.sessions, o.temps_total_s]; }, s:-1, r:function(o){ return o.actifs+' profil'+(o.actifs>1?'s':'')+' · '+o.sessions+' session'+(o.sessions>1?'s':''); }},
+    {m:'⏱️', t:'Le plus de temps passé', p:'temps total cumulé sur la période', f:function(o){ return o.temps_total_s > 0; },
+      k:function(o){ return [o.temps_total_s]; }, s:1, r:function(o){ return duree(o.temps_total_s); }},
+    {m:'🔁', t:'Le plus de sessions', p:'nombre d\'ouvertures', f:function(o){ return o.sessions > 0; },
+      k:function(o){ return [o.sessions]; }, s:1, r:function(o){ return o.sessions+' session'+(o.sessions>1?'s':''); }},
+    {m:'⌛', t:'Les sessions les plus longues', p:'temps moyen par session', f:function(o){ return o.sessions > 0; },
+      k:function(o){ return [o.temps_moyen_session_s]; }, s:1, r:function(o){ return duree(o.temps_moyen_session_s)+' / session'; }},
+    {m:'💜', t:'L\'outil le plus fidèle', p:'taux de réutilisation (revenus au moins un 2e jour)', f:function(o){ return o.actifs > 0; },
+      k:function(o){ return [tx(o.reutilisateurs, o.actifs), o.actifs]; }, s:1, r:function(o){ return pct(o.reutilisateurs, o.actifs)+' % · '+o.reutilisateurs+' / '+o.actifs; }},
+    {m:'🎯', t:'Le mieux adopté', p:'taux d\'utilisation : actifs ÷ profils qui y ont accès', f:function(o){ return o.avec_acces > 0; },
+      k:function(o){ return [tx(o.actifs, o.avec_acces), o.actifs]; }, s:1, r:function(o){ return pct(o.actifs, o.avec_acces)+' % · '+o.actifs+' / '+o.avec_acces; }},
+    {m:'💤', t:'Le moins adopté', p:'taux d\'utilisation le plus bas', f:function(o){ return o.avec_acces > 0; },
+      k:function(o){ return [tx(o.actifs, o.avec_acces), o.avec_acces * -1]; }, s:-1, r:function(o){ return pct(o.actifs, o.avec_acces)+' % · '+o.actifs+' / '+o.avec_acces; }}
+  ];
+  var html = cats.map(function(c){
+    var g = palmares(lignes, c.f, c.k, c.s); if (!g) return '';
+    var noms = g.slice(0, 3).map(function(o){ return '<div class="outil-m">'+jetonOutil(o.outil)+'<b>'+esc(nomOutil(o.outil))+'</b></div>'; }).join('');
+    var plus = g.length > 3 ? '<small>et '+(g.length-3)+' autre'+(g.length>4?'s':'')+' ex æquo</small>' : (g.length > 1 ? '<small>ex æquo</small>' : '');
+    return '<tr><td><span class="med">'+c.m+'</span><b style="display:inline">'+c.t+'</b></td><td>'+noms+plus+'</td><td><b>'+esc(c.r(g[0]))+'</b></td><td><small>'+c.p+'</small></td></tr>';
+  }).join('');
+  $('#corpsMeilleurs').innerHTML = html;
+  $('#videMeilleurs').hidden = !!html;
+}
+function rendreGraphiques(d, lignes, actif){
+  var l = actif ? lignes : [];
+  $('#graphUsage').innerHTML = colonnesJours(d) + (actif ?
+    barresH('Utilisateurs actifs par outil', 'Profils qui ont ouvert l\'outil au moins une fois', l, function(o){ return o.actifs; }, function(v){ return v+' profil'+(v>1?'s':''); }) +
+    barresH('Temps total passé par outil', 'Temps réellement actif, cumulé', l, function(o){ return Number(o.temps_total_s)||0; }, duree) +
+    barresH('Sessions par outil', 'Nombre d\'ouvertures sur la période', l, function(o){ return o.sessions; }, function(v){ return String(v); }) +
+    barresH('Taux de réutilisation', 'Part des actifs revenus au moins un 2e jour', l.filter(function(o){ return o.actifs > 0; }), function(o){ return pct(o.reutilisateurs, o.actifs) || 0; }, function(v){ return v+' %'; })
+    : '');
+}
+function rendreUsage(d){
+  var g = d.global || {}, lignes = d.outils || [];
+  var fidelite = pct(g.dau||0, g.mau||0);
+  $('#kpiUsage').innerHTML =
+    '<div class="stat"><b>'+(g.clients_actifs||0)+'</b><span>Profils actifs, vous comprise</span></div>'+
+    '<div class="stat"><b>'+(g.dau||0)+'</b><span>Actifs aujourd\'hui</span></div>'+
+    '<div class="stat"><b>'+(g.wau||0)+'</b><span>Actifs 7 jours</span></div>'+
+    '<div class="stat"><b>'+(g.mau||0)+'</b><span>Actifs 30 jours</span></div>'+
+    '<div class="stat"><b>'+(fidelite===null?'—':fidelite+' %')+'</b><span>Fidélité DAU/MAU</span></div>'+
+    '<div class="stat"><b>'+duree(g.temps_moyen_session_s)+'</b><span>Temps moyen / session</span></div>'+
+    '<div class="stat"><b>'+(g.outils_par_utilisateur||0)+'</b><span>Outils par profil actif</span></div>';
+
+  /* graphiques et tableau des meilleurs */
+  var actif = (g.sessions||0) > 0;
+  rendreGraphiques(d, lignes, actif);
+  rendreMeilleurs(lignes, actif);
+
+  $('#videUsage').hidden = lignes.length > 0 && (g.sessions||0) > 0;
+  if (!$('#videUsage').hidden) $('#videUsage').textContent = 'Pas encore de données : elles apparaissent dès que des profils ouvrent leurs outils.';
+  $('#corpsUsage').innerHTML = ((g.sessions||0) > 0 ? lignes : []).map(function(o){
+    var t = Nao.outilParId(o.outil);
+    var jeton = t ? '<svg class="mj" viewBox="0 0 40 40" style="width:26px;height:26px;flex:none"><use href="#'+t.symbole+'"/></svg>' : '';
+    var retour = o.retour7_eligibles > 0 ? pct(o.retour7, o.retour7_eligibles) : null;
+    return '<tr><td><div style="display:flex;align-items:center;gap:9px">'+jeton+'<b>'+esc(t ? t.nom : o.outil)+'</b></div></td>'+
+      '<td>'+o.avec_acces+'</td><td>'+o.actifs+'</td><td>'+barre(pct(o.actifs, o.avec_acces))+'</td>'+
+      '<td>'+o.sessions+'</td><td>'+(o.sessions?duree(o.temps_moyen_session_s):'—')+'</td><td>'+(o.actifs?duree(o.temps_moyen_utilisateur_s):'—')+'</td>'+
+      '<td>'+barre(pct(o.reutilisateurs, o.actifs))+'</td><td>'+barre(retour)+(o.retour7_eligibles?'<small>sur '+o.retour7_eligibles+' profil'+(o.retour7_eligibles>1?'s':'')+'</small>':'')+'</td></tr>';
+  }).join('');
+}
+$('#periodeUsage').addEventListener('change', function(){ (usageEnCours || Promise.resolve()).then(chargerUsage); });
+
+/* ---------- statistiques par profil (sous-onglet « Par profil ») ---------- */
+function sousOngletStats(nom){
+  if (nom !== 'profils') nom = 'ensemble';
+  document.querySelectorAll('[data-sous-onglet]').forEach(function(b){
+    var on = b.getAttribute('data-sous-onglet') === nom; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  document.querySelectorAll('.page[data-page="statistiques"] [data-sous]').forEach(function(p){ p.hidden = p.getAttribute('data-sous') !== nom; });
+  try { localStorage.setItem('ng:admin-stats-sous', nom); } catch (e) {}
+  if (nom === 'profils') rendreParProfil();
+}
+document.querySelectorAll('[data-sous-onglet]').forEach(function(b){
+  b.addEventListener('click', function(){ sousOngletStats(b.getAttribute('data-sous-onglet')); });
+});
+(function(){ var s = ''; try { s = localStorage.getItem('ng:admin-stats-sous') || ''; } catch (e) {} sousOngletStats(s); })();
+
+/* « il y a 2 h », « hier à 14:32 »… */
+function ilYa(iso){
+  if (!iso) return 'jamais';
+  var t = new Date(iso).getTime(), s = (Date.now() - t) / 1000;
+  if (s < 90) return 'à l\'instant';
+  if (s < 3600) return 'il y a ' + Math.round(s / 60) + ' min';
+  var auj = jourParis(Date.now()), j = jourParis(t);
+  if (j === auj) return 'aujourd\'hui à ' + heureCourte(t);
+  if (j === jourParis(Date.now() - 864e5)) return 'hier à ' + heureCourte(t);
+  var n = Math.round((Date.parse(auj) - Date.parse(j)) / 864e5);
+  return n < 7 ? 'il y a ' + n + ' jours' : dateHeure(iso);
+}
+function initiales(p){
+  var a = (p.prenom || '').trim(), b = (p.nom || '').trim();
+  return ((a[0] || '') + (b[0] || '')).toUpperCase() || String(p.identifiant || '?').slice(0, 2).toUpperCase();
+}
+/* une fiche par profil : temps, sessions et dernière utilisation de chaque outil sur la période */
+function fichesParProfil(){
+  var v = $('#periodeProfils').value, maintenant = Date.now();
+  var depuis = v === 'tout' ? 0 : v === '1' ? new Date(jourParis(maintenant) + 'T00:00:00').getTime() : maintenant - Number(v) * 864e5;
+  var catalogue = Nao.outils.map(function(o){ return o.id; });
+  var parUser = {}; (USAGE_BRUT || []).forEach(function(r){ (parUser[r.user_id] = parUser[r.user_id] || []).push(r); });
+  return PROFILS.map(function(p){
+    var admin = p.role === 'admin', acces = admin ? catalogue : (p.outils || []);
+    var tout = parUser[p.user_id] || [];
+    var mes = tout.filter(function(r){ return r.duree_s >= 5 && new Date(r.debut).getTime() >= depuis; });
+    var parO = {}, jours = {};
+    function o(id){ return parO[id] = parO[id] || {outil:id, s:0, n:0, der:0, jours:{}, acces: acces.indexOf(id) >= 0}; }
+    mes.forEach(function(r){
+      var x = o(r.outil), t = new Date(r.debut).getTime();
+      x.s += r.duree_s; x.n++; if (t > x.der) x.der = t; x.jours[jourParis(t)] = 1; jours[jourParis(t)] = 1;
+    });
+    acces.forEach(o);
+    var outils = Object.keys(parO).map(function(k){ return parO[k]; })
+      .sort(function(a, b){ return b.s - a.s || b.n - a.n || nomOutil(a.outil).localeCompare(nomOutil(b.outil)); });
+    var dernier = tout.reduce(function(m, r){ return !m || r.debut > m.debut ? r : m; }, null);
+    return { p:p, admin:admin, outils:outils, total: mes.reduce(function(a, r){ return a + r.duree_s; }, 0), sessions: mes.length,
+      jours: Object.keys(jours).length, prefere: outils[0] && outils[0].s > 0 ? outils[0] : null, dernier: dernier };
+  });
+}
+function carteProfil(f){
+  var p = f.p, utilises = f.outils.filter(function(o){ return o.n > 0; }), jamais = f.outils.filter(function(o){ return !o.n && o.acces; });
+  var max = Math.max.apply(null, utilises.map(function(o){ return o.s; }).concat([1]));
+  var cnx = p.derniere_connexion, recent = cnx && Date.now() - new Date(cnx).getTime() < 7 * 864e5;
+  var statut = f.admin ? '<span class="pastille p-admin">Créatrice</span>' : '<span class="pastille p-'+esc(p.statut)+'">'+esc({actif:'Actif', suspendu:'Suspendu', bloque:'Bloqué'}[p.statut] || p.statut)+'</span>';
+  var h = '<article class="pp-carte'+(f.sessions ? '' : ' inactif')+'">'+
+    '<div class="pp-tete"><div class="pp-avatar">'+esc(initiales(p))+'</div>'+
+      '<div class="pp-id"><b>'+esc(nomComplet(p))+'</b><small>'+esc(p.identifiant || '')+' '+statut+(f.admin ? '' : ' · '+(p.outils || []).length+' outil'+((p.outils || []).length > 1 ? 's' : ''))+'</small></div>'+
+      '<div class="pp-cnx" title="'+esc(cnx ? new Date(cnx).toLocaleString('fr-FR') : 'Jamais connecté')+'"><span>Dernière connexion</span><b class="'+(recent ? '' : 'vieux')+'">'+esc(ilYa(cnx))+'</b></div></div>'+
+    '<div class="pp-chiffres"><div><b>'+duree(f.total)+'</b><span>Temps total</span></div><div><b>'+f.sessions+'</b><span>Session'+(f.sessions > 1 ? 's' : '')+'</span></div><div><b>'+f.jours+'</b><span>Jour'+(f.jours > 1 ? 's' : '')+' actif'+(f.jours > 1 ? 's' : '')+'</span></div></div>';
+  if (f.prefere) h += '<div class="pp-prefere"><span class="med">🏆</span>'+jetonOutil(f.prefere.outil)+'<div>Outil le plus utilisé : <b>'+esc(nomOutil(f.prefere.outil))+'</b><br>'+
+    duree(f.prefere.s)+' · '+(pct(f.prefere.s, f.total) || 0)+' % de son temps · '+f.prefere.n+' session'+(f.prefere.n > 1 ? 's' : '')+'</div></div>';
+  if (utilises.length) {
+    h += '<div class="hb">' + utilises.map(function(o, i){
+      var w = o.s / max * 100, nj = Object.keys(o.jours).length;
+      return '<div class="nm">'+jetonOutil(o.outil)+esc(nomOutil(o.outil))+(o.acces ? '' : ' <small style="color:var(--ambre)" title="Plus dans ses outils">·&nbsp;sans accès</small>')+'</div>'+
+        '<div class="piste'+(i === 0 ? ' top' : '')+'" data-tip="'+esc(nomOutil(o.outil)+' : '+duree(o.s))+'" data-tip2="'+esc(o.n+' session'+(o.n > 1 ? 's' : '')+' · '+nj+' jour'+(nj > 1 ? 's' : '')+' · moyenne '+duree(o.s / o.n)+' · dernière fois '+ilYa(new Date(o.der).toISOString()))+'"><i style="width:'+w+'%"></i></div>'+
+        '<div class="val">'+duree(o.s)+'<small>'+o.n+' session'+(o.n > 1 ? 's' : '')+'</small></div>';
+    }).join('') + '</div>';
+  } else h += '<div class="pp-rien">Aucun outil utilisé sur la période.</div>';
+  if (f.dernier) h += '<p class="pp-dernier">Dernier outil ouvert : <b>'+esc(nomOutil(f.dernier.outil))+'</b> — '+esc(ilYa(f.dernier.debut))+'</p>';
+  if (jamais.length) h += '<div class="pp-jamais">'+(utilises.length ? 'Pas ouverts sur la période' : 'Ses outils')+' ('+jamais.length+')<div class="puces">'+
+    jamais.map(function(o){ return '<span>'+jetonOutil(o.outil)+esc(nomOutil(o.outil))+'</span>'; }).join('')+'</div></div>';
+  return h + '</article>';
+}
+function rendreParProfil(){
+  if (!$('#panneauParProfil') || $('#panneauParProfil').hidden) return;
+  $('#majParProfil').textContent = $('#majUsage').textContent;
+  if (!USAGE_BRUT) {
+    $('#kpiParProfil').innerHTML = ''; $('#listeParProfil').innerHTML = '';
+    $('#videParProfil').hidden = false;
+    $('#videParProfil').textContent = usageEnCours || !usageDerniere ? 'Chargement des statistiques…' : 'Le relevé d\'utilisation ne se lit pas pour l\'instant : réessayez avec « ↻ Actualiser ».';
+    if (!usageEnCours && !usageDerniere && C) chargerUsage();
+    return;
+  }
+  var fiches = fichesParProfil();
+  /* les chiffres clés */
+  var actifs = fiches.filter(function(f){ return f.sessions > 0; });
+  var auj = jourParis(Date.now());
+  var cnxAuj = fiches.filter(function(f){ return f.p.derniere_connexion && jourParis(f.p.derniere_connexion) === auj; }).length;
+  var parOutil = {}; fiches.forEach(function(f){ f.outils.forEach(function(o){ if (o.s) parOutil[o.outil] = (parOutil[o.outil] || 0) + o.s; }); });
+  var topO = Object.keys(parOutil).sort(function(a, b){ return parOutil[b] - parOutil[a]; })[0];
+  var topP = actifs.slice().sort(function(a, b){ return b.total - a.total; })[0];
+  var total = fiches.reduce(function(s, f){ return s + f.total; }, 0);
+  $('#kpiParProfil').innerHTML =
+    '<div class="stat"><b>'+actifs.length+' <small style="font-size:13px;color:var(--ink-3)">/ '+fiches.length+'</small></b><span>Profils actifs sur la période</span></div>'+
+    '<div class="stat"><b>'+cnxAuj+'</b><span>Connectés aujourd\'hui</span></div>'+
+    '<div class="stat"><b>'+duree(total)+'</b><span>Temps total, tous profils</span></div>'+
+    '<div class="stat"><b style="font-size:17px">'+(topO ? esc(nomOutil(topO))+'<small style="display:block;font-size:12px;color:var(--ink-3)">'+duree(parOutil[topO])+'</small>' : '—')+'</b><span>Outil le plus utilisé</span></div>'+
+    '<div class="stat"><b style="font-size:17px">'+(topP ? esc(nomComplet(topP.p))+'<small style="display:block;font-size:12px;color:var(--ink-3)">'+duree(topP.total)+'</small>' : '—')+'</b><span>Profil le plus assidu</span></div>';
+  /* filtre, recherche, tri */
+  var q = Nao.sansAccent($('#rechParProfil').value.trim()), fl = $('#filtreParProfil').value, tri = $('#triParProfil').value;
+  var l = fiches.filter(function(f){
+    var p = f.p;
+    if (q && Nao.sansAccent(nomComplet(p)+' '+(p.identifiant || '')+' '+(p.email || '')+' '+(p.entreprise || '')).indexOf(q) < 0) return false;
+    if (fl === 'actifs') return f.sessions > 0;
+    if (fl === 'inactifs') return !f.sessions;
+    if (fl === 'clients') return !f.admin;
+    return true;
+  });
+  var cnxT = function(f){ return f.p.derniere_connexion ? new Date(f.p.derniere_connexion).getTime() : 0; };
+  l.sort(function(a, b){
+    if (tri === 'temps') return b.total - a.total || cnxT(b) - cnxT(a);
+    if (tri === 'sessions') return b.sessions - a.sessions || b.total - a.total;
+    if (tri === 'nom') return nomComplet(a.p).localeCompare(nomComplet(b.p));
+    return cnxT(b) - cnxT(a);
+  });
+  $('#listeParProfil').innerHTML = l.map(carteProfil).join('');
+  $('#videParProfil').hidden = l.length > 0;
+  if (!l.length) $('#videParProfil').textContent = fiches.length ? 'Aucun profil ne correspond.' : 'Aucun profil pour l\'instant.';
+}
+$('#periodeProfils').addEventListener('change', rendreParProfil);
+$('#rechParProfil').addEventListener('input', rendreParProfil);
+$('#filtreParProfil').addEventListener('change', rendreParProfil);
+$('#triParProfil').addEventListener('change', rendreParProfil);
+$('#btnActualiserParProfil').addEventListener('click', function(){ chargerUsage().then(function(){ if (usageDerniere) toast('Statistiques actualisées.'); }); });
+
+/* ---------- demandes reçues ---------- */
+function ouvrirDemande(d){
+  demandeOuverte = d;
+  var fm = (d.formules||[]).map(function(x){ return '<li>'+esc(x.nom)+(Number(x.prix)?' — '+euros(x.prix)+' / mois':' — gratuit')+
+    (x.outils ? '<br><small style="color:var(--ink-3)">'+x.outils.map(function(id){ var o = Nao.outilParId(id); return esc(o ? o.nom : id); }).join(', ')+'</small>' : '')+'</li>'; }).join('');
+  var objet = 'Re : '+(d.sujet||'votre demande'), debut = 'Bonjour '+d.nom.split(' ')[0]+',\n\n';
+  var gmail = gmailEcrire(d.email, objet, debut + '\n\n' + citationDemande(d).texte);
+  $('#dContenu').innerHTML =
+    '<div class="remis" style="margin-top:0"><b style="color:#fff">'+esc(d.nom)+'</b>'+(d.entreprise?' · '+esc(d.entreprise):'')+'<br>'+
+    '<a href="'+esc(gmail)+'" target="_blank" rel="noopener" style="color:var(--lilas)">'+esc(d.email)+'</a>'+(d.telephone?' · '+esc(d.telephone):'')+'<br>'+
+    '<span style="color:var(--ink-3)">Reçue le '+dateHeure(d.created_at)+' · '+esc(TYPES_DEMANDE[d.type]||d.type)+'</span></div>'+
+    (fm ? '<p class="sous" style="margin:12px 0 4px">Formule(s) souhaitée(s) — facturation '+(d.periode==='annuel'?'annuelle':'mensuelle')+'</p><ul style="margin:0 0 8px;padding-left:20px;color:var(--ink-2);font-size:14px">'+fm+'</ul>' : '')+
+    (d.message ? '<p class="sous" style="margin:12px 0 4px">Message</p><div style="white-space:pre-wrap;background:rgba(0,0,0,.24);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink-2)">'+esc(d.message)+'</div>' : '');
+  $('#dRepondre').setAttribute('href', gmail);
+  $('#dCreer').hidden = !(d.type==='souscription' || d.type==='acces');
+  $('#dStatut').value = d.statut; msg('dMsg','');
+  $('#dSujet').value = objet; debutReponse(d); $('#dCiter').checked = true;
+  $('#dSigner').checked = true; $('#dSignature').classList.remove('off');
+  PIECES = []; rendrePieces();
+  ouvrir('m-demande');
+  chargerEchanges(d);
+  if (repClient(d)) {   /* la réponse du client est lue ici : on la marque lue dans Gmail aussi */
+    var cle = String(d.email).toLowerCase();
+    appelGmail({action:'lu', avec:cle}).then(function(){ delete GMAIL_NOUVEAUX[cle]; rendreDemandes(); majOnglets(); }).catch(function(){});
+  }
+}
+
+/* ---------- Gmail sans quitter NaoGroup : relais gmail-support.gs installé dans le compte support ---------- */
+var GMAIL_SUPPORT = 'support.naogroup@gmail.com';
+function gmailEcrire(a, sujet, texte){   /* secours : la fenêtre d'écriture de Gmail, déjà remplie */
+  return 'https://mail.google.com/mail/?authuser='+encodeURIComponent(GMAIL_SUPPORT)+'&view=cm&fs=1&to='+encodeURIComponent(a)+
+    '&su='+encodeURIComponent(sujet||'')+'&body='+encodeURIComponent(texte||'');
+}
+function relaisGmail(){ return (REGL.gmail && REGL.gmail.url) || ''; }
+function appelGmail(corps){
+  var url = relaisGmail();
+  if (!url) return Promise.reject(new Error('Relais Gmail non installé.'));
+  return C.auth.getSession().then(function(s){
+    var jeton = s.data && s.data.session && s.data.session.access_token;
+    if (!jeton) throw new Error('Session expirée : reconnectez-vous.');
+    corps.jeton = jeton;
+    /* corps en texte brut : pas de requête préalable CORS, que Google n'accepte pas */
+    return fetch(url, {method:'POST', body:JSON.stringify(corps)}).catch(function(){
+      throw new Error('Relais Gmail injoignable : vérifiez son adresse et qu’il est déployé pour « Tout le monde ».');
+    });
+  }).then(function(r){ if (!r.ok) throw new Error('Relais Gmail : erreur '+r.status+'.'); return r.json(); })
+    .then(function(x){ if (x && x.erreur) throw new Error(x.erreur); return x; });
+}
+/* Les réponses des clients : seuls les e-mails non lus venant de l'adresse d'une demande comptent
+   (le reste de la boîte support n'apparaît pas ici). Relu à l'ouverture, puis toutes les 3 minutes. */
+function repClient(d){ return GMAIL_NOUVEAUX[String(d && d.email || '').toLowerCase()] || null; }
+var gmailNouveauxEnCours = false;
+function chargerNouveauxGmail(){
+  if (!relaisGmail() || gmailNouveauxEnCours || document.hidden) return;
+  gmailNouveauxEnCours = true;
+  appelGmail({action:'nouveaux'}).then(function(x){
+    var adr = {}; DEMANDES.forEach(function(d){ adr[String(d.email||'').toLowerCase()] = 1; });
+    GMAIL_NOUVEAUX = {};
+    (x.nouveaux||[]).forEach(function(m){
+      if (adr[m.email]) (GMAIL_NOUVEAUX[m.email] = GMAIL_NOUVEAUX[m.email] || []).push(m);
+    });
+    rendreDemandes(); majOnglets();
+  }).catch(function(){}).then(function(){ gmailNouveauxEnCours = false; });
+}
+setInterval(chargerNouveauxGmail, 3 * 60 * 1000);
+document.addEventListener('visibilitychange', function(){ if (!document.hidden && C) chargerNouveauxGmail(); });
+function chargerEchanges(d){
+  var zone = $('#dEchanges'), etat = $('#dGmailEtat'), pret = !!relaisGmail();
+  $('#dEcrire').hidden = !pret; $('#dGmailConfig').hidden = pret;
+  zone.innerHTML = ''; etat.textContent = '';
+  if (!pret) return;
+  etat.textContent = 'Lecture de Gmail…';
+  appelGmail({action:'echanges', avec:d.email}).then(function(x){
+    if (!demandeOuverte || demandeOuverte.id !== d.id) return;
+    var l = x.echanges || [];
+    etat.textContent = l.length ? l.length+' message'+(l.length>1?'s':'')+' dans Gmail' : 'Aucun échange dans Gmail pour l’instant';
+    zone.innerHTML = l.slice().reverse().map(function(m){
+      return '<div class="mail'+(m.envoye?' envoye':'')+'"><div class="q"><span>'+(m.envoye?'Vous':esc(m.de))+' · '+dateHeure(m.date)+'</span>'+
+        '<a href="'+esc(m.lien)+'" target="_blank" rel="noopener">Gmail ↗</a></div>'+
+        (m.sujet?'<b style="color:#fff">'+esc(m.sujet)+'</b>':'')+'<div class="t">'+esc(m.texte)+'</div>'+
+        ((m.pj||[]).length ? '<div class="pj">📎 '+m.pj.map(esc).join(' · ')+'</div>' : '')+'</div>';
+    }).join('');
+    zone.scrollTop = zone.scrollHeight;
+  }).catch(function(e){
+    if (!demandeOuverte || demandeOuverte.id !== d.id) return;
+    etat.textContent = e.message;
+    $('#dRelais').value = relaisGmail(); $('#dGmailConfig').hidden = false;
+  });
+}
+/* ---- la réponse : éditeur mis en forme (police, gras, italique, souligné, barré, cadre, couleur, surligneur) ---- */
+var plageReponse = null;
+var POLICE_DEFAUT = 'Georgia, serif';   /* le message part en Georgia italique, sauf choix contraire */
+function debutReponse(d){
+  var ed = $('#dTexte'); ed.innerHTML = 'Bonjour '+esc(d.nom.split(' ')[0])+',<br><br>'; plageReponse = null;
+  ed.style.fontFamily = ''; ed.removeAttribute('data-police'); $('#dPolice').value = POLICE_DEFAUT;
+}
+document.addEventListener('selectionchange', function(){
+  var s = getSelection(), ed = $('#dTexte');
+  if (s.rangeCount && ed.contains(s.anchorNode)) { plageReponse = s.getRangeAt(0).cloneRange(); etatOutils(); }
+});
+function restaurerPlage(){
+  var ed = $('#dTexte'); ed.focus();
+  if (plageReponse && ed.contains(plageReponse.startContainer)) { var s = getSelection(); s.removeAllRanges(); s.addRange(plageReponse); }
+}
+function miseEnForme(cmd, val){
+  restaurerPlage();
+  document.execCommand('styleWithCSS', false, true);   /* styles en ligne : ce que Gmail affiche */
+  document.execCommand(cmd, false, val);
+  if (cmd === 'removeFormat') retirerCadres();
+  etatOutils();
+}
+function etatOutils(){
+  document.querySelectorAll('#dOutils [data-cmd]').forEach(function(b){
+    var c = b.getAttribute('data-cmd'); if (c === 'removeFormat') return;
+    var on = false; try { on = document.queryCommandState(c); } catch(e){}
+    b.classList.toggle('actif', on);
+  });
+  $('#dEncadrer').classList.toggle('actif', !!cadreAutour());
+}
+function cadreAutour(){
+  var s = getSelection(), n = s.rangeCount ? s.anchorNode : null, ed = $('#dTexte');
+  while (n && n !== ed) { if (n.nodeType === 1 && n.hasAttribute('data-cadre')) return n; n = n.parentNode; }
+  return null;
+}
+function enleverCadre(c){ while (c.firstChild) c.parentNode.insertBefore(c.firstChild, c); c.remove(); }
+function retirerCadres(){
+  var s = getSelection(); if (!s.rangeCount) return;
+  var r = s.getRangeAt(0), c = cadreAutour(); if (c) enleverCadre(c);
+  $('#dTexte').querySelectorAll('[data-cadre]').forEach(function(x){ if (r.intersectsNode(x)) enleverCadre(x); });
+}
+document.querySelectorAll('#dOutils button').forEach(function(b){
+  b.addEventListener('mousedown', function(e){ e.preventDefault(); });   /* garde la sélection dans le texte */
+});
+document.querySelectorAll('#dOutils [data-cmd]').forEach(function(b){
+  b.addEventListener('click', function(){ miseEnForme(b.getAttribute('data-cmd')); });
+});
+$('#dPolice').addEventListener('change', function(){
+  var ed = $('#dTexte'), p = this.value;
+  restaurerPlage();
+  var s = getSelection();
+  if (s.rangeCount && !s.isCollapsed && ed.contains(s.anchorNode)) return miseEnForme('fontName', p);   /* le texte sélectionné */
+  ed.style.fontFamily = p; ed.setAttribute('data-police', p);                                          /* rien de sélectionné : tout le message */
+  toast('Police de tout le message : '+this.options[this.selectedIndex].text+'. Pour une partie seulement, sélectionnez-la d’abord.');
+});
+$('#dEncadrer').addEventListener('click', function(){
+  restaurerPlage();
+  var c = cadreAutour(); if (c) { enleverCadre(c); etatOutils(); return; }
+  var s = getSelection(); if (!s.rangeCount || s.isCollapsed) return toast('Sélectionnez d’abord le texte à encadrer.');
+  var r = s.getRangeAt(0), sp = document.createElement('span');
+  sp.setAttribute('data-cadre', '1');
+  sp.style.cssText = 'border:1.5px solid currentColor;border-radius:4px;padding:1px 5px';
+  sp.appendChild(r.extractContents()); r.insertNode(sp);
+  s.removeAllRanges(); var n = document.createRange(); n.selectNodeContents(sp); s.addRange(n);
+  etatOutils();
+});
+function teinte(btn, choix, barre, cmd){
+  var appliquer = function(){ $(barre).style.background = $(choix).value; miseEnForme(cmd, $(choix).value); };
+  $(btn).addEventListener('click', appliquer);
+  $(choix).addEventListener('change', appliquer);
+}
+teinte('#dCouleurOk', '#dCouleur', '#dCouleurBarre', 'foreColor');
+teinte('#dSurligneOk', '#dSurligne', '#dSurligneBarre', 'hiliteColor');
+
+/* la signature Gmail du compte support (Paramètres → Signature), reprise telle quelle : le logo est
+   l'image hébergée par Gmail pour cette signature. À mettre à jour ici si la signature change dans Gmail. */
+var SIGNATURE = {
+  html: '<div style="margin-top:18px;font-family:Georgia,serif;font-style:italic;font-size:14px;line-height:1.5;color:#222">'+
+    'Nous vous remercions pour votre confiance !<br><br>La directrice<br><br>NaoGroup</div>'+
+    '<div><img src="https://ci3.googleusercontent.com/mail-sig/AIorK4y--Pl2FyTY6qtJOUX1YdKJQ-Re0wlwasTznnDLwZPARY8msb3sEpkbKAqyH2ebhXR4fXLOOvzfrjEj" '+
+    'width="96" height="96" alt="NaoGroup" style="display:block;margin-top:6px;width:96px;height:96px"></div>',
+  texte: 'Nous vous remercions pour votre confiance !\n\nLa directrice\n\nNaoGroup'
+};
+$('#dSignature').innerHTML = SIGNATURE.html.replace('margin-top:18px', 'margin-top:0');
+$('#dSigner').addEventListener('change', function(){ $('#dSignature').classList.toggle('off', !this.checked); });
+
+/* le message de la demande, repris sous la réponse comme dans une réponse Gmail */
+function citationDemande(d){
+  var quand = new Date(d.created_at), date = quand.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})+' à '+
+    quand.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  var tete = 'Le '+date+', '+d.nom+' <'+d.email+'> a écrit :';
+  var lignes = [];
+  if (d.sujet) lignes.push('Objet : '+d.sujet);
+  (d.formules||[]).forEach(function(x){ lignes.push('Formule souhaitée : '+x.nom); });
+  if (lignes.length && d.message) lignes.push('');
+  if (d.message) lignes = lignes.concat(String(d.message).split('\n'));
+  return {
+    texte: tete + '\n' + lignes.map(function(l){ return '> '+l; }).join('\n'),
+    html: '<div style="margin-top:22px;color:#555">'+esc(tete)+'</div>'+
+      '<blockquote style="margin:6px 0 0 4px;padding:0 0 0 12px;border-left:2px solid #ccc;color:#555;white-space:pre-wrap">'+esc(lignes.join('\n'))+'</blockquote>'
+  };
+}
+
+/* ---- pièces jointes : lues dans le navigateur, envoyées au relais en base64 (Gmail : 25 Mo au plus par mail) ---- */
+var PIECES = [], PIECES_MAX = 20 * 1024 * 1024;
+function taillePj(o){ return o < 1024 ? o+' o' : o < 1048576 ? Math.round(o/1024)+' Ko' : (o/1048576).toFixed(1).replace('.', ',')+' Mo'; }
+function rendrePieces(){
+  $('#dPieces').innerHTML = PIECES.map(function(f, i){
+    return '<span class="piece">📄 '+esc(f.name)+' <small>'+taillePj(f.size)+'</small><button type="button" data-pj="'+i+'" title="Retirer">✕</button></span>';
+  }).join('');
+}
+$('#dFichiers').addEventListener('change', function(){
+  var total = PIECES.reduce(function(s, f){ return s + f.size; }, 0), refus = [];
+  Array.prototype.forEach.call(this.files, function(f){
+    if (total + f.size > PIECES_MAX) { refus.push(f.name); return; }
+    total += f.size; PIECES.push(f);
+  });
+  this.value = ''; rendrePieces();
+  msg('dMsg', refus.length ? 'Trop lourd (20 Mo au total) : '+refus.join(', ')+' n’a pas été joint.' : '');
+});
+$('#dPieces').addEventListener('click', function(e){
+  var b = e.target.closest('[data-pj]'); if (!b) return;
+  PIECES.splice(Number(b.getAttribute('data-pj')), 1); rendrePieces();
+});
+function lirePieces(){
+  return Promise.all(PIECES.map(function(f){
+    return new Promise(function(ok, ko){
+      var r = new FileReader();
+      r.onload = function(){ ok({nom:f.name, type:f.type || 'application/octet-stream', base64:String(r.result).split(',')[1] || ''}); };
+      r.onerror = function(){ ko(new Error('Lecture impossible : '+f.name)); };
+      r.readAsDataURL(f);
+    });
+  }));
+}
+
+$('#dEnvoyer').addEventListener('click', function(){
+  var d = demandeOuverte, b = this, sujet = $('#dSujet').value.trim(), ed = $('#dTexte');
+  var texte = ed.innerText.replace(/\n{3,}/g, '\n\n').trim();
+  if (!sujet || !texte) return msg('dMsg', 'Écrivez un objet et un message.');
+  var html = '<div style="font-family:'+esc(ed.getAttribute('data-police') || POLICE_DEFAUT)+';font-style:italic;font-size:14px;line-height:1.55;color:#222">'+
+    ed.innerHTML.replace(/text-decoration-line:/g, 'text-decoration:')+'</div>';   /* la forme que Gmail garde */
+  if ($('#dSigner').checked) { html += SIGNATURE.html; texte += '\n\n' + SIGNATURE.texte; }
+  if ($('#dCiter').checked && (d.message || d.sujet)) { var cit = citationDemande(d); html += cit.html; texte += '\n\n' + cit.texte; }
+  msg('dMsg',''); b.disabled = true; b.textContent = PIECES.length ? 'Envoi des pièces jointes…' : 'Envoi…';
+  lirePieces().then(function(pj){
+    return appelGmail({action:'envoyer', a:d.email, sujet:sujet, texte:texte, html:html, pieces:pj});
+  }).then(function(){
+    debutReponse(d); PIECES = []; rendrePieces();
+    if (d.statut === 'nouvelle') { $('#dStatut').value = 'en_cours'; majDemande({statut:'en_cours'}, 'Réponse envoyée — demande passée « En cours ».'); }
+    else toast('Réponse envoyée à '+d.email+'.');
+    setTimeout(function(){ if (demandeOuverte && demandeOuverte.id === d.id) chargerEchanges(demandeOuverte); }, 2000);
+  }).catch(function(e){ msg('dMsg', e.message); })
+    .then(function(){ b.disabled = false; b.textContent = 'Envoyer depuis '+GMAIL_SUPPORT; });
+});
+$('#dRelaisOk').addEventListener('click', function(){
+  var u = $('#dRelais').value.trim();
+  if (!/^https:\/\/script\.google\.com\/(a\/[^\/]+\/)?macros\/s\/[\w-]+\/exec$/.test(u))
+    return msg('dMsg', 'Collez l’« URL de l’application Web » du relais : elle commence par https://script.google.com/macros/s/ et finit par /exec.');
+  enregReglage('gmail', {url:u}).then(function(){
+    REGL.gmail = {url:u}; msg('dMsg',''); toast('Relais Gmail enregistré.'); chargerEchanges(demandeOuverte);
+  }).catch(function(e){ msg('dMsg', e.message); });
+});
+function majDemande(champs, ok){
+  C.from('demandes').update(champs).eq('id', demandeOuverte.id).select().single().then(function(r){
+    if (r.error) return msg('dMsg', r.error.message);
+    DEMANDES[DEMANDES.indexOf(demandeOuverte)] = r.data; demandeOuverte = r.data; rendre(); toast(ok);
+  });
+}
+$('#dStatut').addEventListener('change', function(){ majDemande({statut:this.value}, 'Statut enregistré.'); });
+$('#dSupprimer').addEventListener('click', function(){
+  if (!confirm('Supprimer définitivement cette demande ?')) return;
+  C.from('demandes').delete().eq('id', demandeOuverte.id).then(function(r){
+    if (r.error) return msg('dMsg', r.error.message);
+    DEMANDES = DEMANDES.filter(function(x){ return x.id!==demandeOuverte.id; }); fermer('m-demande'); rendre(); toast('Demande supprimée.');
+  });
+});
+$('#dCreer').addEventListener('click', function(){
+  var d = demandeOuverte; fermer('m-demande');
+  ouvrirProfil(null, d);
+  var mots = d.nom.trim().split(/\s+/), prenom = mots.shift() || '', nom = mots.join(' ');
+  var set = function(id, v){ var e = $('#'+id); e.value = v; e.dispatchEvent(new Event('input',{bubbles:true})); };
+  set('p-prenom', prenom); set('p-nom', nom); set('p-entreprise', d.entreprise || '');
+  $('#p-espace').value = d.entreprise ? 'professionnel' : 'particulier';
+  var choix = (d.formules||[]).map(function(x){ return formuleDe(x.id); }).filter(Boolean);
+  if (choix.length) {
+    $('#p-formule').value = choix[0].id;
+    $('#p-prix').value = choix.reduce(function(s,f){ return s + (Number(f.prix)||0); }, 0);
+    var outils = []; choix.forEach(function(f){ (f.outils||[]).forEach(function(o){ if (outils.indexOf(o)<0) outils.push(o); }); });
+    cocher($('#matrice'), outils);
+  }
+  var mesure = (d.formules||[]).filter(function(x){ return x.id==='sur-mesure' && x.outils; })[0];
+  if (mesure) { $('#p-formule').value = ''; $('#p-prix').value = mesure.prix; cocher($('#matrice'), mesure.outils); }
+  if (d.periode) $('#p-periode').value = d.periode;
+  $('#p-notes').value = 'Demande du '+dateHeure(d.created_at)+' — '+d.email+(d.telephone ? ' — '+d.telephone : '')+(d.message ? '\n'+d.message : '');
+  $('#pSous').textContent = 'Pré-rempli d’après la demande de '+d.nom+'. Vérifiez, puis enregistrez.';
+});
+$('#corpsDemandes').addEventListener('click', function(e){
+  var b = e.target.closest('[data-d]'); if (!b) return;
+  ouvrirDemande(DEMANDES.filter(function(x){ return x.id===b.getAttribute('data-id'); })[0]);
+});
+$('#filtreDemandes').addEventListener('change', rendreDemandes);
+
+/* ---------- vider les outils d'un profil ---------- */
+function viderOutils(p){
+  if (!confirm('Vider TOUS les outils de '+nomComplet(p)+' ?\n\nToutes ses données saisies seront effacées et ses outils repartiront vierges, sur tous ses appareils. Son accès et son abonnement ne changent pas.')) return;
+  appelAdmin({action:'reinitialiser', user_id:p.user_id}).then(function(){ toast('Ses outils sont vides.'); }).catch(function(e){ alert(e.message); });
+}
+
+/* ---------- branchements ---------- */
+$('#btnAjout').addEventListener('click', function(){ ouvrirProfil(null); });
+$('#btnFacture').addEventListener('click', function(){ ouvrirFacture(null); });
+$('#btnActualiserProfils').addEventListener('click', function(){
+  var b = this; b.disabled = true; b.textContent = '↻ Actualisation…';
+  actualiserProfils().then(function(){ toast('Profils actualisés.'); })
+    .catch(function(x){ alert('Actualisation impossible : ' + x.message); })
+    .then(function(){ b.disabled = false; b.textContent = '↻ Actualiser'; });
+});
+$('#rech').addEventListener('input', rendreProfils); $('#filtre').addEventListener('change', rendreProfils);
+/* sortie de l'administration : le cadenas plein écran se referme, puis le site ou la déconnexion */
+$('#btnSortir').addEventListener('click', function(){
+  if (window.NaoCadenas) NaoCadenas.sortir(function(){ Nao.deconnexion(); }); else Nao.deconnexion(); });
+$('.haut a[href="NaoGroup.html"]').addEventListener('click', function(e){
+  if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0 || !window.NaoCadenas) return;
+  e.preventDefault(); NaoCadenas.sortir(this.href); });
+document.addEventListener('click', function(e){
+  var f = e.target.closest('[data-ferme]'); if (f) fermer(f.getAttribute('data-ferme'));
+});
+document.addEventListener('keydown', function(e){ if (e.key==='Escape') document.querySelectorAll('.voile.ouvert').forEach(function(v){ v.classList.remove('ouvert'); }); });
+$('#corpsProfils').addEventListener('click', function(e){
+  var v = e.target.closest('[data-voir-avis]');
+  if (v) { e.preventDefault(); afficherPage('satisfaction'); history.replaceState(null, '', '#satisfaction'); return montrerAvis(v.getAttribute('data-voir-avis')); }
+  var b = e.target.closest('[data-a]'); if(!b) return;
+  var p = PROFILS.filter(function(x){ return x.user_id===b.getAttribute('data-id'); })[0], a = b.getAttribute('data-a');
+  if (a==='modifier') ouvrirProfil(p);
+  else if (a==='suspendre' || a==='bloquer' || a==='reactiver') ouvrirStatut(p, a);
+  else if (a==='mdp') ouvrirMdp(p);
+  else if (a==='questionnaire') envoyerQuestionnaire(p, b);
+  else if (a==='facture') ouvrirFacture(p.user_id);
+  else if (a==='vider') viderOutils(p);
+  else if (a==='supprimer') supprimer(p);
+});
+
+/* ---------- mode maintenance : tout NaoGroup fermé à tous, sauf à l'administratrice (reglages « maintenance ») ---------- */
+function lireMaint(){ var v = REGL.maintenance || {}; return { actif: !!v.actif, motif: String(v.motif||'').trim() || (Nao.motifMaintenance || 'Logiciel en maintenance'), depuis: v.depuis || null }; }
+function rendreMaintenance(){
+  var m = lireMaint();
+  $('#panneauMaintenance').classList.toggle('on', m.actif);
+  $('#maintEtat').textContent = m.actif ? 'En cours' : 'Arrêtée';
+  $('#maintEtat').style.cssText = m.actif ? 'background:linear-gradient(135deg,#FFD58A,#F6A96B);color:#2A1606' : '';
+  if (document.activeElement !== $('#maintMotif')) $('#maintMotif').value = m.motif;
+  $('#btnMaint').textContent = m.actif ? '✓ Arrêter la maintenance — rouvrir NaoGroup' : '🛠️ Mettre NaoGroup en maintenance';
+  $('#btnMaint').className = m.actif ? 'btn plein' : 'btn maint-go';
+  $('#btnMaintMotif').hidden = !m.actif;
+  $('#maintInfo').textContent = m.actif ? 'En maintenance depuis le ' + dateHeure(m.depuis) + '.' : 'NaoGroup est ouvert normalement.';
+  var r = $('#maintRappel'); r.hidden = !m.actif;
+  if (m.actif) {
+    r.innerHTML = '🛠️ <b>Maintenance en cours</b><span>« '+esc(m.motif)+' » — depuis le '+esc(dateHeure(m.depuis))+'. Les profils n\'ont plus accès aux outils.</span><span class="sp"></span>'+
+      '<button type="button" id="btnMaintRappel">Arrêter la maintenance</button>';
+    $('#btnMaintRappel').addEventListener('click', function(){ afficherPage('parametres'); $('#panneauMaintenance').scrollIntoView({behavior:'smooth', block:'center'}); });
+  }
+}
+/* deux copies : l'entrée cachée des formules, lisible par tous dès maintenant (c'est elle qui ferme le site),
+   et le réglage « maintenance », que le serveur lit pour bloquer les données une fois supabase-schema.sql rejoué */
+function enregMaint(v, ok){
+  var b = $('#btnMaint'); b.disabled = true;
+  return enregReglage('formules', REGL.formules.concat(entreesCachees(v)))
+    .then(function(){ return enregReglage('maintenance', v); })
+    .then(function(){ REGL.maintenance = v; rendreMaintenance(); toast(ok); })
+    .catch(function(e){ alert('Enregistrement impossible : '+e.message); })
+    .then(function(){ b.disabled = false; });
+}
+$('#btnMaint').addEventListener('click', function(){
+  var m = lireMaint(), motif = $('#maintMotif').value.trim() || (Nao.motifMaintenance || 'Logiciel en maintenance');
+  if (m.actif) {
+    if (!confirm('Rouvrir NaoGroup à tous les profils ?')) return;
+    enregMaint({ actif:false, motif:motif, depuis:null }, 'NaoGroup est rouvert : chacun retrouve son accès.');
+  } else {
+    if (!confirm('Fermer NaoGroup à tous les profils ?\n\nMotif affiché : « '+motif+' »\n\nVous seule garderez l\'accès. Les outils déjà ouverts chez quelqu\'un se ferment dans les 2 minutes.')) return;
+    enregMaint({ actif:true, motif:motif, depuis:new Date().toISOString() }, 'NaoGroup est en maintenance.');
+  }
+});
+$('#btnMaintMotif').addEventListener('click', function(){
+  var m = lireMaint(), motif = $('#maintMotif').value.trim() || (Nao.motifMaintenance || 'Logiciel en maintenance');
+  enregMaint({ actif:true, motif:motif, depuis:m.depuis || new Date().toISOString() }, 'Motif mis à jour.');
+});
+
+/* ---------- arrivée depuis une notification (mur de l'accueil ou e-mail) : admin.html?demande=… ou ?avis=… ---------- */
+function ouvrirDepuisLien(){
+  var q = new URLSearchParams(location.search), idD = q.get('demande'), idA = q.get('avis');
+  if (!idD && !idA) return;
+  var page = idD ? 'demandes' : 'satisfaction';
+  history.replaceState(null, '', location.pathname + '#' + page);
+  afficherPage(page);
+  if (idD) {
+    var d = DEMANDES.filter(function(x){ return x.id===idD; })[0];
+    if (d) ouvrirDemande(d); else toast('Cette demande n\'existe plus (supprimée).');
+  } else montrerAvis(idA);
+}
+
+/* ---------- démarrage ---------- */
+function refus(titre, texte){ $('#refusTitre').textContent = titre; $('#refusTexte').textContent = texte; $('#refus').hidden = false; }
+if (!Nao.configure) { refus('Serveur non branché', "Les clés du serveur manquent dans naogroup-cloud.js. Suivez le guide d'activation (GUIDE-SUPABASE.html), puis revenez ici."); return; }
+Nao.profil().then(function(p){
+  if (!p) { location.replace(Nao.url('connexion.html')+'?retour='+encodeURIComponent(location.href)); return; }
+  if (p.role !== 'admin' || p.statut !== 'actif') { refus('Accès réservé', "Cette page est réservée à l'administratrice de NaoGroup."); return; }
+  MOI = p;
+  return Nao.client().then(function(c){ C = c; return charger(); }).then(function(){ $('#app').hidden = false; rendre(); afficherPage(location.hash.slice(1), true); chargerUsage(); rendreMaintenance(); ouvrirDepuisLien(); chargerNouveauxGmail(); });
+}).catch(function(e){ refus('Chargement impossible', 'Le serveur ne répond pas comme prévu : '+e.message+' — avez-vous bien exécuté supabase-schema.sql ?'); });
+})();
+</script>
+</body>
+</html>

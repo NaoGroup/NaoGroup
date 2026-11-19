@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — outils pour la gestion du quotidien</title>
+<meta name="description" content="NaoGroup réunit des outils simples et soignés pour le quotidien : budget, crédit, logement, agenda, factures, langues, famille. Essai gratuit de 14 jours.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+<meta property="og:url" content="https://naogroup.github.io/NaoGroup/NaoGroup.html">
+<meta property="og:image" content="https://naogroup.github.io/NaoGroup/icones/naogroup-apercu.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NaoGroup — des outils pour la vie de tous les jours">
+<script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });</script>
+<meta name="theme-color" content="#43309E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NaoGroup">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="NaoGroup — des outils pour la vie de tous les jours">
+<meta property="og:description" content="Un outil fait maison pour chaque partie de votre quotidien — simple, soigné, à vous seul.">
+<meta name="twitter:card" content="summary_large_image">
+<script src="naogroup-cloud.js?v=20261116"></script>
+<script src="naogroup-cadenas.js"></script>
+<script>document.documentElement.classList.add('js');
+/* Retour d'un outil : on peint tout de suite la même image que celle sur laquelle l'outil s'est refermé
+   (son fond, son jeton au centre) ; le script du bas la replie ensuite dans la carte de l'outil. */
+(function () {
+  try {
+    var d = sessionStorage.getItem('ng:passage'), r = document.documentElement;
+    if (!d || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var f = JSON.parse(localStorage.getItem('ng:fond:' + d) || 'null'), v = JSON.parse(localStorage.getItem('ng:visuel:' + d) || 'null');
+    r.classList.add('retour');
+    if (f && f.img) { r.style.setProperty('--retour-fond', f.img); r.style.setProperty('--retour-uni', f.col || '#171230'); }
+    if (v && v.logo) r.style.setProperty('--retour-logo', 'url("data:image/svg+xml;charset=utf-8,' + encodeURIComponent(v.logo) + '")');
+  } catch (e) {}
+})();
+/* Retour de la page Contact : le fond de l'accueil et son N, peints tout de suite, puis levés par le script du bas. */
+(function () { try { if (sessionStorage.getItem('ng:contact') === 'sortie' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  sessionStorage.removeItem('ng:contact'); document.documentElement.classList.add('depuis-contact'); } } catch (e) {} })();</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2319F0D8'/><stop offset='.48' stop-color='%238A5CFF'/><stop offset='1' stop-color='%23E99BFF'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+/* ============================================================
+   NaoGroup — le site de la maison.
+   Le fond est celui de l'écran de connexion NaoFi : c'est lui qui
+   devient le fond principal de la charte NaoGroup.
+   ============================================================ */
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --ink:#F3EFFB;
+  --ink-2:rgba(243,239,251,.74);
+  --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07);
+  --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16);
+  --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5;
+  --lilas-2:#B9A8F0;
+  --violet:#A77BFF;
+  --turquoise:#19F0D8;
+  --turquoise-clair:#6FFFEF;
+  --lilas-vif:#C46BFF;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.65;
+  background:radial-gradient(1200px 820px at 50% 34%, #7A5AE0 0%, #43309E 42%, #1A1240 100%);
+  background-attachment:fixed;overflow-x:hidden}
+/* la trame de points, masquée sur les bords */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);
+  background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 38%, #000 0 30%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 38%, #000 0 30%, transparent 72%);
+  animation:grille 1.8s ease both}
+@keyframes grille{from{opacity:0;transform:scale(1.14)}to{opacity:1;transform:none}}
+/* les trois halos qui dérivent */
+.halos{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.halos i{position:absolute;border-radius:50%;filter:blur(60px);animation:flotte 14s ease-in-out infinite alternate}
+.halos i:nth-child(1){width:440px;height:440px;background:#B9A8F0;left:8%;top:10%;opacity:.62}
+.halos i:nth-child(2){width:380px;height:380px;background:#19F0D8;right:7%;bottom:8%;opacity:.5;animation-duration:17s}
+.halos i:nth-child(3){width:320px;height:320px;background:#C46BFF;right:28%;top:-8%;opacity:.45;animation-duration:21s}
+.halos i:nth-child(4){width:360px;height:360px;background:#8A3FFF;left:-4%;bottom:12%;opacity:.55;animation-duration:19s}
+@keyframes flotte{from{transform:translate(0,0) scale(1)}to{transform:translate(46px,-34px) scale(1.18)}}
+
+/* petits motifs du quotidien qui dérivent en fond — maison, agenda, pièce,
+   lune, langue, cœur : les thèmes des outils, en silhouette légère */
+.motifs{position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%}
+.motifs .m{transform-origin:center;animation:nao-derive linear infinite alternate}
+.motifs .m path,.motifs .m circle,.motifs .m rect{fill:none;stroke:#fff;stroke-width:2.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.motifs .etoile{fill:#fff;stroke:none;animation:nao-scintille ease-in-out infinite}
+@keyframes nao-derive{
+  0%{transform:translate(0,0) rotate(0deg)}
+  100%{transform:translate(22px,-26px) rotate(6deg)}
+}
+@keyframes nao-scintille{
+  0%,100%{opacity:.1}
+  50%{opacity:.4}
+}
+
+/* la page occupe l'écran : large sur un grand écran, avec des marges qui suivent la fenêtre */
+.page{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:22px clamp(16px,3.2vw,56px) 60px}
+@keyframes monte{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes jeton{from{opacity:0;transform:scale(.5) rotate(-18deg)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- barre du haut ---------- */
+.bar{display:flex;align-items:center;gap:13px;padding:10px 0;animation:monte .7s ease both}
+/* lien d'évitement : invisible, il apparaît au premier Tab pour sauter l'en-tête */
+.evitement{position:fixed;left:16px;top:-60px;z-index:500;padding:10px 16px;border-radius:12px;font:600 14px var(--ui);
+  color:#1C1636;background:linear-gradient(135deg,#6FFFEF,#C9B7F5);text-decoration:none;transition:top .2s}
+.evitement:focus{top:16px}
+.bar .mark{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}
+.bar .mark svg{width:42px;height:42px;border-radius:13px;box-shadow:0 8px 22px -8px rgba(0,0,0,.6);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.bar .mark:hover svg{transform:rotate(-6deg) scale(1.06)}
+.bar h1{margin:0;font-size:20px;letter-spacing:-.01em;color:#fff}
+.bar h1 span{color:var(--lilas)}
+.bar .sub{font-family:var(--ui);font-style:normal;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin-top:1px}
+.bar nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.bar nav a{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-2);text-decoration:none;
+  padding:8px 14px;border-radius:999px;transition:.2s}
+.bar nav a:hover{background:var(--verre);color:#fff}
+.bar nav a.connexion{background:linear-gradient(135deg,#6FFFEF,#A77BFF 55%,#C9B7F5);color:#1C1636;font-weight:700}
+.bar nav a.connexion:hover{filter:brightness(1.08);background:linear-gradient(135deg,#6FFFEF,#A77BFF 55%,#C9B7F5)}
+
+/* ---------- hero ---------- */
+.hero{text-align:center;padding:52px 0 40px}
+.hero .jeton-zone{position:relative;display:inline-block}
+.hero .jeton-lueur{position:absolute;inset:-46px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,183,245,.55) 0%,rgba(201,183,245,0) 70%);
+  filter:blur(6px);animation:lueur-pouls 4.5s ease-in-out infinite}
+@keyframes lueur-pouls{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+.hero .jeton{position:relative;width:106px;height:106px;border-radius:33px;box-shadow:0 22px 50px -18px rgba(0,0,0,.75);
+  animation:jeton .9s cubic-bezier(.2,.8,.2,1) both}
+.hero h2{margin:22px 0 0;font-size:clamp(38px,6vw,60px);line-height:1.04;letter-spacing:-.03em;color:#fff;
+  animation:monte .8s .12s ease both}
+.hero h2 span{color:var(--lilas)}
+.hero .tagline{margin:16px auto 0;max-width:50ch;font-family:var(--ui);font-style:normal;font-weight:600;
+  font-size:clamp(16px,2.1vw,19px);color:#fff;animation:monte .8s .16s ease both}
+.hero .accroche{margin:12px auto 0;max-width:56ch;font-size:clamp(14px,1.7vw,16px);color:var(--ink-3);
+  line-height:1.7;animation:monte .8s .2s ease both}
+.hero .accroche b{color:var(--ink-2);font-weight:600}
+/* « Aujourd'hui, je m'occupe de … » : le mot change et renvoie vers son outil */
+.hero .defile{margin:22px auto 0;font-size:clamp(18px,2.6vw,24px);color:var(--ink-2);animation:monte .8s .18s ease both}
+/* « de / du / des » change avec le mot : les deux glissent ensemble */
+.hero .defile .mot{display:inline-block;transition:opacity .35s ease,transform .35s cubic-bezier(.2,.8,.2,1)}
+.hero .defile .mot.sort{opacity:0;transform:translateY(-10px)}
+.hero .defile .mot.entre{opacity:0;transform:translateY(10px);transition:none}
+.hero .defile a{display:inline-block;position:relative;color:#fff;text-decoration:none;font-weight:600;padding:0 .12em}
+.hero .defile a::after{content:'';position:absolute;left:.12em;right:.12em;bottom:.02em;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--c1,#8E7BD4),var(--c2,#C39BF3))}
+/* le titre : une lueur qui passe lentement sur « de tous les jours » */
+.hero h2 span{background:linear-gradient(100deg,#6FFFEF 0%,#A77BFF 30%,#E99BFF 45%,#fff 50%,#E99BFF 55%,#A77BFF 70%,#6FFFEF 100%);
+  background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:reflet 7s 1.2s ease-in-out infinite}
+@keyframes reflet{0%{background-position:100% 0}45%,100%{background-position:0 0}}
+/* l'orbite : tous les jetons de la maison tournent autour du N */
+.hero .jeton-zone{width:300px;height:300px;display:grid;place-items:center;margin:-34px auto -14px}
+.hero .jeton-zone .jeton-lueur{inset:auto;left:50%;top:50%;width:200px;height:200px;margin:-100px 0 0 -100px}
+.hero .jeton-zone .jeton{animation:jeton .9s cubic-bezier(.2,.8,.2,1) both,plane 6s 1s ease-in-out infinite}
+@keyframes plane{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.orbite{position:absolute;inset:0;animation:tourne 90s linear infinite;pointer-events:none}
+.orbite a{position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;pointer-events:auto;
+  --r:-136px;--z:1;transform:rotate(var(--a)) translateY(var(--r)) rotate(calc(-1 * var(--a))) scale(var(--z));opacity:0;
+  transition:transform .5s cubic-bezier(.3,1.7,.4,1);animation:apparait .6s ease forwards;animation-delay:var(--t)}
+/* le jeton survolé grossit avec un petit rebond, s'entoure d'une onde à sa couleur,
+   et les autres s'effacent ; le grand N au centre prend son visage (voir le script) */
+.orbite a svg{display:block;width:28px;height:28px;border-radius:9px;box-shadow:0 6px 14px -6px rgba(0,0,0,.7);
+  animation:tourne 90s linear infinite reverse;
+  transition:opacity .3s,filter .3s,box-shadow .3s}
+.orbite a::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--c,#C39BF3);opacity:0;pointer-events:none}
+.orbite a:hover,.orbite a:focus-visible{z-index:2;outline:none;--z:1.75}
+.orbite a:hover svg,.orbite a:focus-visible svg{
+  box-shadow:0 0 0 1.5px rgba(255,255,255,.9),0 8px 24px -4px var(--c,#C39BF3),0 0 30px -2px var(--c,#C39BF3)}
+.orbite a:hover::before,.orbite a:focus-visible::before{animation:onde 1.3s ease-out infinite}
+@keyframes onde{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.65)}}
+.orbite:has(a:hover,a:focus-visible) a:not(:hover):not(:focus-visible){--z:.86}
+.orbite:has(a:hover,a:focus-visible) a:not(:hover):not(:focus-visible) svg{opacity:.32;filter:saturate(.5)}
+.orbite:hover,.orbite:hover a svg,.orbite:focus-within,.orbite:focus-within a svg{animation-play-state:paused}
+/* au centre : le grand jeton change de visage, et le nom de l'outil apparaît dessous */
+.hero .jeton-zone .jeton.change{animation:jeton-pop .55s cubic-bezier(.3,1.6,.4,1),plane 6s ease-in-out infinite}
+@keyframes jeton-pop{0%{scale:.72;rotate:-14deg;opacity:.4}100%{scale:1;rotate:0deg;opacity:1}}
+.hero .jeton-lueur{transition:background .4s}
+.orbite-nom{position:absolute;left:50%;top:calc(50% + 66px);z-index:3;translate:-50% 8px;opacity:0;pointer-events:none;
+  white-space:nowrap;text-align:center;font-family:var(--ui);font-style:normal;line-height:1.25;
+  background:rgba(28,22,54,.72);border:1px solid var(--c,var(--bord-2));border-radius:14px;padding:6px 13px;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 10px 26px -12px var(--c,#000);
+  transition:opacity .25s,translate .35s cubic-bezier(.2,.8,.2,1)}
+.orbite-nom.vu{opacity:1;translate:-50% 0}
+.orbite-nom b{display:block;font-family:var(--sans);font-style:italic;font-size:15px;color:#fff}
+.orbite-nom span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+@keyframes tourne{to{transform:rotate(360deg)}}
+@keyframes apparait{to{opacity:.88}}
+.hero .avantages{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:26px;max-width:880px;
+  margin-left:auto;margin-right:auto}
+.hero .avantages a{display:inline-flex;align-items:center;gap:9px;font-family:var(--ui);font-style:normal;text-decoration:none;
+  font-size:13.5px;font-weight:600;color:#fff;background:var(--verre);border:1px solid var(--bord);
+  border-radius:999px;padding:7px 14px 7px 7px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:.3s cubic-bezier(.2,.8,.2,1);animation:monte .7s both}
+.hero .avantages a::after{content:'→';opacity:0;margin-left:-8px;transition:.25s;color:var(--lilas)}
+.hero .avantages a:hover,.hero .avantages a:focus-visible{background:var(--verre-2);border-color:var(--bord-2);transform:translateY(-3px);
+  box-shadow:0 12px 26px -14px var(--c2,#C39BF3)}
+.hero .avantages a:hover::after,.hero .avantages a:focus-visible::after{opacity:1;margin-left:0}
+.hero .avantages svg{width:30px;height:30px;border-radius:10px;flex:none;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.hero .avantages a:hover svg{transform:rotate(-8deg) scale(1.08)}
+.hero .avantages a:nth-child(1){animation-delay:.3s}
+.hero .avantages a:nth-child(2){animation-delay:.36s}
+.hero .avantages a:nth-child(3){animation-delay:.42s}
+.hero .avantages a:nth-child(4){animation-delay:.48s}
+.hero .avantages a:nth-child(5){animation-delay:.54s}
+.hero .avantages a:nth-child(6){animation-delay:.6s}
+.hero .chiffres{display:flex;justify-content:center;gap:clamp(18px,5vw,54px);margin-top:34px;animation:monte .8s .5s ease both}
+.hero .chiffres div{text-align:center}
+.hero .chiffres b{display:block;font-size:30px;line-height:1;color:#fff;font-weight:600}
+.hero .chiffres span{font-family:var(--ui);font-style:normal;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.descend{display:block;width:26px;height:40px;margin:30px auto 0;border:2px solid var(--bord-2);border-radius:14px;position:relative}
+.descend::after{content:'';position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;
+  background:var(--lilas);animation:roule 1.8s ease-in-out infinite}
+@keyframes roule{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+.hero .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;
+  animation:monte .8s .3s ease both}
+.cta{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--ui);font-style:normal;
+  font-size:14px;font-weight:600;padding:13px 22px;border-radius:999px;border:1px solid var(--bord);
+  background:var(--verre);color:#fff;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:.25s}
+.cta:hover{background:var(--verre-2);border-color:var(--bord-2);transform:translateY(-3px)}
+.cta svg{width:22px;height:22px;border-radius:7px}
+.cta.plein{background:linear-gradient(135deg,#6FFFEF,#A77BFF 55%,#C9B7F5);border-color:transparent;color:#1C1636}
+.cta.plein:hover{filter:brightness(1.08)}
+
+/* ---------- sections ---------- */
+section{padding:46px 0;scroll-margin-top:20px}
+.titre{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.titre h3{margin:0;font-size:29px;letter-spacing:-.02em;color:#fff}
+.titre .num{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--lilas);
+  border:1px solid var(--bord);border-radius:999px;padding:3px 10px}
+.chapo{margin:0 0 26px;font-size:16px;color:var(--ink-2);max-width:70ch}
+
+/* ---------- les outils : des cartes vivantes, chacune à la couleur de son jeton ----------
+   Chaque carte porte ses deux tons (--c1, --c2, ceux de son dégradé) : la lueur au survol,
+   le liseré et l'aperçu animé en haut de la carte les reprennent. */
+.filtres{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.filtres button{font:600 12.5px var(--ui);color:var(--ink-2);background:var(--verre);border:1px solid var(--bord);
+  border-radius:999px;padding:8px 14px;cursor:pointer;transition:.25s cubic-bezier(.2,.8,.2,1)}
+.filtres button small{font-size:10.5px;opacity:.6;margin-left:4px}
+.filtres button:hover{color:#fff;background:var(--verre-2);border-color:var(--bord-2)}
+.filtres button[aria-pressed="true"]{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#8BFFF1);border-color:transparent}
+.outils{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;perspective:1200px}
+@media (min-width:1300px){.outils{grid-template-columns:repeat(5,1fr)}}
+.outil{--c1:#8E7BD4;--c2:#C39BF3;--rx:0deg;--ry:0deg;--mx:50%;--my:0%;
+  position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--verre);border:1px solid var(--bord);
+  border-radius:22px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);
+  text-decoration:none;color:inherit;transform:rotateX(var(--rx)) rotateY(var(--ry));
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),background .3s,border-color .3s,box-shadow .3s}
+/* la lueur qui suit le pointeur, à la couleur de l'outil */
+.outil::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .35s;
+  background:radial-gradient(420px circle at var(--mx) var(--my),color-mix(in srgb,var(--c2) 34%,transparent),transparent 60%)}
+.outil::after{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;padding:1px;opacity:0;transition:opacity .35s;
+  background:linear-gradient(135deg,var(--c2),transparent 45%,var(--c1));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.outil:hover,.outil:focus-visible{background:var(--verre-2);border-color:transparent;
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.9),0 18px 46px -24px var(--c2)}
+.outil:hover::before,.outil:hover::after,.outil:focus-visible::before,.outil:focus-visible::after{opacity:1}
+.outil:focus-visible{outline:2px solid var(--c2);outline-offset:3px}
+.outil > *{position:relative;z-index:1}
+/* l'aperçu : une petite scène qui montre ce que fait l'outil */
+.apercu{height:104px;border-bottom:1px solid var(--bord);overflow:hidden;
+  background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c1) 55%,transparent),transparent 65%),
+    radial-gradient(120% 140% at 100% 100%,color-mix(in srgb,var(--c2) 40%,transparent),transparent 60%),rgba(0,0,0,.12)}
+.apercu svg{display:block;width:100%;height:100%;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.outil:hover .apercu svg{transform:scale(1.06)}
+.apercu .t{fill:none;stroke:rgba(255,255,255,.62);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.apercu .tf{fill:none;stroke:rgba(255,255,255,.28);stroke-width:1.5;stroke-linecap:round}
+.apercu .ac{fill:var(--c2)}
+.apercu .act{fill:none;stroke:var(--c2);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.apercu .bl{fill:rgba(255,255,255,.88)}
+.apercu .bl2{fill:rgba(255,255,255,.22)}
+.apercu text{font:600 10px var(--ui);font-style:normal;fill:#fff}
+.apercu text.d{fill:rgba(255,255,255,.6);font-weight:500}
+.apercu .pil{fill:rgba(20,14,44,.55);stroke:rgba(255,255,255,.25)}
+/* les petits mouvements des aperçus — l'état au repos est toujours l'image complète */
+.apercu *{transform-box:fill-box;transform-origin:center}
+.ap-monte{transform-origin:50% 100%;animation:ap-monte 3.2s ease-in-out infinite}
+.ap-trace{stroke-dasharray:1;animation:ap-trace 5s ease-in-out infinite}
+.ap-flotte{animation:ap-flotte 3.6s ease-in-out infinite}
+.ap-pouls{animation:ap-pouls 2.4s ease-in-out infinite}
+.ap-clign{animation:ap-clign 2.6s ease-in-out infinite}
+.ap-tourne{animation:tourne 18s linear infinite}
+.ap-orbite{transform-box:view-box;animation:tourne 9s linear infinite}
+.ap-tampon{animation:ap-tampon 4.5s ease-in-out infinite}
+.ap-vole{animation:ap-vole 5s ease-in-out infinite}
+.ap-bascule{animation:ap-bascule 4s ease-in-out infinite}
+.ap-envol{animation:ap-envol 3.4s ease-in infinite}
+.ap-remplit{transform-origin:0 50%;animation:ap-remplit 4s ease-in-out infinite}
+@keyframes ap-remplit{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.45)}}
+@keyframes ap-monte{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.58)}}
+@keyframes ap-trace{0%{stroke-dashoffset:1}45%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:-1}}
+@keyframes ap-flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes ap-pouls{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.18);opacity:.7}}
+@keyframes ap-clign{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes ap-tampon{0%,12%{transform:scale(1.7) rotate(-14deg);opacity:0}24%,88%{transform:scale(1) rotate(-14deg);opacity:1}100%{transform:scale(1) rotate(-14deg);opacity:0}}
+@keyframes ap-vole{0%{transform:translate(-70px,26px) rotate(-18deg);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translate(0,0) rotate(0);opacity:0}}
+@keyframes ap-bascule{0%,40%,100%{transform:scaleX(1)}50%,90%{transform:scaleX(-1)}}
+@keyframes ap-envol{0%{transform:translateY(0) scale(.8);opacity:0}25%{opacity:1}100%{transform:translateY(-34px) scale(1.1);opacity:0}}
+.outil.dort .apercu *{animation-play-state:paused}
+.corps{display:flex;flex-direction:column;align-items:flex-start;flex:1;padding:15px 18px 17px}
+.tete{display:flex;align-items:center;gap:12px;margin-top:-37px}
+.outil svg.l{width:46px;height:46px;border-radius:15px;flex:none;box-shadow:0 10px 22px -8px rgba(0,0,0,.75),0 0 0 3px rgba(28,22,54,.55);
+  transition:transform .45s cubic-bezier(.3,1.6,.4,1)}
+.outil:hover svg.l,.outil:focus-visible svg.l{transform:translateY(-4px) rotate(-8deg) scale(1.1)}
+.tete > div{padding-top:24px}
+.outil h4{margin:0;font-size:18px;letter-spacing:-.01em;color:#fff;line-height:1.2}
+.outil h4 span{color:var(--lilas)}
+.outil .role{font-family:var(--ui);font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3);line-height:1.4}
+.outil p{margin:12px 0 0;font-size:14.5px;color:#fff;line-height:1.4}
+.outil ul{list-style:none;margin:10px 0 0;padding:0;font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.outil li{position:relative;padding-left:18px;margin-top:5px}
+.outil li::before{content:'';position:absolute;left:2px;top:.42em;width:8px;height:8px;border-radius:3px;
+  background:linear-gradient(135deg,var(--c1),var(--c2));transform:rotate(45deg) scale(.8)}
+.outil .go{margin-top:auto;padding-top:14px;display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--ui);font-style:normal;font-size:12px;font-weight:700;color:var(--lilas);transition:.3s cubic-bezier(.2,.8,.2,1)}
+.outil:hover .go,.outil:focus-visible .go{transform:translateX(4px);color:#fff}
+.outil.venir{border-style:dashed;background:transparent;transform:none}
+.outil.venir:hover{background:var(--verre);box-shadow:var(--ombre);border-color:var(--bord-2)}
+.outil.venir::before,.outil.venir::after{display:none}
+.outil .vide{width:46px;height:46px;border-radius:15px;border:2px dashed var(--bord-2);display:grid;place-items:center;
+  font-size:22px;font-style:normal;color:var(--ink-3);background:#2A2160}
+.outil .go.fant{color:var(--ink-3)}
+.outil.cache{display:none}
+/* l'outil vers lequel on vient d'être envoyé (pastille, orbite, mot qui défile) */
+.outil.eclaire{animation:eclaire 2.2s ease}
+/* le passage vers un outil : la carte se déploie jusqu'au fond de l'écran d'ouverture de l'outil,
+   et son jeton glisse au centre ; au retour, le même voile se replie dans la carte */
+.passage{position:fixed;inset:0;z-index:300;pointer-events:auto;background-size:cover;background-position:center}
+html.depuis-contact::after{content:'';position:fixed;inset:0;z-index:299;pointer-events:none;transition:opacity .6s .1s ease;
+  background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2319F0D8'/><stop offset='.48' stop-color='%238A5CFF'/><stop offset='1' stop-color='%23E99BFF'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>") center / 88px 88px no-repeat,radial-gradient(1200px 820px at 50% 34%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)}
+html.depuis-contact.leve::after{opacity:0}
+html.retour::after{content:'';position:fixed;inset:0;z-index:299;pointer-events:none;
+  background:var(--retour-logo,none) center / 88px 88px no-repeat,var(--retour-fond,radial-gradient(1250px 900px at 50% 16%, #6A59BC 0%, #3E3183 42%, #171230 100%));
+  background-color:var(--retour-uni,#171230)}
+.passage .halo{position:fixed;left:50%;top:50%;width:360px;height:360px;margin:-180px 0 0 -180px;border-radius:50%;
+  background:radial-gradient(circle,var(--c2,#C39BF3) 0%,transparent 68%);opacity:0;filter:blur(8px)}
+.passage svg{position:fixed;width:46px;height:46px;border-radius:15px;
+  box-shadow:0 18px 40px -14px rgba(10,6,30,.85),0 0 34px -8px var(--c2,#C39BF3)}
+@keyframes eclaire{0%,100%{box-shadow:var(--ombre)}25%,60%{box-shadow:0 0 0 3px var(--c2),0 0 60px -6px var(--c2)}}
+/* apparition progressive au défilement */
+.js .reveal{opacity:0;translate:0 26px;transition:opacity .7s ease,translate .7s cubic-bezier(.2,.8,.2,1),
+  transform .45s cubic-bezier(.2,.8,.2,1),background .3s,border-color .3s,box-shadow .3s;transition-delay:var(--d,0s)}
+.js .reveal.vu{opacity:1;translate:0 0}
+
+/* ---------- accès : outils fermés à ce profil (grisés, visibles, jamais cachés) ---------- */
+.outil.verrouille{cursor:pointer;background:rgba(255,255,255,.035);border-style:dashed}
+.outil.verrouille svg.l,.outil.verrouille h4,.outil.verrouille .role,.outil.verrouille p,.outil.verrouille ul,.outil.verrouille .apercu{filter:grayscale(1);opacity:.45}
+.outil.verrouille:hover{background:rgba(255,255,255,.06);box-shadow:var(--ombre);border-color:var(--bord-2)}
+.outil.verrouille::before,.outil.verrouille::after{display:none}
+.outil.verrouille:hover svg.l{transform:none}
+.outil.verrouille .go{color:var(--ink-3)}
+/* le badge d'accès se range en bas, à côté de « Ouvrir », pour laisser l'aperçu dégagé */
+.outils .outil .cad{z-index:2;top:auto;bottom:15px;right:16px}
+.outil .cad{position:absolute;top:12px;right:12px;font-family:var(--ui);font-style:normal;font-size:9px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--lilas);border:1px solid var(--bord-2);border-radius:999px;
+  padding:3px 8px;background:rgba(0,0,0,.28)}
+.outil .cad.libre{color:#1C1636;background:linear-gradient(135deg,#6FFFEF,#C9B7F5);border-color:transparent}
+
+/* ---------- le profil connecté, dans la barre du haut ---------- */
+.bar nav .moi{display:inline-flex;align-items:center;gap:9px;font-family:var(--ui);font-style:normal;font-size:12.5px;
+  color:#fff;background:var(--verre);border:1px solid var(--bord);border-radius:999px;padding:5px 6px 5px 14px}
+.bar nav .moi button{font:600 12px var(--ui);color:#1C1636;background:linear-gradient(135deg,#6FFFEF,#A77BFF 55%,#C9B7F5);border:0;
+  border-radius:999px;padding:6px 12px;cursor:pointer}
+.bar nav a.admin{border:1px solid var(--bord-2);color:#fff}
+/* compte connecté : les formules quittent l'accueil, elles se consultent dans « Gestion des formules » */
+html.ng-connecte #formules,html.ng-connecte .bar nav a[href="#formules"],html.ng-connecte .bar nav a[href="#essai"]{display:none!important}
+.bar nav button.gestion{font:600 12.5px var(--ui);color:#fff;background:var(--verre);border:1px solid var(--bord-2);
+  border-radius:999px;padding:8px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s}
+.bar nav button.gestion:hover,.bar nav button.gestion:focus-visible{background:var(--verre-2)}
+
+/* l'encart du haut, pour les comptes connectés : comprendre NaoGroup en lisant son histoire */
+.bienvenue{display:flex;align-items:center;gap:16px;max-width:620px;margin:22px auto 0;padding:14px 16px 14px 20px;text-align:left;
+  background:var(--verre);border:1px solid var(--bord-2);border-radius:20px;animation:monte .7s .1s ease both}
+.bienvenue[hidden]{display:none}
+.bienvenue .bv-t{flex:1;min-width:0;font-family:var(--ui);font-style:normal}
+.bienvenue .bv-t b{display:block;color:#fff;font-size:15px;margin-bottom:3px}
+.bienvenue .bv-t span{display:block;color:var(--ink-3);font-size:13px;line-height:1.45}
+.bienvenue .lire-histoire{margin:0;flex:none}
+@media (max-width:600px){.bienvenue{flex-direction:column;align-items:stretch;text-align:center}.bienvenue .lire-histoire{justify-content:center}}
+
+/* ---------- fenêtre « Gestion des formules » ---------- */
+.fen.gestion-f{max-width:760px;max-height:calc(100vh - 48px);overflow-y:auto;text-align:left;padding:26px 26px 22px}
+.gestion-f .gf-tete{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.gestion-f .gf-tete h3{margin:0;flex:1}
+.gestion-f .gf-x{font:600 18px var(--ui);color:var(--ink-2);background:none;border:0;cursor:pointer;padding:4px 8px;border-radius:10px}
+.gestion-f .gf-x:hover{background:var(--verre);color:#fff}
+.gestion-f h4{margin:20px 0 10px;font-family:var(--ui);font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.gf-actuelle{--c1:#7A4FD6;--c2:#C39BF3;padding:18px 20px;border-radius:18px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c1) 40%,transparent),color-mix(in srgb,var(--c2) 18%,transparent));
+  border:1px solid color-mix(in srgb,var(--c2) 55%,transparent)}
+.gf-actuelle .gf-nom{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px}
+.gf-actuelle .gf-nom b{font-size:22px;color:#fff}
+.gf-actuelle .gf-prix{font:700 15px var(--ui);color:#fff}
+.gf-actuelle .gf-etat{margin:6px 0 0;font:13px var(--ui);color:var(--ink-2)}
+.gf-actuelle .gf-etat.fin{color:#F3B4C2}
+.gf-jetons{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.gf-jetons span{display:inline-flex;align-items:center;gap:6px;font:12px var(--ui);color:var(--ink-2);background:rgba(0,0,0,.18);
+  border:1px solid var(--bord);border-radius:999px;padding:4px 10px 4px 4px}
+.gf-jetons svg{width:20px!important;height:20px!important;border-radius:6px!important;margin:0!important;filter:none!important;opacity:1!important}
+.gf-liste{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.gf-f{--c1:#7A4FD6;--c2:#C39BF3;display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:16px;background:var(--verre);
+  border:1px solid var(--bord);border-top:3px solid var(--c2)}
+.gf-f .gf-badge{font:600 10.5px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--c2)}
+.gf-f b{font-size:17px;color:#fff}
+.gf-f .gf-p{font:700 14px var(--ui);color:#fff}
+.gf-f .gf-p small{font-weight:600;font-size:11px;color:var(--ink-3)}
+.gf-f .gf-o{font:11.5px/1.5 var(--ui);color:var(--ink-3);flex:1}
+.gf-f a,.gf-f .gf-ici{margin-top:6px;text-align:center;font:600 12.5px var(--ui);text-decoration:none;border-radius:999px;padding:9px 12px}
+.gf-f a{color:#1C1636;background:linear-gradient(135deg,#C9B7F5,#8BFFF1)}
+.gf-f a:hover{filter:brightness(1.08)}
+.gf-f .gf-ici{color:var(--ink-2);border:1px solid var(--bord-2)}
+.gf-f.est-actuelle{border-color:color-mix(in srgb,var(--c2) 60%,transparent);border-top-color:var(--c2)}
+.gestion-f .gf-note{margin:14px 0 0;font:12.5px var(--ui);color:var(--ink-3)}
+.gestion-f .gf-note a{color:var(--lilas)}
+@media (max-width:600px){.fen.gestion-f{padding:20px 16px 18px}.gf-liste{grid-template-columns:1fr}}
+
+/* ---------- fenêtre « Comment ça marche » : la notice de NaoGroup ---------- */
+.cm-intro{margin:0 0 16px;font:14px/1.55 var(--ui);color:var(--ink-2)}
+.cm-etapes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.cm-etapes li{display:flex;gap:12px;padding:14px 16px;border-radius:16px;background:var(--verre);border:1px solid var(--bord)}
+.cm-etapes .cm-ic{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:18px;
+  background:linear-gradient(135deg,rgba(111,255,239,.22),rgba(167,123,255,.32));border:1px solid var(--bord-2)}
+.cm-etapes li > div > b:first-child{display:block;margin-bottom:4px;color:#fff;font:700 14px var(--ui)}
+.cm-etapes p b{color:#fff}
+.cm-etapes p{margin:0;font:12.5px/1.55 var(--ui);color:var(--ink-2)}
+.cm-etapes .cm-tags{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.cm-etapes .cm-tags span{font:12px/1.45 var(--ui);color:var(--ink-2)}
+.cm-etapes .cm-tags i{font-style:normal;font-weight:700;color:#fff;background:rgba(0,0,0,.22);border:1px solid var(--bord-2);border-radius:999px;padding:1px 8px;margin-right:4px;white-space:nowrap}
+html.ng-connecte .cm-visiteur,html:not(.ng-connecte) .cm-membre{display:none}
+@media (max-width:600px){.cm-etapes{grid-template-columns:1fr}}
+
+
+/* ---------- fenêtre « outil non inclus » ---------- */
+.voile{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;
+  background:rgba(20,14,44,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.voile.ouvert{display:flex}
+.fen{max-width:400px;width:100%;text-align:center;background:linear-gradient(180deg,#43358A,#2A2160);border:1px solid var(--bord-2);
+  border-radius:24px;padding:30px 28px;box-shadow:var(--ombre);animation:monte .35s ease both}
+.fen svg{width:56px;height:56px;border-radius:17px;filter:grayscale(.85);opacity:.7;margin-bottom:12px}
+.fen h3{margin:0 0 8px;font-size:21px;color:#fff}
+.fen p{margin:0 0 6px;font-size:14px;color:var(--ink-2)}
+.fen .b{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.fen .b a,.fen .b button{font:600 13px var(--ui);text-decoration:none;cursor:pointer;color:#fff;background:var(--verre-2);
+  border:1px solid var(--bord-2);border-radius:999px;padding:11px 18px}
+.fen .b .p{background:linear-gradient(135deg,#C9B7F5,#8BFFF1);color:#1C1636;border-color:transparent}
+
+/* ---------- les formules ---------- */
+.formules-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+/* écran large : autant de colonnes que de formules (--nb, posé par le script) — pas de trou à droite */
+@media (min-width:1100px){.formules-grille{grid-template-columns:repeat(var(--nb,4),minmax(0,1fr))}}
+/* écran moyen : deux par ligne (4 formules → 2 × 2), plutôt que 3 + 1 seule */
+@media (min-width:600px) and (max-width:1099px){.formules-grille{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* une carte par formule : sa scène animée en haut, à ses couleurs (--c1, --c2), puis le détail */
+.formule-c{--c1:#7A4FD6;--c2:#C39BF3;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--verre);
+  border:1px solid var(--bord);border-radius:22px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),background .3s,border-color .3s,box-shadow .3s;animation:monte .7s ease backwards}
+.formule-c:hover{transform:translateY(-8px);background:var(--verre-2);border-color:color-mix(in srgb,var(--c2) 60%,transparent);
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.9),0 18px 46px -24px var(--c2)}
+.formule-c:hover .apercu svg{transform:scale(1.06)}
+.formule-c .apercu{height:112px}
+.fc-corps{display:flex;flex-direction:column;flex:1;padding:16px 18px 18px}
+.fc-badge{align-self:flex-start;font-family:var(--ui);font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:#1C1636;background:linear-gradient(135deg,var(--c2),#fff);border-radius:999px;padding:4px 10px;margin-bottom:10px}
+.formule-c h4{margin:0;font-size:21px;letter-spacing:-.01em;color:#fff}
+.fc-accroche{margin:6px 0 0;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.formule-c .prix{margin:12px 0 2px;font-family:var(--ui);font-style:normal;font-size:28px;font-weight:800;color:#fff}
+.formule-c .prix small{font-size:12px;font-weight:600;color:var(--ink-3)}
+.fc-nb{font-family:var(--ui);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c2);margin-bottom:10px}
+.formule-c .jetons{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.fc-pro{font-family:var(--ui);font-style:normal;font-size:12.5px;line-height:1.45;color:#fff;margin:-4px 0 10px;padding:7px 10px;border-radius:10px;
+  background:color-mix(in srgb,var(--c2) 18%,transparent);border:1px solid color-mix(in srgb,var(--c2) 45%,transparent)}
+.formule-c .jetons svg{width:26px;height:26px;border-radius:8px;transition:transform .3s cubic-bezier(.3,1.6,.4,1)}
+.formule-c .jetons svg:hover{transform:translateY(-3px) scale(1.15)}
+.formule-c .liste{font-family:var(--ui);font-style:normal;font-size:11.5px;line-height:1.55;color:var(--ink-3);margin-bottom:18px}
+.formule-c .cta{margin-top:auto;justify-content:center}
+/* la carte « sur mesure » : un bandeau sur toute la largeur, sous les formules */
+.formule-c.large{grid-column:1/-1;flex-direction:row}
+.formule-c.large .apercu{flex:0 0 300px;height:auto;min-height:150px;border-bottom:0;border-right:1px solid var(--bord)}
+.formule-c.large .fc-corps{display:grid;grid-template-columns:1.2fr 1fr auto;align-items:center;gap:10px 30px;padding:20px 26px}
+.formule-c.large .fc-m .liste{margin-bottom:0}
+.formule-c.large .cta{margin:0;padding:14px 24px}
+@media (max-width:900px){.formule-c.large{flex-direction:column}
+  .formule-c.large .apercu{flex:none;height:112px;min-height:0;border-right:0;border-bottom:1px solid var(--bord)}
+  .formule-c.large .fc-corps{grid-template-columns:1fr;padding:16px 18px 18px}}
+.ap-balance{transform-origin:50% 0;animation:ap-balance 2.6s ease-in-out infinite}
+@keyframes ap-balance{0%,100%{transform:rotate(9deg)}50%{transform:rotate(-9deg)}}
+/* sur téléphone : les petits textes grandissent un peu, pour se lire sans plisser les yeux */
+@media (max-width:600px){
+  .formule-c .liste{font-size:13px}
+  .outil ul{font-size:13.5px}
+  .outil .go{font-size:13.5px}
+  .fc-accroche{font-size:14.5px}
+  .outil .cad{font-size:10.5px}
+  .note-formules{font-size:13.5px}}
+.note-formules{margin:18px 0 0;font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-3)}
+.note-formules a{color:var(--lilas)}
+
+/* ---------- la formule Essai : un bandeau en deux temps (sans compte, puis avec compte) ---------- */
+.formule-c.essai{grid-column:1/-1;flex-direction:row;border-color:rgba(25,240,216,.45);
+  background:linear-gradient(120deg,rgba(25,240,216,.12),rgba(167,123,255,.12) 55%,rgba(255,255,255,.05))}
+.formule-c.essai .apercu{flex:0 0 clamp(170px,16vw,260px);height:auto;min-height:150px;border-bottom:0;border-right:1px solid var(--bord)}
+.formule-c.essai .fc-corps{display:grid;grid-template-columns:minmax(180px,.8fr) 1.5fr 1.1fr;gap:18px 26px;align-items:stretch;padding:22px 26px}
+.essai-g{display:flex;flex-direction:column;justify-content:center}
+.essai-g .prix{margin-top:10px}
+.etape{position:relative;padding:16px 18px 18px;border-radius:18px;background:rgba(10,6,30,.22);border:1px solid var(--bord);display:flex;flex-direction:column}
+.etape .n{position:absolute;top:-11px;left:16px;font-family:var(--ui);font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;color:#1A1240;background:linear-gradient(135deg,#6FFFEF,#A77BFF);border-radius:999px;padding:4px 10px}
+.etape b{display:block;margin-top:6px;font-size:17px;font-weight:400;color:#fff}
+.etape p{margin:4px 0 12px;font-family:var(--ui);font-style:normal;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+.essais{display:flex;flex-wrap:wrap;gap:8px}
+.essais a{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 7px;border-radius:14px;text-decoration:none;
+  font-family:var(--ui);font-style:normal;font-size:12.5px;font-weight:600;color:#fff;background:var(--verre);border:1px solid var(--bord);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,background .25s,box-shadow .25s}
+.essais a svg{flex:none;width:28px;height:28px;border-radius:9px}
+.essais a::after{content:'→';margin-left:auto;color:#8BFFF1;transition:transform .25s}
+.essais a:hover{transform:translateY(-2px);background:var(--verre-2);border-color:rgba(25,240,216,.7);box-shadow:0 12px 26px -14px rgba(25,240,216,.8)}
+.essais a:hover::after{transform:translateX(3px)}
+.etape .jetons{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.etape .jetons span{display:inline-flex;align-items:center;gap:8px;font-family:var(--ui);font-style:normal;font-size:12.5px;font-weight:600;color:#fff;
+  padding:5px 12px 5px 5px;border-radius:12px;background:var(--verre);border:1px solid var(--bord)}
+.etape .jetons span svg{width:26px;height:26px;border-radius:8px}
+.avantages{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:7px}
+.avantages li{display:flex;align-items:center;gap:9px;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2)}
+.avantages li::before{content:'✓';flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;
+  color:#1A1240;background:linear-gradient(135deg,#6FFFEF,#A77BFF)}
+.etape .cta{margin-top:auto}
+/* deux façons d'essayer, qu'on ne confond pas : la visite (pointillés turquoise) et l'essai avec un compte (violet plein) */
+.etape.visite{border:1.5px dashed rgba(25,240,216,.6);background:rgba(25,240,216,.06)}
+.etape.visite .n{background:#6FFFEF}
+.etape.compte{border:1.5px solid rgba(196,107,255,.65);background:linear-gradient(160deg,rgba(138,92,255,.22),rgba(233,155,255,.10))}
+.etape.compte .n{background:linear-gradient(135deg,#C46BFF,#E99BFF)}
+.etape .sous{display:block;font-family:var(--ui);font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--ink-3);margin:2px 0 6px}
+.avantages li.non{color:var(--ink-3)}
+.avantages li.non::before{content:'✕';color:#fff;background:rgba(255,255,255,.18)}
+@media (max-width:1100px){.formule-c.essai .fc-corps{grid-template-columns:1fr 1fr}.essai-g{grid-column:1/-1}.essais a::after{display:none}}
+@media (max-width:900px){.formule-c.essai{flex-direction:column}
+  .formule-c.essai .apercu{flex:none;height:112px;min-height:0;border-right:0;border-bottom:1px solid var(--bord)}
+  .formule-c.essai .fc-corps{grid-template-columns:1fr;padding:18px}}
+
+.temoignages{margin-top:34px}
+.temoignages h4{margin:0 0 14px;font-size:20px;font-weight:400;color:#fff}
+.temoignages-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.temoignage{margin:0;padding:20px 22px;border-radius:20px;background:var(--verre);border:1px solid var(--bord)}
+.temoignage blockquote{margin:0 0 12px;font-size:16px;color:var(--ink-2);line-height:1.6}
+.temoignage figcaption{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-3)}
+.temoignage figcaption b{color:#fff}
+
+/* ---------- vos questions : une carte d'accueil à gauche, les réponses à droite ---------- */
+.faq-zone{display:grid;grid-template-columns:minmax(260px,.75fr) 2fr;gap:26px;align-items:start;margin-top:18px}
+.faq-carte{position:sticky;top:90px;padding:26px 24px;border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.22);
+  background:radial-gradient(120% 90% at 0% 0%,rgba(25,240,216,.28),transparent 60%),radial-gradient(120% 90% at 100% 100%,rgba(196,107,255,.32),transparent 60%),rgba(255,255,255,.06);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 30px 60px -30px rgba(0,0,0,.9)}
+.faq-carte svg{width:54px;height:54px;border-radius:17px;box-shadow:0 0 40px -6px rgba(167,123,255,.8);animation:plane 6s ease-in-out infinite}
+.faq-carte h4{margin:16px 0 8px;font-size:26px;line-height:1.15;font-weight:400;color:#fff}
+.faq-carte h4 span{background:linear-gradient(100deg,#6FFFEF,#A77BFF 55%,#E99BFF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.faq-carte p{margin:0 0 18px;font-family:var(--ui);font-style:normal;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+.faq-carte .cta{width:100%;justify-content:center}
+.faq-carte .cta + .cta{margin-top:10px}
+.faq-liens{margin-top:14px;text-align:center;font-family:var(--ui);font-style:normal;font-size:12px;color:var(--ink-3)}
+.faq-liens a{color:var(--ink-2);text-decoration:none}
+.faq-liens a:hover{color:#fff}
+.faq{display:grid;gap:10px;counter-reset:q}
+.faq details{position:relative;border-radius:20px;background:var(--verre);border:1px solid var(--bord);overflow:hidden;
+  transition:background .3s,border-color .3s,box-shadow .3s}
+.faq details::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#19F0D8,#A77BFF,#C46BFF);
+  opacity:0;transition:opacity .3s}
+.faq details:hover{border-color:rgba(255,255,255,.3)}
+.faq details[open]{background:var(--verre-2);border-color:rgba(167,123,255,.55);box-shadow:0 20px 44px -26px rgba(167,123,255,.9)}
+.faq details[open]::before{opacity:1}
+.faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:15px 18px;font-size:17px;color:#fff}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:focus-visible{outline:2px solid #6FFFEF;outline-offset:-2px;border-radius:20px}
+.q-ic{flex:none;width:38px;height:38px;border-radius:13px;display:grid;place-items:center;font-family:var(--ui);font-style:normal;font-size:17px;
+  color:#fff;background:linear-gradient(135deg,rgba(25,240,216,.35),rgba(167,123,255,.4));border:1px solid rgba(255,255,255,.2)}
+.q-t{flex:1}
+.faq summary::after{content:'+';flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--ui);font-style:normal;font-size:18px;color:#1A1240;background:linear-gradient(135deg,#6FFFEF,#A77BFF);transition:transform .35s cubic-bezier(.3,1.5,.4,1)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.q-r{padding:0 22px 18px 70px}
+.faq details[open] .q-r{animation:q-ouvre .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes q-ouvre{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.q-r p{margin:0;font-family:var(--ui);font-style:normal;font-size:14.5px;line-height:1.65;color:var(--ink-2)}
+.q-r a{color:#8BFFF1}
+@media (max-width:900px){.faq-zone{grid-template-columns:1fr}.faq-carte{position:relative;top:0}.q-r{padding:0 18px 16px 18px}}
+
+/* ---------- histoire : un seul bouton vers la page ---------- */
+.lire-histoire{display:inline-flex;align-items:center;gap:8px;margin-top:6px;text-decoration:none;
+  font-family:var(--ui);font-style:normal;font-size:14px;font-weight:600;color:#1C1636;
+  background:linear-gradient(135deg,#C9B7F5,#8BFFF1);padding:13px 24px;border-radius:999px;
+  box-shadow:0 14px 30px -16px rgba(201,183,245,.9);transition:transform .25s,box-shadow .25s}
+.lire-histoire:hover{transform:translateX(4px);box-shadow:0 18px 36px -14px rgba(201,183,245,1)}
+
+footer{text-align:center;padding:46px 0 10px;font-family:var(--ui);font-style:normal;font-size:12.5px;
+  color:var(--ink-3);border-top:1px solid var(--bord);margin-top:40px}
+footer .pt{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+footer .pt svg{width:26px;height:26px;border-radius:9px}
+footer a{color:var(--ink-2);text-decoration:none}
+footer a:hover{color:#fff}
+footer .legal{margin-top:6px;font-size:11.5px;opacity:.8}
+
+/* ---------- barre de progression de lecture, et barre du haut qui reste à portée ---------- */
+.progression{position:fixed;left:0;top:0;height:3px;width:100%;z-index:80;pointer-events:none;transform-origin:0 50%;
+  transform:scaleX(var(--p,0));background:linear-gradient(90deg,#19F0D8,#A77BFF,#C9B7F5,#6FFFEF)}
+@media (min-width:900px){
+  .bar{position:sticky;top:0;z-index:40;margin:0 -18px;padding:10px 18px;border-radius:0 0 22px 22px;
+    transition:background .35s,box-shadow .35s,-webkit-backdrop-filter .35s,backdrop-filter .35s}
+  .bar.colle{background:rgba(36,28,82,.72);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    box-shadow:0 14px 30px -20px rgba(0,0,0,.9);border:1px solid var(--bord);border-top:0}
+}
+
+/* ---------- téléphone ---------- */
+@media (max-width:720px){
+  .page{padding:14px 16px 50px}
+  .bar{flex-wrap:wrap;justify-content:center}
+  .bar nav{margin-left:0;justify-content:center;gap:2px}
+  .bar nav a{padding:7px 10px}
+  .hero{padding:30px 0 20px}
+  .hero .jeton-zone{width:250px;height:250px;margin:-14px auto -20px}
+  .hero .jeton{width:88px;height:88px;border-radius:27px}
+  .orbite a{--r:-110px;width:24px;height:24px;margin:-12px 0 0 -12px}
+  .orbite a svg{width:24px;height:24px;border-radius:8px}
+  .hero .avantages a{font-size:12.5px}
+  .hero .chiffres b{font-size:24px}
+  .outils{grid-template-columns:1fr}
+  .filtres{flex-wrap:nowrap;overflow-x:auto;margin-right:-16px;padding-right:16px;scrollbar-width:none}
+  .filtres button{flex:none}
+  .descend{display:none}
+}
+@media (min-width:521px) and (max-width:720px){.outils{grid-template-columns:1fr 1fr}}
+
+/* ---------- mouvements réduits : tout est là, rien ne bouge ---------- */
+@media (prefers-reduced-motion:reduce){
+  .js .reveal{opacity:1;translate:none}
+  .orbite a{opacity:.88}
+  .outil{transform:none!important}
+}
+/* couleurs plus vives : une lueur turquoise et lilas autour des boutons pleins et du titre */
+.bar nav a.connexion,.cta.plein,.bar nav .moi button{box-shadow:0 10px 30px -8px rgba(25,240,216,.6),0 0 26px -6px rgba(196,107,255,.65)}
+.hero h2 span{filter:drop-shadow(0 0 18px rgba(167,123,255,.55))}
+</style>
+<link rel="stylesheet" href="naogroup-mobile.css">
+</head>
+<body>
+<div class="progression" id="progression" aria-hidden="true"></div>
+<div class="halos" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<svg class="motifs" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <!-- maison — NaoPlan -->
+  <g class="m" transform="translate(120,150)" style="opacity:.32;animation-duration:26s;animation-delay:-4s">
+    <path d="M-14 6L0-9L14 6M-9 3V17H9V3"/>
+  </g>
+  <!-- agenda — NaoAgenda -->
+  <g class="m" transform="translate(1290,190)" style="opacity:.34;animation-duration:31s;animation-delay:-11s">
+    <rect x="-14" y="-9" width="28" height="24" rx="4"/><path d="M-7-13V-9M7-13V-9M-14-1H14"/><circle cx="0" cy="9" r="1.6" fill="#fff" stroke="none"/>
+  </g>
+  <!-- pièce — NaoBudget -->
+  <g class="m" transform="translate(210,640)" style="opacity:.28;animation-duration:24s;animation-delay:-8s">
+    <circle cx="0" cy="0" r="13"/><circle cx="0" cy="0" r="7"/>
+  </g>
+  <!-- lune — NaoAstro -->
+  <g class="m" transform="translate(1330,560)" style="opacity:.36;animation-duration:34s;animation-delay:-2s">
+    <path d="M6-11A11 11 0 1 0 6 11A9 9 0 0 1 6-11Z"/>
+  </g>
+  <!-- bulle de langue — NaoLang -->
+  <g class="m" transform="translate(90,430)" style="opacity:.3;animation-duration:29s;animation-delay:-15s">
+    <path d="M-13-9H13A3 3 0 0 1 16-6V4A3 3 0 0 1 13 7H2L-4 13V7H-13A3 3 0 0 1-16 4V-6A3 3 0 0 1-13-9Z"/>
+  </g>
+  <!-- cœur — les proches, les moments qui comptent -->
+  <g class="m" transform="translate(760,110)" style="opacity:.32;animation-duration:22s;animation-delay:-6s">
+    <path d="M0 13C-7 7-12 3-12-2A6 6 0 0 1 0-6A6 6 0 0 1 12-2C12 3 7 7 0 13Z"/>
+  </g>
+  <!-- tâche cochée — l'organisation -->
+  <g class="m" transform="translate(1180,760)" style="opacity:.34;animation-duration:27s;animation-delay:-19s">
+    <circle cx="0" cy="0" r="13"/><path d="M-6 0L-1 5L7-6"/>
+  </g>
+
+  <!-- petites étoiles qui scintillent, dans l'esprit du jeton NaoAstro -->
+  <path class="etoile" style="animation-duration:3.4s;animation-delay:-.6s" transform="translate(300,90) scale(.8)" d="M0-9Q1 0 9 0Q1 1 0 9Q-1 1-9 0Q-1 0 0-9Z" opacity=".75"/>
+  <path class="etoile" style="animation-duration:4.1s;animation-delay:-1.8s" transform="translate(1080,90) scale(.6)" d="M0-9Q1 0 9 0Q1 1 0 9Q-1 1-9 0Q-1 0 0-9Z" opacity=".65"/>
+  <path class="etoile" style="animation-duration:5s;animation-delay:-2.4s" transform="translate(1370,340) scale(.85)" d="M0-9Q1 0 9 0Q1 1 0 9Q-1 1-9 0Q-1 0 0-9Z" opacity=".75"/>
+  <path class="etoile" style="animation-duration:3.7s;animation-delay:-.2s" transform="translate(60,690) scale(.65)" d="M0-9Q1 0 9 0Q1 1 0 9Q-1 1-9 0Q-1 0 0-9Z" opacity=".6"/>
+  <path class="etoile" style="animation-duration:4.6s;animation-delay:-3.1s" transform="translate(560,780) scale(.75)" d="M0-9Q1 0 9 0Q1 1 0 9Q-1 1-9 0Q-1 0 0-9Z" opacity=".7"/>
+  <path class="etoile" style="animation-duration:3.9s;animation-delay:-1.1s" transform="translate(940,660) scale(.6)" d="M0-9Q1 0 9 0Q1 1 0 9Q-1 1-9 0Q-1 0 0-9Z" opacity=".55"/>
+</svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="gfi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19F0D8"/><stop offset=".48" stop-color="#8A5CFF"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <linearGradient id="gbu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <linearGradient id="ggr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19F0D8"/><stop offset=".48" stop-color="#8A5CFF"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <linearGradient id="gpl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+
+  <!-- NaoGroup : le N de la maison, et sous lui une constellation de points —
+       chaque point, un outil de la famille. Le signe grandit sans jamais se recomposer. -->
+  <symbol id="l-gr" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#ggr)"/>
+    <path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#fff" opacity=".6">
+      <circle cx="10.5" cy="31.5" r="1.9"/>
+      <circle cx="16.3" cy="33.2" r="1.9"/>
+      <circle cx="22.4" cy="33.2" r="1.9"/>
+      <circle cx="28.2" cy="31.5" r="1.9"/>
+    </g>
+  </symbol>
+  <!-- NaoFi : la branche s'échappe en flèche ascendante -->
+  <symbol id="l-fi" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gfi)"/>
+    <path d="M12 29V13.5L28 28V12" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M23.4 16.6L28 12l4.6 4.6" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+  </symbol>
+  <!-- NaoBudget : la branche se pose sur l'axe d'un graphique -->
+  <symbol id="l-bu" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gbu)"/>
+    <path d="M12 25.5V11L27 25V10.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.5 30.5H30.5" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>
+  </symbol>
+  <!-- NaoPlan : le N rentre sous un toit — le logement qu'on dessine -->
+  <symbol id="l-pl" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gpl)"/>
+    <path d="M12.5 31V20.5L27.5 31V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M7.5 16.5L20 8.5L32.5 16.5" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+  </symbol>
+  <!-- NaoAgenda : le N sous l'en-tête d'un calendrier, une étoile pour la date qui compte -->
+  <linearGradient id="gag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gag-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-ag" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gag)"/>
+    <path d="M9.5 12.8H30.5M14.5 6.6V9.4" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>
+    <circle cx="25.5" cy="8" r="4.6" fill="url(#gag-lueur)" opacity=".7"/>
+    <path d="M25.5 4.6Q26 7.5 28.9 8Q26 8.5 25.5 11.4Q25 8.5 22.1 8Q25 7.5 25.5 4.6Z" fill="#fff"/>
+    <path d="M12 31.5V18.5L28 31.5V18.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoAstro : le N sous un ciel de nuit, un croissant de lune et trois étoiles fines -->
+  <linearGradient id="gas" x1=".25" y1="0" x2=".75" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".52" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gas-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-as" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gas)"/>
+    <circle cx="27.4" cy="10.2" r="8" fill="url(#gas-lueur)" opacity=".55"/>
+    <path d="M27.88 5.02A5.2 5.2 0 1 1 22.57 12.11A4.5 4.5 0 0 0 27.88 5.02Z" fill="#fff"/>
+    <path d="M11.2 6.7Q11.63 9.17 14.1 9.6Q11.63 10.03 11.2 12.5Q10.77 10.03 8.3 9.6Q10.77 9.17 11.2 6.7Z" fill="#fff"/>
+    <path d="M17.2 3.8Q17.47 5.33 19 5.6Q17.47 5.87 17.2 7.4Q16.93 5.87 15.4 5.6Q16.93 5.33 17.2 3.8Z" fill="#fff" opacity=".75"/>
+    <path d="M18.3 11.8Q18.51 12.99 19.7 13.2Q18.51 13.41 18.3 14.6Q18.09 13.41 16.9 13.2Q18.09 12.99 18.3 11.8Z" fill="#fff" opacity=".6"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoLang : le N coiffé d'un tilde — Ñ. L'accent de l'outil est… un accent, qui ondule comme une voix. -->
+  <linearGradient id="gla" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <symbol id="l-la" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gla)"/>
+    <path d="M10.5 13.2C13 9.6 16.2 9.6 19.6 12.2S26.4 14.8 29.5 11" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>
+    <path d="M12 31.5V18.5L28 31.5V18.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoFactu : au-dessus du N, une ligne de facture qui se termine par une coche — « la ligne est réglée ». -->
+  <linearGradient id="gfa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gfa-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-fa" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gfa)"/>
+    <circle cx="26.6" cy="11.4" r="6.2" fill="url(#gfa-lueur)" opacity=".55"/>
+    <path d="M9.5 11.8H19" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".5"/>
+    <path d="M23.2 11.4L26 14.2L31 8.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 31.5V18.5L28 31.5V18.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoBaby : au-dessus du N, un croissant de lune couché qui berce une petite étoile — le berceau et l'enfant qui arrive.
+       Le dégradé passe par une touche bleu-violet et s'éteint sur un rose poudré à peine visible. -->
+  <linearGradient id="gba" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gba-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-ba" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gba)"/>
+    <circle cx="20" cy="7.4" r="6.4" fill="url(#gba-lueur)" opacity=".5"/>
+    <path d="M11 6.8A9 6.8 0 0 0 29 6.8A9 3.6 0 0 1 11 6.8Z" fill="#fff" opacity=".55"/>
+    <path d="M20 3.5Q20.43 5.97 22.9 6.4Q20.43 6.83 20 9.3Q19.57 6.83 17.1 6.4Q19.57 5.97 20 3.5Z" fill="#fff"/>
+    <path d="M12 31.5V18.5L28 31.5V18.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoWedding : au-dessus du N, deux alliances entrelacées et un éclat de diamant.
+       Le dégradé part du turquoise, traverse le violet et s'adoucit en lilas rosé, comme « Notre histoire ». -->
+  <linearGradient id="gwe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gwe-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-we" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gwe)"/>
+    <circle cx="28.6" cy="5.6" r="4.4" fill="url(#gwe-lueur)" opacity=".7"/>
+    <circle cx="17" cy="10.5" r="4.3" fill="none" stroke="#fff" stroke-width="2.2" opacity=".62"/>
+    <circle cx="23" cy="10.5" r="4.3" fill="none" stroke="#fff" stroke-width="2.2" opacity=".62"/>
+    <path d="M28.6 2.6Q29 5.2 31.6 5.6Q29 6 28.6 8.6Q28.2 6 25.6 5.6Q28.2 5.2 28.6 2.6Z" fill="#fff"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoTrip : au-dessus du N, une petite valise d'où part un trajet en pointillés qui s'envole en avion de papier. -->
+  <linearGradient id="gtr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gtr-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-tr" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gtr)"/>
+    <circle cx="30.6" cy="7.4" r="5.2" fill="url(#gtr-lueur)" opacity=".6"/>
+    <rect x="8" y="8.4" width="8.4" height="6.4" rx="1.7" fill="#fff" opacity=".93"/>
+    <path d="M10.7 8.4V7.2Q10.7 6.1 11.8 6.1H12.6Q13.7 6.1 13.7 7.2V8.4" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".93"/>
+    <path d="M10.6 9.5V13.7M13.8 9.5V13.7" stroke="#7A4FF0" stroke-width=".9" stroke-linecap="round" opacity=".6"/>
+    <path d="M18.4 11.4Q23.2 4.4 28.2 7.1" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-dasharray=".1 2.5" opacity=".8"/>
+    <path d="M28.4 4.4L33.8 7.6L28.5 10.2L29.7 7.5Z" fill="#fff" transform="rotate(14 30.6 7.4)"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoDoc : au-dessus du N, deux feuilles — l'une de biais, à demi transparente, l'autre en blanc plein, le coin corné. -->
+  <linearGradient id="gdo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gdo-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-do" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gdo)"/>
+    <circle cx="25" cy="8.6" r="7.4" fill="url(#gdo-lueur)" opacity=".5"/>
+    <rect x="12.6" y="5.2" width="9.6" height="11.4" rx="1.5" fill="#fff" opacity=".45" transform="rotate(-11 17.4 10.9)"/>
+    <path d="M18.9 3.6H24.2L27.6 7V14.3Q27.6 15.8 26.1 15.8H18.9Q17.4 15.8 17.4 14.3V5.1Q17.4 3.6 18.9 3.6Z" fill="#fff"/>
+    <path d="M24.2 3.6V5.9Q24.2 7 25.3 7H27.6Z" fill="#C9A8FF"/>
+    <path d="M19.9 10.2H25.1M19.9 12.9H23.3" fill="none" stroke="#7A4FF0" stroke-width="1.1" stroke-linecap="round" opacity=".6"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoDaily : au-dessus du N, trois points bien rangés — les trois espaces du quotidien — et un cercle de planning aux trois quarts parcouru. -->
+  <linearGradient id="gda" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gda-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-da" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gda)"/>
+    <circle cx="27.5" cy="9.5" r="7" fill="url(#gda-lueur)" opacity=".5"/>
+    <g fill="#fff" opacity=".55"><circle cx="9.8" cy="9.5" r="1.7"/><circle cx="14.2" cy="9.5" r="1.7"/><circle cx="18.6" cy="9.5" r="1.7"/></g>
+    <circle cx="27.5" cy="9.5" r="4.6" fill="none" stroke="#fff" stroke-width="2.2" opacity=".35"/>
+    <path d="M27.5 4.9A4.6 4.6 0 1 1 22.9 9.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoSanté : au-dessus du N, une ligne de pulsation qui court vers un petit cœur, avec une lueur douce. -->
+  <linearGradient id="gsa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gsa-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-sa" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gsa)"/>
+    <circle cx="27.4" cy="10.4" r="7.2" fill="url(#gsa-lueur)" opacity=".55"/>
+    <path d="M7.6 10.6H11.6L13.4 7L15.9 14.4L17.8 10.6H20.2" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+    <path d="M27.4 14.8C23.9 12.5 22.6 10.7 22.6 8.9A2.4 2.4 0 0 1 27.4 7.7A2.4 2.4 0 0 1 32.2 8.9C32.2 10.7 30.9 12.5 27.4 14.8Z" fill="#fff"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoCV : au-dessus du N, une carte de profil — une photo, deux lignes — et un éclat : le parcours qu'on remarque. -->
+  <linearGradient id="gcv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gcv-lueur"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <symbol id="l-cv" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gcv)"/>
+    <circle cx="29" cy="9.6" r="5.6" fill="url(#gcv-lueur)" opacity=".6"/>
+    <rect x="7.4" y="5.4" width="13.4" height="8.8" rx="2.1" fill="#fff" opacity=".94"/>
+    <circle cx="11.3" cy="9.8" r="2.1" fill="#7A4FF0" opacity=".72"/>
+    <path d="M14.6 8.5H18.4M14.6 11.2H17" stroke="#7A4FF0" stroke-width="1.05" stroke-linecap="round" opacity=".6"/>
+    <path d="M29 5.2Q29.5 9.1 33.4 9.6Q29.5 10.1 29 14Q28.5 10.1 24.6 9.6Q28.5 9.1 29 5.2Z" fill="#fff"/>
+    <path d="M12 31.5V19L28 31.5V19" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoPets : au-dessus du N, une petite empreinte de patte — un coussinet et quatre doigts — sur une lueur lavande. -->
+  <linearGradient id="gpe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gpe-lueur"><stop offset="0" stop-color="#EDE4FF" stop-opacity=".9"/><stop offset="1" stop-color="#EDE4FF" stop-opacity="0"/></radialGradient>
+  <symbol id="l-pe" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gpe)"/>
+    <circle cx="20" cy="9.4" r="8" fill="url(#gpe-lueur)" opacity=".5"/>
+    <g fill="#fff"><ellipse cx="20" cy="12.2" rx="4.3" ry="3.3"/><circle cx="13.7" cy="8.4" r="1.95"/><circle cx="17.7" cy="5.3" r="1.95"/><circle cx="22.3" cy="5.3" r="1.95"/><circle cx="26.3" cy="8.4" r="1.95"/></g>
+    <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoInvest : au-dessus du N, trois petites barres qui montent doucement et une étoile qui s'élève dans une lueur lavande. -->
+  <linearGradient id="gin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gin-lueur"><stop offset="0" stop-color="#EFE6FF" stop-opacity=".95"/><stop offset="1" stop-color="#EFE6FF" stop-opacity="0"/></radialGradient>
+  <symbol id="l-in" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gin)"/>
+    <circle cx="26.4" cy="8.6" r="8" fill="url(#gin-lueur)" opacity=".6"/>
+    <g fill="#fff" opacity=".55"><rect x="8" y="12.2" width="2.8" height="3.8" rx="1.1"/><rect x="12.4" y="10" width="2.8" height="6" rx="1.1"/><rect x="16.8" y="7.8" width="2.8" height="8.2" rx="1.1"/></g>
+    <path d="M26.4 3.4Q26.9 8 31.4 8.6Q26.9 9.2 26.4 13.8Q25.9 9.2 21.4 8.6Q25.9 8 26.4 3.4Z" fill="#fff"/>
+    <circle cx="33.2" cy="4.4" r="1" fill="#fff" opacity=".75"/>
+    <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoStudy : au-dessus du N, un livre ouvert et une petite étoile de connaissance qui s'en élève. -->
+  <linearGradient id="gst" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gst-lueur"><stop offset="0" stop-color="#EFE6FF" stop-opacity=".95"/><stop offset="1" stop-color="#EFE6FF" stop-opacity="0"/></radialGradient>
+  <symbol id="l-st" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gst)"/>
+    <circle cx="20" cy="9.6" r="9.4" fill="url(#gst-lueur)" opacity=".55"/>
+    <path d="M20 8.1C17.6 6.5 14.7 6 11.8 6.4V14.4C14.7 14 17.6 14.5 20 16.1Z" fill="#fff"/>
+    <path d="M20 8.1C22.4 6.5 25.3 6 28.2 6.4V14.4C25.3 14 22.4 14.5 20 16.1Z" fill="#fff" opacity=".78"/>
+    <path d="M14 9.4Q16.4 9.3 18.2 10.3" fill="none" stroke="#A89BF2" stroke-width=".8" stroke-linecap="round"/>
+    <path d="M20 8.1V16.1" stroke="#8A7CEE" stroke-width=".9" stroke-linecap="round"/>
+    <path d="M20 1.4Q20.3 3.3 22 3.6Q20.3 3.9 20 5.8Q19.7 3.9 18 3.6Q19.7 3.3 20 1.4Z" fill="#fff"/>
+    <circle cx="31.6" cy="6.2" r="1.05" fill="#fff" opacity=".8"/>
+    <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <!-- NaoRoots : au-dessus du N, un petit arbre de famille — deux racines, deux branches qui portent chacune une génération, et une feuille qui monte. -->
+  <linearGradient id="gro" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17C9C0"/><stop offset=".5" stop-color="#7A4FF0"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <radialGradient id="gro-lueur"><stop offset="0" stop-color="#F1E8FF" stop-opacity=".95"/><stop offset="1" stop-color="#F1E8FF" stop-opacity="0"/></radialGradient>
+  <symbol id="l-ro" viewBox="0 0 40 40">
+    <rect width="40" height="40" rx="13" fill="url(#gro)"/>
+    <circle cx="20" cy="9.6" r="9" fill="url(#gro-lueur)" opacity=".55"/>
+    <path d="M20 16.4Q17.9 16.6 16.4 17.8M20 16.4Q22.1 16.6 23.6 17.8" fill="none" stroke="#fff" stroke-width="1.15" stroke-linecap="round" opacity=".6"/>
+    <path d="M20 16.4V9.6M20 12.6L15.6 9.2M20 11.2L24.4 8" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="15.1" cy="8.7" r="1.9" fill="#fff"/>
+    <circle cx="24.9" cy="7.5" r="1.9" fill="#fff"/>
+    <path d="M20 3.6C21.9 5.2 22 7.6 20 9.4C18 7.6 18.1 5.2 20 3.6Z" fill="#fff"/>
+    <path d="M20 5.2V8.4" stroke="#7A4FF0" stroke-width=".7" stroke-linecap="round"/>
+    <circle cx="31.4" cy="6.4" r="1.1" fill="#fff" opacity=".8"/>
+    <path d="M12 31.5V19.5L28 31.5V19.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
+
+<div class="page">
+  <a class="evitement" href="#outils">Aller au contenu</a>
+
+  <div class="bar">
+    <a class="mark" href="#haut">
+      <svg viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+      <div><h1>Nao<span>Group</span></h1><div class="sub">Gestion du quotidien</div></div>
+    </a>
+    <nav>
+      <a href="#outils">Les outils</a>
+      <a href="#comment" id="navComment">Comment ça marche</a>
+      <a href="#formules">Les formules</a>
+      <a href="#essai">Essayer</a>
+      <a href="histoire.html">Notre histoire</a>
+      <a href="contact.html">Contact</a>
+      <a class="connexion" id="navConnexion" href="connexion.html">Se connecter</a>
+    </nav>
+  </div>
+
+  <div class="hero" id="haut">
+    <div class="jeton-zone"><div class="jeton-lueur" aria-hidden="true"></div>
+      <div class="orbite" id="orbite"></div>
+      <svg class="jeton" id="jetonCentre" viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+      <div class="orbite-nom" id="orbiteNom" aria-hidden="true"><b></b><span></span></div>
+    </div>
+    <h2>Des outils pour<br>la vie <span>de tous les jours</span></h2>
+    <p class="tagline">Un outil fait maison pour chaque partie de votre quotidien — simple, soigné, à vous seul.</p>
+    <!-- comptes connectés seulement (montré par le script du profil) : d'abord comprendre NaoGroup -->
+    <div class="bienvenue" id="bienvenue" hidden>
+      <div class="bv-t"><b id="bienvenueTitre">Bienvenue dans NaoGroup</b>
+        <span>Avant de commencer, découvrez comment est né NaoGroup et comment il fonctionne : un outil pour chaque chose, vos données à vous seul·e.</span></div>
+      <a class="lire-histoire" href="histoire.html">Lire notre histoire →</a>
+    </div>
+    <p class="defile">Aujourd'hui, je m'occupe <span class="mot" id="motBloc"><span id="motPrep">de</span> <a id="motDefile" href="#outil-naobudget" data-cible="naobudget" style="--c1:#7B5FD9;--c2:#B48CF2">mon budget du mois</a></span></p>
+    <p class="accroche">Argent, maison, famille, grands moments, apprentissages : <b>un outil pour chaque chose</b>.
+      Chaque profil a ses outils et ses données, à lui seul. Votre compte se crée en deux minutes.</p>
+    <div class="avantages">
+      <a href="#outil-naobudget" data-cible="naobudget" style="--c2:#E99BFF"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-bu"/></svg>Vos finances sous contrôle</a>
+      <a href="#outil-naoplan" data-cible="naoplan" style="--c2:#E99BFF"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-pl"/></svg>Votre projet immobilier clair</a>
+      <a href="#outil-naoagenda" data-cible="naoagenda" style="--c2:#E99BFF"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-ag"/></svg>Plus rien d'oublié</a>
+      <a href="#outil-naobaby" data-cible="naobaby" style="--c2:#E99BFF"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-ba"/></svg>Les grands moments, bien accompagnés</a>
+      <a href="#outil-naopet" data-cible="naopet" style="--c2:#E99BFF"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-pe"/></svg>Vos compagnons choyés</a>
+      <a href="#outil-naoroots" data-cible="naoroots" style="--c2:#E99BFF"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-ro"/></svg>Votre histoire de famille préservée</a>
+    </div>
+    <div class="chiffres">
+      <div><b id="nbOutils">18</b><span>outils</span></div>
+      <div><b>1</b><span>seule charte</span></div>
+      <div><b>100 %</b><span>fait maison</span></div>
+    </div>
+    <a class="descend" href="#outils" aria-label="Découvrir les outils"></a>
+  </div>
+
+  <section id="outils">
+    <div class="titre"><span class="num">01</span><h3>Les outils</h3></div>
+    <p class="chapo">Chacun fait une chose, et la fait entièrement. Survolez-les, ouvrez celui qui vous parle.</p>
+    <div class="filtres" role="group" aria-label="Filtrer les outils">
+      <button type="button" data-filtre="tous" aria-pressed="true">Tous</button>
+      <button type="button" data-filtre="argent" aria-pressed="false">Argent</button>
+      <button type="button" data-filtre="maison" aria-pressed="false">Maison &amp; famille</button>
+      <button type="button" data-filtre="moments" aria-pressed="false">Grands moments</button>
+      <button type="button" data-filtre="soi" aria-pressed="false">Soi &amp; apprendre</button>
+    </div>
+    <div class="outils">
+
+      <a class="outil reveal" id="outil-naofi" data-outil="naofi" data-cat="argent" href="NaoFi/analyse-dossier-credit.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <path class="tf" d="M84 86H226"/>
+          <rect class="bl2 ap-monte" x="96" y="58" width="16" height="28" rx="4" style="animation-delay:-.4s"/>
+          <rect class="bl2 ap-monte" x="120" y="46" width="16" height="40" rx="4" style="animation-delay:-.8s"/>
+          <rect class="bl2 ap-monte" x="144" y="36" width="16" height="50" rx="4" style="animation-delay:-1.2s"/>
+          <rect class="ac ap-monte" x="168" y="24" width="16" height="62" rx="4" style="animation-delay:-1.6s"/>
+          <path class="act ap-trace" pathLength="1" d="M90 66C114 58 132 46 152 36S186 18 208 12"/>
+          <path class="act" d="M199 9.5L208.5 12L204 20.5"/>
+          <g class="ap-flotte"><rect class="pil" x="16" y="14" width="80" height="24" rx="12"/><text x="56" y="30" text-anchor="middle">1 240 €/mois</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoFi"><use href="#l-fi"/></svg>
+            <div><h4>Nao<span>Fi</span></h4><div class="role">Crédit &amp; financement</div></div></div>
+          <p>Savoir ce qu'on peut emprunter, avant d'aller voir la banque.</p>
+          <ul><li>Capacité d'emprunt calculée</li><li>Échéancier mois par mois</li><li>Offres comparées côte à côte</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naobudget" data-outil="naobudget" data-cat="argent" href="NaoBudget/NaoBudget.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <g class="ap-tourne">
+            <circle cx="100" cy="48" r="26" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="11" pathLength="100" stroke-dasharray="46 54"/>
+            <circle cx="100" cy="48" r="26" fill="none" style="stroke:var(--c2)" stroke-width="11" pathLength="100" stroke-dasharray="30 70" stroke-dashoffset="-46"/>
+            <circle cx="100" cy="48" r="26" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="11" pathLength="100" stroke-dasharray="24 76" stroke-dashoffset="-76"/>
+          </g>
+          <rect class="bl" x="144" y="22" width="8" height="8" rx="2"/><text x="158" y="30">Loyer</text><text class="d" x="226" y="30" text-anchor="end">780 €</text>
+          <rect class="ac" x="144" y="44" width="8" height="8" rx="2"/><text x="158" y="52">Courses</text><text class="d" x="226" y="52" text-anchor="end">320 €</text>
+          <rect class="bl2" x="144" y="66" width="8" height="8" rx="2"/><text x="158" y="74">Épargne</text><text class="d" x="226" y="74" text-anchor="end">250 €</text>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoBudget"><use href="#l-bu"/></svg>
+            <div><h4>Nao<span>Budget</span></h4><div class="role">Budget du foyer</div></div></div>
+          <p>Voir enfin où part l'argent, mois après mois.</p>
+          <ul><li>Revenus et dépenses par catégorie</li><li>Une épargne qui se suit dans le temps</li><li>Bilans mensuels et annuels</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naoplan" data-outil="naoplan" data-cat="maison" href="NaoPlan/NaoPlan.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <rect class="ac ap-clign" x="151" y="13" width="62" height="64" rx="2" opacity=".3"/>
+          <rect class="t" x="86" y="12" width="128" height="66" rx="3"/>
+          <path class="t" d="M150 12V48M150 62V78M86 46H128"/>
+          <path class="tf" d="M150 48A14 14 0 0 1 164 62"/>
+          <text class="d" x="182" y="48" text-anchor="middle">Séjour</text>
+          <text class="d" x="108" y="34" text-anchor="middle">Ch. 1</text>
+          <path class="tf" d="M86 90H214M86 86V94M214 86V94" stroke-dasharray="3 4"/>
+          <text x="150" y="101" text-anchor="middle">8,40 m</text>
+          <g class="ap-flotte"><rect class="pil" x="16" y="14" width="58" height="24" rx="12"/><text x="45" y="30" text-anchor="middle">62 m²</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoPlan"><use href="#l-pl"/></svg>
+            <div><h4>Nao<span>Plan</span></h4><div class="role">Projet immobilier</div></div></div>
+          <p>Le logement qu'on cherche, dessiné et coté.</p>
+          <ul><li>Les pièces dessinées en plan</li><li>Cotes et surfaces</li><li>Tout le projet en un coup d'œil</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naoagenda" data-outil="naoagenda" data-cat="moments" href="NaoAgenda/NaoAgenda.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <rect class="bl2" x="116" y="10" width="110" height="84" rx="10"/>
+          <rect class="ac" x="116" y="10" width="110" height="20" rx="10"/><rect class="ac" x="116" y="20" width="110" height="10"/>
+          <g class="bl2">
+            <rect x="124" y="38" width="10" height="10" rx="3"/><rect x="140" y="38" width="10" height="10" rx="3"/><rect x="156" y="38" width="10" height="10" rx="3"/><rect x="172" y="38" width="10" height="10" rx="3"/><rect x="188" y="38" width="10" height="10" rx="3"/><rect x="204" y="38" width="10" height="10" rx="3"/>
+            <rect x="124" y="54" width="10" height="10" rx="3"/><rect x="140" y="54" width="10" height="10" rx="3"/><rect x="156" y="54" width="10" height="10" rx="3"/><rect x="188" y="54" width="10" height="10" rx="3"/><rect x="204" y="54" width="10" height="10" rx="3"/>
+            <rect x="124" y="70" width="10" height="10" rx="3"/><rect x="140" y="70" width="10" height="10" rx="3"/><rect x="156" y="70" width="10" height="10" rx="3"/><rect x="172" y="70" width="10" height="10" rx="3"/><rect x="188" y="70" width="10" height="10" rx="3"/>
+          </g>
+          <circle class="bl ap-pouls" cx="177" cy="59" r="7"/>
+          <g class="ap-flotte"><rect class="pil" x="12" y="14" width="96" height="24" rx="12"/><text x="60" y="30" text-anchor="middle">Anniv. de Léa · J-1</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoAgenda"><use href="#l-ag"/></svg>
+            <div><h4>Nao<span>Agenda</span></h4><div class="role">Rendez-vous &amp; dates</div></div></div>
+          <p>Plus rien d'oublié : tout arrive au bon moment.</p>
+          <ul><li>Rendez-vous et tâches</li><li>Les échéances à ne pas rater</li><li>Les anniversaires rappelés à temps</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naoastro" data-outil="naoastro" data-cat="soi" href="NaoAstro/NaoAstro.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <circle class="tf" cx="152" cy="50" r="34" stroke-dasharray="2 5"/>
+          <circle class="bl" cx="152" cy="50" r="9"/>
+          <g class="ap-orbite" style="transform-origin:152px 50px"><circle class="ac" cx="186" cy="50" r="5.5"/></g>
+          <path class="bl" d="M70 16A13 13 0 1 0 70 42A10 10 0 0 1 70 16Z"/>
+          <path class="bl ap-clign" transform="translate(32,24)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>
+          <path class="bl ap-clign" style="animation-delay:-.9s" transform="translate(100,14) scale(.7)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>
+          <path class="bl ap-clign" style="animation-delay:-1.7s" transform="translate(214,20)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>
+          <path class="bl ap-clign" style="animation-delay:-.4s" transform="translate(222,78) scale(.8)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>
+          <path class="bl ap-clign" style="animation-delay:-2.1s" transform="translate(104,84) scale(.6)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoAstro"><use href="#l-as"/></svg>
+            <div><h4>Nao<span>Astro</span></h4><div class="role">Ciel &amp; horoscope</div></div></div>
+          <p>Un peu de ciel pour regarder sa journée autrement.</p>
+          <ul><li>Thème natal et horoscope</li><li>La carte du jour</li><li>Compatibilités et jeux du ciel</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naolang" data-outil="naolang" data-cat="soi" href="NaoLang/NaoLang.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <g class="ap-flotte"><rect class="bl" x="100" y="12" width="70" height="28" rx="13"/><path class="bl" d="M112 38L108 48L122 39Z"/>
+            <text x="135" y="30" text-anchor="middle" style="fill:#2A2160">¡Hola!</text></g>
+          <g class="ap-flotte" style="animation-delay:-1.8s"><rect class="ac" x="150" y="50" width="76" height="28" rx="13"/><path class="ac" d="M214 76L220 86L204 77Z"/>
+            <text x="188" y="68" text-anchor="middle" style="fill:#2A2160">Bonjour</text></g>
+          <text x="16" y="24">A2 → B1</text>
+          <rect class="bl2" x="16" y="32" width="66" height="7" rx="3.5"/>
+          <rect class="ac ap-remplit" x="16" y="32" width="44" height="7" rx="3.5"/>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoLang"><use href="#l-la"/></svg>
+            <div><h4>Nao<span>Lang</span></h4><div class="role">Langues</div></div></div>
+          <p>Une langue, quelques minutes par jour.</p>
+          <ul><li>Des leçons courtes</li><li>Une révision intelligente</li><li>Du niveau A1 au C2</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naofactu" data-outil="naofactu" data-cat="argent" href="NaoFactu/NaoFactu.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <g class="ap-flotte">
+            <rect class="bl" x="112" y="8" width="88" height="90" rx="8"/>
+            <text x="122" y="26" style="fill:#2A2160;font-size:9px;letter-spacing:.08em">FACTURE N° 042</text>
+            <g fill="rgba(42,33,96,.22)"><rect x="122" y="34" width="66" height="5" rx="2.5"/><rect x="122" y="44" width="52" height="5" rx="2.5"/><rect x="122" y="54" width="60" height="5" rx="2.5"/></g>
+            <text x="190" y="88" text-anchor="end" style="fill:#2A2160">1 250,00 €</text>
+          </g>
+          <g class="ap-tampon"><rect x="158" y="56" width="58" height="22" rx="5" fill="rgba(28,22,54,.35)" style="stroke:var(--c2)" stroke-width="2.2"/>
+            <text x="187" y="71" text-anchor="middle" style="fill:var(--c2);letter-spacing:.14em">PAYÉE</text></g>
+          <g class="ap-flotte" style="animation-delay:-1.4s"><rect class="pil" x="12" y="14" width="92" height="24" rx="12"/><text x="58" y="30" text-anchor="middle">Devis → facture</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoFactu"><use href="#l-fa"/></svg>
+            <div><h4>Nao<span>Factu</span></h4><div class="role">Factures &amp; activité</div></div></div>
+          <p>Toute l'activité tenue, du devis à la facture payée.</p>
+          <ul><li>Devis et factures</li><li>Paiements et dépenses suivis</li><li>Contrats et recrutements</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naobaby" data-outil="naobaby" data-cat="moments" href="NaoBaby/NaoBaby.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <circle cx="150" cy="50" r="30" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="6"/>
+          <path class="ap-trace" pathLength="1" d="M150 20A30 30 0 1 1 132.4 74.3" fill="none" style="stroke:var(--c2)" stroke-width="6" stroke-linecap="round"/>
+          <text x="150" y="52" text-anchor="middle" style="font-size:18px">24</text>
+          <text class="d" x="150" y="66" text-anchor="middle" style="font-size:8.5px">semaines</text>
+          <path class="bl" d="M210 12A11 11 0 1 0 210 34A8.5 8.5 0 0 1 210 12Z" opacity=".85"/>
+          <path class="bl ap-clign" transform="translate(226,40) scale(.7)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>
+          <g class="ap-flotte"><rect class="pil" x="12" y="14" width="92" height="24" rx="12"/><text x="58" y="30" text-anchor="middle">Écho · lundi 10 h</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoBaby"><use href="#l-ba"/></svg>
+            <div><h4>Nao<span>Baby</span></h4><div class="role">Grossesse &amp; bébé</div></div></div>
+          <p>Une grossesse vécue semaine après semaine.</p>
+          <ul><li>Les semaines et les rendez-vous</li><li>Baby shower et naissance</li><li>Les premiers souvenirs gardés</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naowedding" data-outil="naowedding" data-cat="moments" href="NaoWedding/NaoWedding.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <circle cx="140" cy="56" r="19" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="4"/>
+          <circle cx="164" cy="56" r="19" fill="none" style="stroke:var(--c2)" stroke-width="4"/>
+          <path class="bl ap-pouls" d="M164 26L169 32L164 38L159 32Z"/>
+          <g transform="translate(108,78)"><path class="ac ap-envol" d="M0 5C-4 2-6 0-6-2.5A3 3 0 0 1 0-4A3 3 0 0 1 6-2.5C6 0 4 2 0 5Z"/></g>
+          <g transform="translate(204,70)"><path class="bl ap-envol" style="animation-delay:-1.2s" d="M0 5C-4 2-6 0-6-2.5A3 3 0 0 1 0-4A3 3 0 0 1 6-2.5C6 0 4 2 0 5Z"/></g>
+          <g transform="translate(190,40)"><path class="ac ap-envol" style="animation-delay:-2.3s" d="M0 5C-4 2-6 0-6-2.5A3 3 0 0 1 0-4A3 3 0 0 1 6-2.5C6 0 4 2 0 5Z"/></g>
+          <g class="ap-flotte"><rect class="pil" x="12" y="14" width="76" height="24" rx="12"/><text x="50" y="30" text-anchor="middle">Jour J · J-128</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoWedding"><use href="#l-we"/></svg>
+            <div><h4>Nao<span>Wedding</span></h4><div class="role">Mariage</div></div></div>
+          <p>Le grand jour, préparé sans rien laisser filer.</p>
+          <ul><li>Budget et invités</li><li>Plan de table et faire-part</li><li>La robe de rêve et le jour J</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naotrip" data-outil="naotrip" data-cat="moments" href="NaoTrip/NaoTrip.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <path d="M96 76Q150 60 206 30" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 6"/>
+          <circle class="ac" cx="96" cy="76" r="5"/>
+          <path class="bl" d="M206 34C201 27 199 24 199 21A7 7 0 0 1 213 21C213 24 211 27 206 34Z"/><circle cx="206" cy="21" r="2.6" fill="#5B45CF"/>
+          <g transform="translate(200,34)"><g class="ap-vole"><path class="bl" d="M-9 1L9-7L3 8L0 3Z"/></g></g>
+          <g class="ap-flotte"><rect class="pil" x="12" y="14" width="98" height="24" rx="12"/><text x="61" y="30" text-anchor="middle">Lisbonne · J-12</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoTrip"><use href="#l-tr"/></svg>
+            <div><h4>Nao<span>Trip</span></h4><div class="role">Voyages &amp; sorties</div></div></div>
+          <p>Le voyage commence dès qu'on le prépare.</p>
+          <ul><li>Compte à rebours et planning</li><li>Réservations et valise</li><li>Budget partagé, globe des pays visités</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naodoc" data-outil="naodoc" data-cat="maison" href="NaoDoc/NaoDoc.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <g class="ap-flotte" style="animation-delay:-2s"><rect class="bl2" x="128" y="6" width="44" height="12" rx="4"/><rect class="bl2" x="124" y="14" width="102" height="50" rx="7"/>
+            <text x="150" y="15" text-anchor="middle" style="font-size:8px">Maison</text></g>
+          <g class="ap-flotte" style="animation-delay:-1s"><rect class="ac" x="114" y="22" width="44" height="12" rx="4"/><rect class="ac" x="110" y="30" width="104" height="50" rx="7"/>
+            <text x="136" y="31" text-anchor="middle" style="font-size:8px;fill:#2A2160">Santé</text></g>
+          <g class="ap-flotte"><rect class="bl" x="100" y="38" width="46" height="12" rx="4"/><rect class="bl" x="96" y="46" width="106" height="50" rx="7"/>
+            <text x="123" y="47" text-anchor="middle" style="font-size:8px;fill:#2A2160">Identité</text>
+            <g fill="rgba(42,33,96,.22)"><rect x="108" y="60" width="62" height="5" rx="2.5"/><rect x="108" y="70" width="46" height="5" rx="2.5"/><rect x="108" y="80" width="54" height="5" rx="2.5"/></g></g>
+          <g class="ap-flotte" style="animation-delay:-.6s"><rect class="pil" x="12" y="14" width="76" height="24" rx="12"/><text x="50" y="30" text-anchor="middle">Passeport ✓</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoDoc"><use href="#l-do"/></svg>
+            <div><h4>Nao<span>Doc</span></h4><div class="role">Documents de la famille</div></div></div>
+          <p>Chaque papier important de la famille à sa place.</p>
+          <ul><li>Un profil par personne</li><li>Un intercalaire par thème</li><li>Tout le foyer dans un seul classeur</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naodaily" data-outil="naodaily" data-cat="maison" href="NaoDaily/NaoDaily.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <rect class="t" x="96" y="15" width="14" height="14" rx="4"/><path class="act ap-trace" pathLength="1" d="M99 22L102 25.5L107 18.5"/>
+          <text x="120" y="26">Lait &amp; pain</text>
+          <rect class="t" x="96" y="41" width="14" height="14" rx="4"/><path class="act ap-trace" pathLength="1" style="animation-delay:-1.6s" d="M99 48L102 51.5L107 44.5"/>
+          <text x="120" y="52">Menu de jeudi</text>
+          <rect class="t" x="96" y="67" width="14" height="14" rx="4"/><path class="act ap-trace" pathLength="1" style="animation-delay:-3.2s" d="M99 74L102 77.5L107 70.5"/>
+          <text x="120" y="78">Cadeau pour Mamie</text>
+          <g class="ap-flotte"><rect class="pil" x="12" y="14" width="74" height="24" rx="12"/><text x="49" y="30" text-anchor="middle">Aujourd'hui</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoDaily"><use href="#l-da"/></svg>
+            <div><h4>Nao<span>Daily</span></h4><div class="role">Organisation du quotidien</div></div></div>
+          <p>Le quotidien rangé dans une seule page : « Aujourd'hui ».</p>
+          <ul><li>Des listes utiles</li><li>Menus et courses</li><li>Cadeaux et occasions</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naocv" data-outil="naocv" data-cat="soi" href="NaoCV/NaoCV.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <g class="ap-flotte">
+            <rect class="bl" x="96" y="10" width="90" height="86" rx="8"/>
+            <rect class="ac" x="96" y="10" width="90" height="22" rx="8"/><rect class="ac" x="96" y="22" width="90" height="10"/>
+            <circle cx="116" cy="40" r="10" fill="#7A4FF0" stroke="#fff" stroke-width="2.5"/>
+            <g fill="rgba(42,33,96,.22)"><rect x="132" y="38" width="44" height="5" rx="2.5"/><rect x="106" y="58" width="68" height="5" rx="2.5"/><rect x="106" y="68" width="56" height="5" rx="2.5"/><rect x="106" y="78" width="62" height="5" rx="2.5"/></g>
+          </g>
+          <g class="ap-pouls"><rect class="pil" x="164" y="60" width="66" height="24" rx="12"/><text x="197" y="76" text-anchor="middle">ATS ✓</text></g>
+          <g class="ap-flotte" style="animation-delay:-1.5s"><rect class="pil" x="12" y="14" width="74" height="24" rx="12"/><text x="49" y="30" text-anchor="middle">Lettre prête</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoCV"><use href="#l-cv"/></svg>
+            <div><h4>Nao<span>CV</span></h4><div class="role">CV &amp; candidatures</div></div></div>
+          <p>Un parcours qui se fait remarquer.</p>
+          <ul><li>CV guidé aux couleurs de l'entreprise visée</li><li>Une version ATS</li><li>Lettres de motivation et suivi des candidatures</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naosante" data-outil="naosante" data-cat="soi" href="NaoSanté/NaoSante.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <path class="tf" d="M84 58H226"/>
+          <path class="act ap-trace" pathLength="1" d="M84 58H118L126 38L136 78L144 50L150 58H226"/>
+          <g transform="translate(206,30)"><path class="bl ap-pouls" d="M0 7C-6 3-8 0-8-3.4A4 4 0 0 1 0-5.4A4 4 0 0 1 8-3.4C8 0 6 3 0 7Z"/></g>
+          <g class="ap-flotte"><rect class="pil" x="12" y="14" width="74" height="24" rx="12"/><text x="49" y="30" text-anchor="middle">1,5 L / 2 L</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoSanté"><use href="#l-sa"/></svg>
+            <div><h4>Nao<span>Santé</span></h4><div class="role">Bien-être &amp; santé</div></div></div>
+          <p>Prendre soin de soi, à son rythme.</p>
+          <ul><li>Hydratation, sommeil, activité</li><li>Des habitudes qui tiennent</li><li>Rendez-vous et rappels</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naopet" data-outil="naopet" data-cat="maison" href="NaoPets/NaoPet.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <g transform="translate(108,80) rotate(55)"><g class="ap-clign"><ellipse class="bl" cx="0" cy="3" rx="4.6" ry="3.6"/><circle class="bl" cx="-4.8" cy="-2.6" r="1.9"/><circle class="bl" cx="-1.7" cy="-5.6" r="1.9"/><circle class="bl" cx="1.7" cy="-5.6" r="1.9"/><circle class="bl" cx="4.8" cy="-2.6" r="1.9"/></g></g>
+          <g transform="translate(140,58) rotate(55)"><g class="ap-clign" style="animation-delay:.45s"><ellipse class="ac" cx="0" cy="3" rx="4.6" ry="3.6"/><circle class="ac" cx="-4.8" cy="-2.6" r="1.9"/><circle class="ac" cx="-1.7" cy="-5.6" r="1.9"/><circle class="ac" cx="1.7" cy="-5.6" r="1.9"/><circle class="ac" cx="4.8" cy="-2.6" r="1.9"/></g></g>
+          <g transform="translate(166,70) rotate(55)"><g class="ap-clign" style="animation-delay:.9s"><ellipse class="bl" cx="0" cy="3" rx="4.6" ry="3.6"/><circle class="bl" cx="-4.8" cy="-2.6" r="1.9"/><circle class="bl" cx="-1.7" cy="-5.6" r="1.9"/><circle class="bl" cx="1.7" cy="-5.6" r="1.9"/><circle class="bl" cx="4.8" cy="-2.6" r="1.9"/></g></g>
+          <g transform="translate(196,44) rotate(55)"><g class="ap-clign" style="animation-delay:1.35s"><ellipse class="ac" cx="0" cy="3" rx="4.6" ry="3.6"/><circle class="ac" cx="-4.8" cy="-2.6" r="1.9"/><circle class="ac" cx="-1.7" cy="-5.6" r="1.9"/><circle class="ac" cx="1.7" cy="-5.6" r="1.9"/><circle class="ac" cx="4.8" cy="-2.6" r="1.9"/></g></g>
+          <g transform="translate(220,56) rotate(55)"><g class="ap-clign" style="animation-delay:1.8s"><ellipse class="bl" cx="0" cy="3" rx="4.6" ry="3.6"/><circle class="bl" cx="-4.8" cy="-2.6" r="1.9"/><circle class="bl" cx="-1.7" cy="-5.6" r="1.9"/><circle class="bl" cx="1.7" cy="-5.6" r="1.9"/><circle class="bl" cx="4.8" cy="-2.6" r="1.9"/></g></g>
+          <g class="ap-flotte"><rect class="pil" x="12" y="14" width="96" height="24" rx="12"/><text x="60" y="30" text-anchor="middle">Vaccin · 12 mars</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoPets"><use href="#l-pe"/></svg>
+            <div><h4>Nao<span>Pets</span></h4><div class="role">Animaux de compagnie</div></div></div>
+          <p>Des compagnons choyés, et rien d'oublié pour eux.</p>
+          <ul><li>Repas et rappels</li><li>Carnet de santé et rendez-vous</li><li>Stock, budget et souvenirs</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naoinvest" data-outil="naoinvest" data-cat="argent" href="NaoInvest/NaoInvest.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <path class="tf" d="M110 30V60M130 40V70M150 26V56M170 20V50M190 12V42M210 8V36"/>
+          <rect class="bl2 ap-monte" x="105" y="38" width="10" height="16" rx="2"/>
+          <rect class="ac ap-monte" style="animation-delay:-.5s" x="125" y="46" width="10" height="16" rx="2"/>
+          <rect class="bl2 ap-monte" style="animation-delay:-1s" x="145" y="32" width="10" height="16" rx="2"/>
+          <rect class="ac ap-monte" style="animation-delay:-1.5s" x="165" y="26" width="10" height="18" rx="2"/>
+          <rect class="ac ap-monte" style="animation-delay:-2s" x="185" y="18" width="10" height="18" rx="2"/>
+          <rect class="ac ap-monte" style="animation-delay:-2.5s" x="205" y="12" width="10" height="18" rx="2"/>
+          <path class="act ap-trace" pathLength="1" d="M104 74L132 64L154 68L184 50L222 42"/>
+          <g class="ap-bascule"><circle class="ac" cx="44" cy="32" r="17"/><circle cx="44" cy="32" r="12.5" fill="none" stroke="rgba(42,33,96,.35)" stroke-width="1.5"/>
+            <text x="44" y="36" text-anchor="middle" style="fill:#2A2160">NC</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoInvest"><use href="#l-in"/></svg>
+            <div><h4>Nao<span>Invest</span></h4><div class="role">Éducation financière</div></div></div>
+          <p>Comprendre avant de placer.</p>
+          <ul><li>Budget, épargne, impôts et Bourse en leçons courtes</li><li>Un portefeuille fictif en NaoCoins</li><li>Les réflexes anti-arnaques</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naostudy" data-outil="naostudy" data-cat="soi" href="NaoStudy/NaoStudy.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <rect class="bl2" x="110" y="14" width="98" height="62" rx="8" transform="rotate(-6)"/>
+          <g class="ap-flotte"><rect class="bl" x="102" y="24" width="98" height="62" rx="8"/>
+            <text x="151" y="52" text-anchor="middle" style="fill:#2A2160">Photosynthèse ?</text>
+            <text x="151" y="70" text-anchor="middle" style="fill:rgba(42,33,96,.5);font-size:8.5px;font-weight:500">toucher pour retourner</text></g>
+          <path class="bl ap-clign" transform="translate(220,20)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>
+          <g><rect class="ac" x="16" y="14" width="20" height="12" rx="3"/><rect class="bl2" x="40" y="14" width="20" height="12" rx="3"/><rect class="bl2" x="64" y="14" width="20" height="12" rx="3"/>
+            <rect class="bl2" x="16" y="30" width="20" height="12" rx="3"/><rect class="bl ap-clign" x="40" y="30" width="20" height="12" rx="3"/><rect class="ac" x="64" y="30" width="20" height="12" rx="3"/></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoStudy"><use href="#l-st"/></svg>
+            <div><h4>Nao<span>Study</span></h4><div class="role">Études &amp; devoirs</div></div></div>
+          <p>Apprendre, s'organiser, avancer — toute la famille.</p>
+          <ul><li>Les emplois du temps</li><li>Devoirs et révisions</li><li>Des flashcards</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a class="outil reveal" id="outil-naoroots" data-outil="naoroots" data-cat="maison" href="NaoRoots/NaoRoots.html" style="--c1:#17C9C0;--c2:#E99BFF">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <path class="tf" d="M155 84V68H125V52M155 68H185V52M125 52V36H110V18M125 36H140V18M185 52V36H170V18M185 36H200V18"/>
+          <path class="act ap-trace" pathLength="1" d="M155 84V68H125V52V36H110V18"/>
+          <circle class="bl" cx="110" cy="18" r="7"/><circle class="bl" cx="140" cy="18" r="7"/><circle class="bl" cx="170" cy="18" r="7"/><circle class="bl" cx="200" cy="18" r="7"/>
+          <circle class="bl" cx="125" cy="52" r="8"/><circle class="bl" cx="185" cy="52" r="8"/>
+          <circle class="ac ap-pouls" cx="155" cy="84" r="9"/>
+          <g class="ap-flotte"><rect class="pil" x="12" y="40" width="80" height="24" rx="12"/><text x="52" y="56" text-anchor="middle">4 générations</text></g>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><svg class="l" viewBox="0 0 40 40" role="img" aria-label="NaoRoots"><use href="#l-ro"/></svg>
+            <div><h4>Nao<span>Roots</span></h4><div class="role">Généalogie &amp; mémoire familiale</div></div></div>
+          <p>Retrouver ses racines, transmettre ses histoires.</p>
+          <ul><li>L'arbre familial</li><li>Souvenirs et photos</li><li>Des histoires de génération en génération</li></ul>
+          <span class="go">Ouvrir →</span>
+        </div>
+      </a>
+
+      <div class="outil venir reveal">
+        <div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">
+          <circle class="tf ap-tourne" cx="120" cy="48" r="28" stroke-dasharray="4 6"/>
+          <path class="t ap-pouls" d="M120 38V58M110 48H130"/>
+        </svg></div>
+        <div class="corps">
+          <div class="tete"><div class="vide">+</div>
+            <div><h4>Nao<span>…</span></h4><div class="role">La place est gardée</div></div></div>
+          <p>Le prochain outil du quotidien arrive.</p>
+          <span class="go fant">À venir</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="formules" hidden>
+    <div class="titre"><span class="num">02</span><h3>Les formules</h3></div>
+    <p class="chapo">Choisissez les outils qui vous servent et créez votre compte vous-même, en deux minutes. Vous changez de formule quand vous voulez, sans rien perdre.</p>
+    <div class="formules-grille" id="grilleFormules"></div>
+    <p class="note-formules">Prix TTC. Une question avant de choisir ? <a href="contact.html">Écrivez-nous</a>.</p>
+    <!-- Témoignages : le bloc n'apparaît que lorsqu'il y en a. Ajouter de VRAIS avis (avec l'accord de la personne)
+         dans le tableau TEMOIGNAGES du script des formules, plus bas. -->
+    <div class="temoignages" id="temoignages" hidden>
+      <h4>Elles et ils l'utilisent</h4>
+      <div class="temoignages-grille" id="grilleTemoignages"></div>
+    </div>
+  </section>
+
+  <section id="questions">
+    <div class="titre"><span class="num">03</span><h3>Vos questions</h3></div>
+    <div class="faq-zone">
+      <aside class="faq-carte reveal">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-gr"/></svg>
+        <h4>Les réponses, <span>simplement</span>.</h4>
+        <p>Ce qu'on nous demande le plus souvent, en quelques lignes. Votre question n'y est pas ?</p>
+        <a class="cta plein" href="contact.html">Écrivez-nous →</a>
+        <a class="cta" href="avis.html">Donner mon avis sur les outils →</a>
+        <div class="faq-liens"><a href="vos-donnees.html">Vos données</a> · <a href="conditions.html">Conditions</a></div>
+      </aside>
+      <div class="faq">
+      <details class="reveal" open><summary><span class="q-ic" aria-hidden="true">💶</span><span class="q-t">Combien ça coûte ?</span></summary>
+        <div class="q-r"><p>Chaque formule réunit plusieurs outils, avec un prix mensuel ou annuel : vous les trouvez dans <a href="#formules">Les formules</a>. Vous pouvez aussi composer une formule <b>sur mesure</b> et ne payer que les outils qui vous servent. Vous arrêtez quand vous voulez.</p></div></details>
+      <details class="reveal"><summary><span class="q-ic" aria-hidden="true">✨</span><span class="q-t">Puis-je essayer avant de m'engager ?</span></summary>
+        <div class="q-r"><p>Oui, de deux façons, gratuitement. Le <b>mode visite</b> : tout de suite, sans compte et à volonté, mais rien n'est enregistré — l'outil repart vierge à chaque visite. L'<a href="#essai">essai gratuit de 14 jours</a> : un vrai compte qui garde vos données, une seule fois par adresse e-mail. Si vous choisissez ensuite une formule, vous retrouvez tout ce que vous avez saisi.</p></div></details>
+      <details class="reveal"><summary><span class="q-ic" aria-hidden="true">✉️</span><span class="q-t">Comment créer mon compte ?</span></summary>
+        <div class="q-r"><p>Vous le créez vous-même sur la page <a href="inscription.html">Créer mon compte</a> : vous choisissez votre formule, vous indiquez votre adresse e-mail et un mot de passe, puis vous cliquez sur le lien reçu par e-mail. Vos outils s'ouvrent aussitôt. Vous changez de formule quand vous voulez, sans rien perdre.</p></div></details>
+      <details class="reveal"><summary><span class="q-ic" aria-hidden="true">🔒</span><span class="q-t">Mes données sont-elles en sécurité ?</span></summary>
+        <div class="q-r"><p>Ce que vous saisissez n'est lisible que par vous — même l'équipe NaoGroup ne peut pas l'ouvrir depuis le site. Les données sont hébergées dans l'Union européenne, jamais revendues, sans publicité ni pisteur. Tout est détaillé sur la page <a href="vos-donnees.html">Vos données</a>.</p></div></details>
+      <details class="reveal"><summary><span class="q-ic" aria-hidden="true">👨‍👩‍👧</span><span class="q-t">Et à deux, ou en famille ?</span></summary>
+        <div class="q-r"><p>Un compte appartient à une personne : son mot de passe reste personnel. Mais les outils du foyer sont pensés pour plusieurs :
+          <b>NaoDoc</b> range les papiers avec un profil par personne, <b>NaoBudget</b> tient le budget du foyer, <b>NaoTrip</b> partage le budget d'un voyage,
+          <b>NaoWedding</b> et <b>NaoBaby</b> se préparent à deux. Si chacun veut son propre espace, chacun crée son compte.
+          Une question sur votre situation ? <a href="contact.html">Écrivez-nous</a>.</p></div></details>
+      <details class="reveal"><summary><span class="q-ic" aria-hidden="true">📱</span><span class="q-t">Sur quels appareils ça marche ?</span></summary>
+        <div class="q-r"><p>Sur ordinateur, tablette et téléphone, dans un navigateur récent (Chrome, Edge, Safari, Firefox). Rien à télécharger, et vos données vous suivent d'un appareil à l'autre. Sur téléphone, vous pouvez même <b>installer NaoGroup</b> sur l'écran d'accueil comme une application.</p></div></details>
+      <details class="reveal"><summary><span class="q-ic" aria-hidden="true">🧭</span><span class="q-t">Les outils remplacent-ils un banquier, un conseiller ou un médecin ?</span></summary>
+        <div class="q-r"><p>Non : ce sont des outils d'organisation et de calcul, pour y voir clair. Pour une décision importante — un crédit, un placement, votre santé — l'avis d'un professionnel reste indispensable.</p></div></details>
+      <details class="reveal"><summary><span class="q-ic" aria-hidden="true">🗂️</span><span class="q-t">Que deviennent mes données si j'arrête ?</span></summary>
+        <div class="q-r"><p>Vos outils se ferment, mais vos données sont gardées <b>12 mois</b> pour que vous puissiez revenir ou les récupérer, puis elles sont effacées. Vous pouvez aussi demander leur suppression immédiate : voir <a href="vos-donnees.html">Vos données</a> et les <a href="conditions.html">conditions générales</a>.</p></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="histoire">
+    <div class="titre"><span class="num">04</span><h3>Notre histoire</h3></div>
+    <a class="lire-histoire reveal" href="histoire.html">Lire notre histoire →</a>
+  </section>
+
+  <footer>
+    <div class="pt"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-gr"/></svg>
+      <span style="font-family:var(--sans);font-style:italic;font-size:15px;color:#fff">NaoGroup</span></div>
+    <div>
+      <a href="#formules">Les formules</a> · <a href="histoire.html">Notre histoire</a> ·
+      <a href="contact.html">Contact</a> · <a href="avis.html">Donner mon avis</a> ·
+      <a href="CHARTE-NaoGroup.html">La charte</a>
+    </div>
+    <div class="legal"><a href="mentions-legales.html">Mentions légales</a> · <a href="conditions.html">Conditions générales</a> ·
+      <a href="vos-donnees.html">Vos données</a></div>
+    <div style="margin-top:8px"><a href="#" id="lienReset" hidden style="color:#E58BA0">Réinitialiser tous mes outils</a></div>
+  </footer>
+</div>
+
+<div class="voile" id="voileReset" role="dialog" aria-modal="true" aria-labelledby="resetTitre">
+  <div class="fen">
+    <h3 id="resetTitre">Réinitialiser tous mes outils ?</h3>
+    <p>Toutes les informations saisies dans <b>tous vos outils</b> sont <b>effacées définitivement</b>, sur tous vos appareils :
+      budget, agenda, dossiers, plans, factures, sauvegardes… Chaque outil repart vierge, comme au premier jour.</p>
+    <p style="margin-top:12px">Pour confirmer, tapez <b style="color:#E58BA0;letter-spacing:.1em">EFFACER</b> :</p>
+    <input id="resetSaisie" type="text" autocomplete="off" spellcheck="false" placeholder="EFFACER"
+      style="width:100%;margin-top:8px;text-align:center;font:600 15px var(--ui);letter-spacing:.14em;color:#fff;background:rgba(0,0,0,.28);border:1px solid var(--bord-2);border-radius:12px;padding:11px">
+    <p id="resetMsg" style="margin:10px 0 0;font:12.5px var(--ui);color:#E58BA0;min-height:1em"></p>
+    <div class="b"><button type="button" class="p" id="resetAnnuler">Annuler</button>
+      <button type="button" id="resetValider" disabled style="opacity:.5;color:#E58BA0;border-color:rgba(229,139,160,.5)">Tout effacer</button></div>
+  </div>
+</div>
+
+<script>
+/* Réinitialiser tous les outils : visible hors connexion (cet ordinateur) ou une fois connecté·e (son profil). */
+(function () {
+  if (typeof Nao === 'undefined') return;
+  var lien = document.getElementById('lienReset'), voile = document.getElementById('voileReset');
+  var saisie = document.getElementById('resetSaisie'), valider = document.getElementById('resetValider'), msg = document.getElementById('resetMsg');
+  function fermer() { voile.classList.remove('ouvert'); saisie.value = ''; valider.disabled = true; valider.style.opacity = .5; msg.textContent = ''; }
+  if (!Nao.configure) lien.hidden = false;
+  else Nao.profil().then(function (p) { if (p && p.statut === 'actif') lien.hidden = false; }).catch(function () {});
+  lien.addEventListener('click', function (e) { e.preventDefault(); voile.classList.add('ouvert'); saisie.focus(); });
+  document.getElementById('resetAnnuler').addEventListener('click', fermer);
+  voile.addEventListener('click', function (e) { if (e.target === voile) fermer(); });
+  saisie.addEventListener('input', function () {
+    var ok = saisie.value.trim().toUpperCase() === 'EFFACER';
+    valider.disabled = !ok; valider.style.opacity = ok ? 1 : .5;
+  });
+  valider.addEventListener('click', function () {
+    valider.disabled = true; msg.style.color = '#C9B7F5'; msg.textContent = 'Effacement en cours…';
+    Nao.reinitialiserTout().then(function (r) {
+      msg.textContent = r.cloud === false ? 'Effacé sur cet appareil ; la sauvegarde en ligne n’a pas pu être vidée (vérifiez votre connexion).' : 'Tous vos outils sont vierges.';
+      setTimeout(function () { location.reload(); }, 1200);
+    });
+  });
+})();
+</script>
+
+<!-- Comment ça marche : la notice de NaoGroup (lien du haut, à côté de « Les outils »).
+     .cm-membre ne se voit qu'une fois connecté·e, .cm-visiteur qu'avant. -->
+<div class="voile" id="voileComment" role="dialog" aria-modal="true" aria-labelledby="cmTitre">
+  <div class="fen gestion-f">
+    <div class="gf-tete"><h3 id="cmTitre">❓ Comment ça marche</h3><button type="button" class="gf-x" data-fermer aria-label="Fermer">✕</button></div>
+    <p class="cm-intro">NaoGroup réunit des outils du quotidien : chacun fait <b>une seule chose</b> (le budget, l'agenda, les papiers, un voyage…)
+      et la fait entièrement. Voici l'essentiel pour bien démarrer.</p>
+    <ol class="cm-etapes">
+      <li><span class="cm-ic" aria-hidden="true">🔑</span><div><b>1. Votre compte</b>
+        <p class="cm-visiteur">Cliquez sur <b>« Se connecter »</b>, en haut à droite, avec votre identifiant et votre mot de passe. Pas encore de compte ? Vous pouvez essayer certains outils sans compte, ou créer le vôtre en deux minutes.</p>
+        <p class="cm-membre">Vous êtes connecté·e : votre prénom s'affiche en haut à droite. Votre compte est personnel — vos outils et vos données ne sont qu'à vous. Pensez à vous déconnecter sur un ordinateur partagé.</p></div></li>
+      <li><span class="cm-ic" aria-hidden="true">🧩</span><div><b>2. Choisir un outil</b>
+        <p>Dans <b>« Les outils »</b>, chaque carte est un outil. Les filtres (Argent, Maison &amp; famille, Grands moments, Soi &amp; apprendre) aident à trouver le bon.
+          Cliquez sur une carte pour l'ouvrir.</p></div></li>
+      <li><span class="cm-ic" aria-hidden="true">🏷️</span><div><b>3. Les étiquettes sur les cartes</b>
+        <div class="cm-tags">
+          <span class="cm-membre"><i>Sans étiquette</i> l'outil est dans votre formule : il s'ouvre.</span>
+          <span class="cm-membre"><i>🔒 Non inclus</i> il existe, mais n'est pas dans votre formule.</span>
+          <span class="cm-visiteur"><i>✨ Essai libre</i> à essayer tout de suite, sans compte — rien n'est enregistré.</span>
+          <span class="cm-visiteur"><i>🔒 Connexion</i> il faut se connecter pour l'ouvrir.</span>
+          <span><i>🛠️ En maintenance</i> l'outil se prépare et revient bientôt.</span>
+        </div></div></li>
+      <li><span class="cm-ic" aria-hidden="true">💾</span><div><b>4. Vos données</b>
+        <p>Ce que vous saisissez s'enregistre tout seul dans votre compte : vous le retrouvez sur ordinateur, tablette et téléphone.
+          Personne d'autre ne peut le lire, même pas l'équipe NaoGroup. <a href="vos-donnees.html" style="color:var(--lilas)">En savoir plus</a></p></div></li>
+      <li><span class="cm-ic" aria-hidden="true">❓</span><div><b>5. L'aide dans chaque outil</b>
+        <p>Chaque outil a son propre bouton <b>« ❓ Comment ça marche »</b> qui l'explique pas à pas.
+          Pour revenir ici, cliquez sur le logo ou sur <b>« Revenir à NaoGroup »</b>, en haut de l'outil.</p></div></li>
+      <li><span class="cm-ic" aria-hidden="true">✦</span><div><b>6. Votre formule</b>
+        <p class="cm-membre">Elle décide quels outils sont ouverts. Le bouton <b>« Gestion des formules »</b>, en haut, montre votre formule et les autres : vous en changez quand vous voulez, sans rien perdre.</p>
+        <p class="cm-visiteur">Une formule réunit plusieurs outils ; vous pouvez aussi composer la vôtre outil par outil. Vous en changez quand vous voulez, sans rien perdre. <a href="#formules" data-fermer style="color:var(--lilas)">Voir les formules</a></p></div></li>
+      <li><span class="cm-ic" aria-hidden="true">📱</span><div><b>7. Sur téléphone</b>
+        <p>NaoGroup marche dans le navigateur, sans rien télécharger. Vous pouvez aussi l'<b>ajouter à l'écran d'accueil</b> de votre téléphone, comme une application.</p></div></li>
+    </ol>
+    <p class="gf-note">Une question ? <a href="contact.html">Écrivez-nous</a> · Pour comprendre d'où vient NaoGroup : <a href="histoire.html">lire notre histoire</a> · Un avis sur les outils ? <a href="avis.html">Dites-le nous</a></p>
+    <div class="b"><button type="button" class="p" data-fermer>J'ai compris</button></div>
+  </div>
+</div>
+<script>
+/* « Comment ça marche » : s'ouvre depuis le lien du haut (ou une adresse « …#comment »), se ferme partout */
+(function () {
+  var v = document.getElementById('voileComment');
+  function ouvrir(e) { if (e) e.preventDefault(); v.classList.add('ouvert'); v.querySelector('.p').focus(); }
+  function fermer() { v.classList.remove('ouvert'); }
+  document.getElementById('navComment').addEventListener('click', ouvrir);
+  v.addEventListener('click', function (e) { if (e.target === v || e.target.closest('[data-fermer]')) fermer(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fermer(); });
+  if (location.hash === '#comment') ouvrir();
+})();
+</script>
+
+<!-- Gestion des formules : pour les comptes connectés, à la place de la section « Les formules » (rempli par le script des formules) -->
+<div class="voile" id="voileFormules" role="dialog" aria-modal="true" aria-labelledby="gfTitre">
+  <div class="fen gestion-f">
+    <div class="gf-tete"><h3 id="gfTitre">Gestion des formules</h3><button type="button" class="gf-x" id="gfFermerX" aria-label="Fermer">✕</button></div>
+    <div id="gfContenu"><p style="color:var(--ink-3);font:13px var(--ui)">Chargement…</p></div>
+    <div class="b"><a class="p" id="gfChanger" href="inscription.html">Changer de formule</a><button type="button" id="gfFermer">Fermer</button></div>
+  </div>
+</div>
+
+<div class="voile" id="voile" role="dialog" aria-modal="true" aria-labelledby="voileTitre">
+  <div class="fen">
+    <svg viewBox="0 0 40 40" id="voileJeton" aria-hidden="true"><use href="#l-gr"/></svg>
+    <h3 id="voileTitre">Cet outil n'est pas inclus dans votre abonnement</h3>
+    <p id="voileTexte">Il existe bien, il vous attend : demandez son ouverture à NaoGroup.</p>
+    <div class="b"><a class="p" id="voileDemande" href="contact.html">Demander l'accès</a><button type="button" id="voileFermer">Fermer</button></div>
+  </div>
+</div>
+
+<script>
+/* L'accueil selon le profil : les outils de son abonnement s'ouvrent, les autres restent
+   visibles, grisés et fermés — pour qu'on sache qu'ils existent. Sans profil connecté,
+   chaque outil renvoie vers la connexion. */
+/* Les outils ouverts en mode visite (« ?visite=1 », sans compte) — aussi dans connexion.html */
+window.NAO_VISITE = ['naoagenda', 'naoastro', 'naotrip', 'naoinvest', 'naofi', 'naolang', 'naostudy', 'naoroots', 'naosante', 'naopet', 'naodaily'];
+(function () {
+  if (typeof Nao === 'undefined' || !Nao.configure) return;
+  var cartes = Array.prototype.slice.call(document.querySelectorAll('.outil[data-outil]'));
+  var lien = document.getElementById('navConnexion');
+  function marque(carte, texte) { var s = document.createElement('span'); s.className = 'cad'; s.textContent = texte; carte.appendChild(s); }
+  /* un outil en maintenance (drapeau dans naogroup-cloud.js) : carte grisée pour tout le monde sauf l'administratrice */
+  function enMaintenance(c, o) {
+    c.classList.add('verrouille');
+    c.setAttribute('href', '#'); c.setAttribute('aria-disabled', 'true');
+    c.querySelector('.go').textContent = '🛠️ En maintenance';
+    marque(c, 'Maintenance');
+    c.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.getElementById('voileTitre').textContent = o.nom + ' est en maintenance';
+      document.getElementById('voileTexte').textContent = o.role + ' — il est en cours de préparation et rouvrira très bientôt.';
+      document.getElementById('voileJeton').innerHTML = '<use href="#' + o.symbole + '"/>';
+      var d = document.getElementById('voileDemande');
+      d.setAttribute('href', 'contact.html?objet=' + encodeURIComponent('Réouverture ' + o.nom)); d.textContent = 'Être prévenu·e';
+      document.getElementById('voile').classList.add('ouvert');
+    });
+  }
+  function pourConnexion() {
+    cartes.forEach(function (c) {
+      var id = c.getAttribute('data-outil'), o = id ? Nao.outilParId(id) || {} : {};
+      if (Nao.enMaintenance && Nao.enMaintenance(id)) { enMaintenance(c, o); return; }
+      /* les outils du mode visite s'ouvrent tout de suite, sans compte (rien n'est gardé) */
+      if (window.NAO_VISITE.indexOf(id) >= 0 && o.chemin) {
+        c.setAttribute('href', Nao.url(o.chemin) + '?visite=1');
+        c.setAttribute('title', 'Essayer ' + (o.nom || '') + ' sans compte — rien n\'est enregistré');
+        marque(c, '✨ Essai libre'); c.querySelector('.cad').classList.add('libre');
+        return;
+      }
+      c.setAttribute('href', Nao.url('connexion.html') + '?retour=' + encodeURIComponent(Nao.url(o.chemin || '')));
+      marque(c, '🔒 Connexion');
+    });
+  }
+  function fermer() { document.getElementById('voile').classList.remove('ouvert'); }
+  document.getElementById('voileFermer').addEventListener('click', fermer);
+  document.getElementById('voile').addEventListener('click', function (e) { if (e.target === this) fermer(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fermer(); });
+
+  Nao.profil().then(function (p) {
+    if (!p) { pourConnexion(); return; }
+    if (p.statut !== 'actif') { Nao.deconnexion(false); pourConnexion(); return; }
+    /* la barre du haut : qui est connecté·e */
+    var moi = document.createElement('span'); moi.className = 'moi';
+    moi.innerHTML = '<span>Bonjour ' + Nao.esc(p.prenom || p.identifiant) + '</span><button type="button">Déconnexion</button>';
+    moi.querySelector('button').addEventListener('click', function () { Nao.deconnexion(); });
+    lien.replaceWith(moi);
+    /* compte connecté : plus de formules sur l'accueil (CSS html.ng-connecte) — elles se consultent
+       dans « Gestion des formules », en haut ; et l'encart du haut mène d'abord à notre histoire */
+    document.documentElement.classList.add('ng-connecte');
+    var gestion = document.createElement('button'); gestion.type = 'button'; gestion.className = 'gestion';
+    gestion.innerHTML = '<span aria-hidden="true">✦</span> Gestion des formules';
+    gestion.addEventListener('click', function () { if (window.ngGestionFormules) ngGestionFormules(); });
+    moi.parentNode.insertBefore(gestion, moi);
+    /* les liens « Les formules » / « Essayer » restants (questions, pied de page) ouvrent la même fenêtre */
+    document.querySelectorAll('a[href="#formules"], a[href="#essai"]').forEach(function (a) {
+      if (a.closest('.bar')) return;
+      if (a.closest('footer')) a.textContent = 'Gestion des formules';
+      a.addEventListener('click', function (e) { e.preventDefault(); if (window.ngGestionFormules) ngGestionFormules(); });
+    });
+    var bv = document.getElementById('bienvenue');
+    document.getElementById('bienvenueTitre').textContent = 'Bienvenue ' + (p.prenom || p.identifiant) + ' !';
+    bv.hidden = false;
+    /* la section des formules a disparu : on renumérote les suivantes (01, 02, 03…) */
+    var n = 0;
+    document.querySelectorAll('section .titre .num').forEach(function (s) {
+      if (s.closest('#formules')) return;
+      s.textContent = String(++n).padStart(2, '0');
+    });
+    /* arrivée par un ancien lien « …#formules » ou « …#essai » : on ouvre directement la gestion */
+    if ((location.hash === '#formules' || location.hash === '#essai') && window.ngGestionFormules) ngGestionFormules();
+    if (p.role === 'admin') {
+      var a = document.createElement('a'); a.className = 'admin'; a.href = 'admin.html'; a.textContent = 'Administration';
+      /* au clic : le cadenas plein écran s'ouvre, puis l'administration (ctrl/cmd-clic : nouvel onglet normal) */
+      a.addEventListener('click', function (e) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0 || !window.NaoCadenas) return;
+        e.preventDefault(); NaoCadenas.entrer(a.href);
+      });
+      moi.parentNode.insertBefore(a, moi);
+    }
+    var expire = Nao.abonnementExpire(p);
+    cartes.forEach(function (c) {
+      var o = Nao.outilParId(c.getAttribute('data-outil'));
+      if (!o) return;
+      if (Nao.enMaintenance && Nao.enMaintenance(o.id)) {
+        if (p.role === 'admin') { marque(c, '🛠️ Maintenance'); return; }   /* l'administratrice y entre, avec un rappel */
+        enMaintenance(c, o); return;
+      }
+      if (Nao.aAcces(p, o.id)) return;            /* ouvert : la carte reste telle quelle */
+      c.classList.add('verrouille');
+      c.setAttribute('href', '#'); c.setAttribute('aria-disabled', 'true');
+      c.querySelector('.go').textContent = '🔒 Non inclus';
+      marque(c, expire ? 'Échu' : 'Fermé');
+      c.addEventListener('click', function (e) {
+        e.preventDefault();
+        var essaiFini = expire && !Number((p.abonnement || {}).prix);
+        document.getElementById('voileTitre').textContent = essaiFini ? 'Votre essai gratuit est terminé' : expire ? 'Votre abonnement est arrivé à échéance' : o.nom + " n'est pas inclus dans votre formule";
+        document.getElementById('voileTexte').textContent = expire ? 'Choisissez une formule pour rouvrir vos outils : vos données sont conservées, vous retrouvez tout.' : o.role + ' — il existe bien, il vous attend : changez de formule pour l\'ouvrir, sans rien perdre.';
+        document.getElementById('voileJeton').innerHTML = '<use href="#' + o.symbole + '"/>';
+        var d = document.getElementById('voileDemande');
+        d.setAttribute('href', 'inscription.html'); d.textContent = 'Choisir une formule';
+        document.getElementById('voile').classList.add('ouvert');
+      });
+    });
+  }).catch(function () { pourConnexion(); });
+})();
+</script>
+
+<script>
+/* Les formules proposées : même source que la page Contact (Nao.formulesPubliques),
+   donc un seul endroit où changer un prix. Chaque carte mène à la demande de
+   souscription avec la formule déjà cochée. La section reste cachée s'il n'y en a pas.
+   Chaque formule a sa petite scène animée, choisie d'après son nom : essai (un cadeau),
+   particulier (la maison), professionnel (la mallette), complet (toute la constellation),
+   étudiant (la toque) — une formule créée plus tard dans l'administration en reçoit une aussi. */
+(function () {
+  if (typeof Nao === 'undefined' || !Nao.formulesPubliques) return;
+  var ETOILE = 'M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z';
+  var etoile = function (x, y, s, d) {
+    return '<path class="bl ap-clign" style="animation-delay:' + d + 's" transform="translate(' + x + ',' + y + ') scale(' + s + ')" d="' + ETOILE + '"/>';
+  };
+  var pil = function (x, w, texte) {
+    return '<g class="ap-flotte"><rect class="pil" x="' + x + '" y="12" width="' + w + '" height="24" rx="12"/><text x="' + (x + w / 2) + '" y="28" text-anchor="middle">' + texte + '</text></g>';
+  };
+  var TYPES = {
+    essai: { c1: '#3F8F9A', c2: '#7FE0D4', badge: 'Pour découvrir', accroche: 'Pour essayer NaoGroup sans rien payer.',
+      scene: function () {
+        return '<g class="ap-flotte" style="animation-duration:2.8s"><rect class="bl" x="86" y="34" width="68" height="15" rx="5"/>' +
+          '<path class="ac" d="M120 34C112 22 98 24 104 32C107 35 114 35 120 34ZM120 34C128 22 142 24 136 32C133 35 126 35 120 34Z"/></g>' +
+          '<rect class="ac" x="92" y="52" width="56" height="40" rx="5"/><rect class="bl" x="115" y="52" width="10" height="40"/>' +
+          etoile(70, 30, .8, 0) + etoile(172, 24, 1, -.9) + etoile(180, 70, .7, -1.6) + etoile(62, 72, .6, -.4) + pil(14, 64, '0 €');
+      } },
+    particulier: { c1: '#7A4FD6', c2: '#C39BF3', badge: 'Pour la maison', accroche: 'Les outils de la maison, de la famille et des grands moments.',
+      scene: function () {
+        return '<path class="t" d="M82 92V52L120 22L158 52V92Z"/><path class="tf" d="M74 58L120 22L166 58"/>' +
+          '<rect class="ac ap-clign" style="animation-duration:3.6s" x="92" y="58" width="18" height="16" rx="3"/><rect class="bl2" x="130" y="58" width="18" height="16" rx="3"/>' +
+          '<rect class="bl" x="111" y="72" width="18" height="20" rx="3"/>' +
+          '<g transform="translate(176,44)"><path class="ac ap-envol" d="M0 5C-4 2-6 0-6-2.5A3 3 0 0 1 0-4A3 3 0 0 1 6-2.5C6 0 4 2 0 5Z"/></g>' +
+          '<g transform="translate(66,48)"><path class="bl ap-envol" style="animation-delay:-1.6s" d="M0 5C-4 2-6 0-6-2.5A3 3 0 0 1 0-4A3 3 0 0 1 6-2.5C6 0 4 2 0 5Z"/></g>' +
+          pil(14, 70, 'Le foyer');
+      } },
+    professionnel: { c1: '#4E36C4', c2: '#7C8BF0', badge: 'Pour votre activité', accroche: "Pour tenir votre activité, de l'emprunt à la facture payée.",
+      scene: function () {
+        return '<path class="t" d="M106 40V33Q106 28 111 28H129Q134 28 134 33V40"/>' +
+          '<rect class="bl" x="84" y="40" width="72" height="50" rx="8"/><rect class="ac" x="84" y="56" width="72" height="6"/><rect class="bl2" x="113" y="53" width="14" height="12" rx="3"/>' +
+          '<path class="tf" d="M168 92H230"/>' +
+          '<rect class="bl2 ap-monte" x="172" y="70" width="10" height="22" rx="3"/><rect class="bl2 ap-monte" style="animation-delay:-.6s" x="188" y="60" width="10" height="32" rx="3"/>' +
+          '<rect class="ac ap-monte" style="animation-delay:-1.2s" x="204" y="46" width="10" height="46" rx="3"/>' +
+          '<g class="ap-pouls"><rect class="pil" x="160" y="14" width="70" height="24" rx="12"/><text x="195" y="30" text-anchor="middle">Payée ✓</text></g>' +
+          pil(14, 74, 'Devis → €');
+      } },
+    complet: { c1: '#6F55D0', c2: '#F0C98A', badge: 'Tout compris', accroche: 'Tous les outils de NaoGroup, sans exception.',
+      scene: function () {
+        var g = '';
+        for (var i = 0; i < 9; i++) {
+          var a = i / 9 * Math.PI * 2, x = (120 + Math.cos(a) * 62).toFixed(1), y = (52 + Math.sin(a) * 30).toFixed(1);
+          g += '<rect class="' + (i % 3 ? 'bl2' : 'ac') + '" x="' + (x - 6) + '" y="' + (y - 6) + '" width="12" height="12" rx="4"/>';
+        }
+        return '<ellipse class="tf" cx="120" cy="52" rx="62" ry="30" stroke-dasharray="2 5"/>' +
+          '<g class="ap-orbite" style="transform-origin:120px 52px;animation-duration:24s">' + g + '</g>' +
+          '<rect class="ac ap-pouls" x="104" y="36" width="32" height="32" rx="10"/>' +
+          '<path d="M113 60V44L127 58V43" fill="none" stroke="#2A2160" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+          etoile(34, 80, .7, -.5) + etoile(214, 22, .9, -1.3) + pil(14, 74, 'Tout inclus');
+      } },
+    etudiant: { c1: '#4A3DC4', c2: '#9FD0F2', badge: 'Pour les études', accroche: "Pour étudier, s'organiser et tenir son budget.",
+      scene: function () {
+        return '<path class="bl2" d="M96 80C106 74 114 74 120 80C126 74 134 74 144 80V92C134 86 126 86 120 92C114 86 106 86 96 92Z"/>' +
+          '<path class="t" d="M120 80V92"/>' +
+          '<path class="t" d="M102 46V58Q120 68 138 58V46"/>' +
+          '<path class="bl" d="M120 22L160 38L120 54L80 38Z"/>' +
+          '<g class="ap-balance"><path class="act" d="M150 42V62"/><circle class="ac" cx="150" cy="64" r="3.6"/></g>' +
+          etoile(186, 26, 1, -.7) + etoile(60, 66, .7, -1.5) + pil(14, 68, 'Révisions');
+      } }
+  };
+  /* la dernière carte : composer sa propre adhésion, outil par outil (tarif réglé dans l'administration) */
+  function carteSurMesure(tarif, i) {
+    var euro = function (n) { return String(Number(n).toFixed(2)).replace('.', ','); };
+    var piece = function (x, y, cls, d) {
+      return '<g transform="translate(' + x + ',' + y + ')"><g class="' + cls + '" style="animation-delay:' + d + 's">' +
+        '<path d="M0 0H10A5 5 0 0 1 20 0H30V10A5 5 0 0 0 30 20V30H0Z"/></g></g>';
+    };
+    var scene = '<g class="bl">' + piece(82, 24, 'ap-flotte', 0) + '</g><g class="ac">' + piece(118, 24, 'ap-flotte', -.9) + '</g>' +
+      '<g class="bl2">' + piece(82, 58, 'ap-flotte', -1.8) + '</g><g class="ac">' + piece(118, 58, 'ap-pouls', -.4) + '</g>' +
+      '<path class="bl ap-clign" transform="translate(176,30)" d="M0-6Q.7 0 6 0Q.7 .7 0 6Q-.7 .7-6 0Q-.7 0 0-6Z"/>' +
+      '<g class="ap-flotte"><rect class="pil" x="14" y="12" width="66" height="24" rx="12"/><text x="47" y="28" text-anchor="middle">À la carte</text></g>';
+    return '<div class="formule-c large" style="animation-delay:' + (i * .08) + 's;--c1:#5E4BD4;--c2:#9BE7DE">' +
+      '<div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">' + scene + '</svg></div>' +
+      '<div class="fc-corps"><div class="fc-g"><span class="fc-badge">Sur mesure</span><h4>Composez votre formule</h4>' +
+      '<p class="fc-accroche">Choisissez vos outils un par un : vous ne payez que ceux qui vous servent.</p></div>' +
+      '<div class="fc-m"><div class="prix"><small>dès</small> ' + euro(tarif.base) + ' € <small>/ outil / mois</small></div>' +
+      '<div class="fc-nb">' + ((tarif.outilsPro || []).length ? euro(tarif.pro) + ' € pour les outils pro' : 'Le prix suit vos choix') + '</div>' +
+      '<div class="liste">' + (tarif.plafond ? 'Jamais plus cher que la formule complète. ' : '') +
+        (tarif.moisOfferts ? tarif.moisOfferts + ' mois offerts en payant à l\'année.' : '') + '</div></div>' +
+      '<a class="cta plein" href="inscription.html?mode=mesure">Composer ma formule →</a></div></div>';
+  }
+  /* Essayer : d'abord sans compte (mode visite de naogroup-cloud.js, « ?visite=1 » — l'outil démarre vierge,
+     rien n'est enregistré), puis avec un vrai compte, gratuitement, avec les outils de la formule. */
+  var VISITE = window.NAO_VISITE;
+  function carteEssai(f, i, t, jetons, outils) {
+    var essais = VISITE.map(function (id) {
+      var o = Nao.outilParId(id); if (!o) return '';
+      return '<a href="' + Nao.esc(o.chemin) + '?visite=1" title="' + Nao.esc(o.role) + '"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#' + o.symbole + '"/></svg>' + Nao.esc(o.nom) + '</a>';
+    }).join('');
+    return '<div class="formule-c essai" id="essai" style="animation-delay:' + (i * .08) + 's;--c1:' + t.c1 + ';--c2:' + t.c2 + '">' +
+      '<div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">' + t.scene() + '</svg></div>' +
+      '<div class="fc-corps"><div class="essai-g"><span class="fc-badge">' + t.badge + '</span><h4>Essayer NaoGroup</h4>' +
+      '<p class="fc-accroche">Deux façons d\'essayer, sans rien payer — à vous de choisir.</p><div class="prix">Gratuit</div></div>' +
+      '<div class="etape visite"><span class="n">Mode visite</span><b>Tout de suite, sans compte</b><span class="sous">À volonté · rien à remplir</span>' +
+      '<ul class="avantages"><li>Vous ouvrez l\'outil en un clic et touchez à tout</li><li>Autant de fois que vous voulez</li>' +
+      '<li class="non">Rien n\'est enregistré : l\'outil repart vierge à chaque visite</li></ul><div class="essais">' + essais + '</div></div>' +
+      '<div class="etape compte"><span class="n">Essai gratuit · ' + Nao.dureeEssai + ' jours</span><b>Avec votre compte</b><span class="sous">Une seule fois par adresse e-mail</span>' +
+      '<div class="jetons">' + outils.map(function (o) { return '<span><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#' + o.symbole + '"/></svg>' + Nao.esc(o.nom) + '</span>'; }).join('') + '</div>' +
+      '<ul class="avantages"><li>Vos données gardées, à votre nom, sur tous vos appareils</li><li>' + Nao.dureeEssai + ' jours gratuits, sans carte bancaire</li>' +
+      '<li>Vous passez à une formule sans rien perdre</li></ul>' +
+      '<a class="cta plein" href="inscription.html?formule=' + encodeURIComponent(f.id) + '">Commencer mon essai de ' + Nao.dureeEssai + ' jours →</a></div></div></div>';
+  }
+  /* Les témoignages : de VRAIS avis seulement, donnés avec l'accord de la personne (questionnaire
+     « Votre avis sur NaoGroup »), publiés depuis l'administration (onglet Témoignages). */
+  if (Nao.temoignages) Nao.temoignages().then(function (l) {
+    if (!l.length) return;
+    document.getElementById('grilleTemoignages').innerHTML = l.map(function (x) {
+      /* un ou plusieurs outils : « outils » (identifiants) ou l'ancien champ « outil » (un seul nom) */
+      var ids = Array.isArray(x.outils) ? x.outils : (x.outil ? [x.outil] : []);
+      var os = ids.map(function (v) { return Nao.outils.filter(function (t) { return t.nom === v || t.id === v; })[0]; }).filter(Boolean);
+      return '<figure class="temoignage"><blockquote>« ' + Nao.esc(x.texte) + ' »</blockquote><figcaption>' +
+        os.map(function (o) { return '<svg viewBox="0 0 40 40" aria-hidden="true" style="width:22px;height:22px;border-radius:7px;vertical-align:-6px;margin-right:4px"><use href="#' + o.symbole + '"/></svg>'; }).join('') +
+        '<b' + (os.length ? ' style="margin-left:2px"' : '') + '>' + Nao.esc(x.nom || 'Un client') + '</b>' +
+        (os.length ? ' · ' + Nao.esc(os.map(function (o) { return o.nom; }).join(', ')) : '') + '</figcaption></figure>';
+    }).join('');
+    document.getElementById('temoignages').hidden = false;
+  });
+  function typeDe(f) {
+    var n = Nao.sansAccent ? Nao.sansAccent(String(f.id + ' ' + f.nom).toLowerCase()) : String(f.id + ' ' + f.nom).toLowerCase();
+    if (/etudiant|etudes|student/.test(n)) return 'etudiant';
+    if (/essai|decouverte/.test(n) || !Number(f.prix)) return 'essai';
+    if (/pro/.test(n)) return 'professionnel';
+    if (/complet|integral|tout/.test(n) || (f.outils || []).length >= Nao.outils.length) return 'complet';
+    return 'particulier';
+  }
+  var catP = Nao.catalogue();
+
+  /* Gestion des formules (comptes connectés) : la formule actuelle, puis les formules proposées.
+     Ouverte par le bouton du haut (script du profil) ; changer de formule se fait sur inscription.html. */
+  var voileF = document.getElementById('voileFormules');
+  function fermerF() { voileF.classList.remove('ouvert'); }
+  document.getElementById('gfFermer').addEventListener('click', fermerF);
+  document.getElementById('gfFermerX').addEventListener('click', fermerF);
+  voileF.addEventListener('click', function (e) { if (e.target === voileF) fermerF(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fermerF(); });
+  var prixFr = function (n) { return String(Math.round(Number(n) * 100) / 100).replace('.', ','); };
+  var dateFr = function (d) { return String(d).split('-').reverse().join('/'); };
+  function jetonsDe(ids) {
+    return (ids || []).map(function (id) { return Nao.outilParId(id); }).filter(Boolean).map(function (o) {
+      return '<span><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#' + o.symbole + '"/></svg>' + Nao.esc(o.nom) + '</span>';
+    }).join('');
+  }
+  window.ngGestionFormules = function () {
+    voileF.classList.add('ouvert');
+    document.getElementById('gfFermer').focus();
+    Promise.all([catP, Nao.profil()]).then(function (r) {
+      var cat = r[0], p = r[1];
+      if (!p) { fermerF(); return; }
+      var liste = cat.formules || [], tarif = cat.tarif || {};
+      var ab = p.abonnement || {}, admin = p.role === 'admin', expire = Nao.abonnementExpire(p);
+      var act = liste.filter(function (f) { return f.id === ab.formule; })[0];
+      var t = act ? TYPES[typeDe(act)] : (ab.formule === 'sur-mesure' ? { c1: '#5E4BD4', c2: '#9BE7DE' } : TYPES.particulier);
+      var nom, prix = '', etat = '', fin = false;
+      if (admin) { nom = 'Administratrice'; etat = 'Tous les outils vous sont ouverts ; les accès des profils se gèrent dans l\'administration.'; }
+      else if (ab.a_choisir || !ab.formule) {
+        nom = 'Aucune formule pour l\'instant'; fin = true;
+        etat = ab.motif === 'essai_deja_utilise' ? 'L\'essai gratuit a déjà été utilisé avec cette adresse e-mail : choisissez une formule pour ouvrir vos outils.' : 'Choisissez une formule pour ouvrir vos outils.';
+      } else {
+        nom = act ? act.nom : (ab.formule === 'sur-mesure' ? 'Sur mesure' : ab.formule);
+        prix = Number(ab.prix) ? prixFr(ab.prix) + ' € / ' + (ab.periode === 'annuel' ? 'an' : 'mois') : 'Gratuit';
+        if (ab.fin) { fin = expire; etat = expire ? 'Terminée le ' + dateFr(ab.fin) + ' — vos données sont gardées : choisissez une formule pour rouvrir vos outils.' : 'Jusqu\'au ' + dateFr(ab.fin) + '.'; }
+        else etat = 'Sans date de fin' + (ab.periode === 'annuel' ? ', payée à l\'année.' : ', au mois.');
+      }
+      var outilsActuels = admin ? Nao.outils.map(function (o) { return o.id; }) : (p.outils || []);
+      var html = '<h4>Votre formule actuelle</h4>' +
+        '<div class="gf-actuelle" style="--c1:' + t.c1 + ';--c2:' + t.c2 + '"><div class="gf-nom"><b>' + Nao.esc(nom) + '</b>' +
+        (prix ? '<span class="gf-prix">' + prix + '</span>' : '') + '</div>' +
+        (etat ? '<p class="gf-etat' + (fin ? ' fin' : '') + '">' + etat + '</p>' : '') +
+        (outilsActuels.length ? '<div class="gf-jetons">' + jetonsDe(outilsActuels) + '</div>' : '') + '</div>';
+      /* les formules proposées : l'essai (une seule fois par adresse) n'est plus proposé à un compte existant */
+      var props = liste.filter(function (f) { return typeDe(f) !== 'essai' || f === act; });
+      html += '<h4>Les formules proposées</h4><div class="gf-liste">' + props.map(function (f) {
+        var tf = TYPES[typeDe(f)], ici = !admin && f === act && !expire;
+        var outils = (f.outils || []).map(function (id) { return Nao.outilParId(id); }).filter(Boolean);
+        return '<div class="gf-f' + (ici ? ' est-actuelle' : '') + '" style="--c1:' + tf.c1 + ';--c2:' + tf.c2 + '">' +
+          '<span class="gf-badge">' + (ici ? 'Votre formule' : tf.badge) + '</span><b>' + Nao.esc(f.nom) + '</b>' +
+          '<span class="gf-p">' + (Number(f.prix) ? prixFr(f.prix) + ' € <small>/ mois</small>' : 'Gratuit') + '</span>' +
+          '<span class="gf-o">' + outils.length + ' outil' + (outils.length > 1 ? 's' : '') + ' : ' + Nao.esc(outils.map(function (o) { return o.nom; }).join(', ')) + '</span>' +
+          (admin ? '' : ici ? '<span class="gf-ici">Formule en cours</span>' : '<a href="inscription.html?formule=' + encodeURIComponent(f.id) + '">Choisir cette formule →</a>') + '</div>';
+      }).join('') +
+        '<div class="gf-f" style="--c1:#5E4BD4;--c2:#9BE7DE"><span class="gf-badge">' + (!admin && ab.formule === 'sur-mesure' && !expire ? 'Votre formule' : 'Sur mesure') + '</span><b>Composez votre formule</b>' +
+        '<span class="gf-p"><small>dès</small> ' + prixFr(tarif.base || 0) + ' € <small>/ outil / mois</small></span>' +
+        '<span class="gf-o">Vous choisissez vos outils un par un et ne payez que ceux qui vous servent.' + (tarif.plafond ? ' Jamais plus cher que la formule complète.' : '') + '</span>' +
+        (admin ? '' : '<a href="inscription.html?mode=mesure">Composer ma formule →</a>') + '</div></div>' +
+        '<p class="gf-note">Prix TTC' + (tarif.moisOfferts ? ' · ' + tarif.moisOfferts + ' mois offerts en payant à l\'année' : '') +
+        '. En changeant de formule, vos données restent et les nouveaux outils s\'ajoutent. Une question ? <a href="contact.html">Écrivez-nous</a>.</p>';
+      document.getElementById('gfContenu').innerHTML = html;
+      var ch = document.getElementById('gfChanger');
+      ch.hidden = admin; ch.textContent = (ab.a_choisir || expire || !ab.formule) ? 'Choisir une formule' : 'Changer de formule';
+    }).catch(function () {
+      document.getElementById('gfContenu').innerHTML = '<p style="color:#E58BA0;font:13px var(--ui)">Les formules n\'ont pas pu être chargées. Vérifiez votre connexion, puis réessayez.</p>';
+    });
+  };
+
+  catP.then(function (cat) {
+    var liste = cat.formules, tarif = cat.tarif;
+    if (!liste || !liste.length) return;
+    /* la formule d'essai passe en tête, en bandeau */
+    liste = liste.filter(function (f) { return typeDe(f) === 'essai'; }).concat(liste.filter(function (f) { return typeDe(f) !== 'essai'; }));
+    var essaiPose = false;
+    var grille = document.getElementById('grilleFormules');
+    grille.innerHTML = liste.map(function (f, i) {
+      var t = TYPES[typeDe(f)];
+      var gratuit = !Number(f.prix);
+      var prix = gratuit ? 'Gratuit' : String(f.prix).replace('.', ',') + ' € <small>/ mois</small>';
+      var outils = (f.outils || []).map(function (id) { return Nao.outilParId(id); }).filter(Boolean);
+      var jetons = outils.map(function (o) {
+        return '<svg viewBox="0 0 40 40" role="img" aria-label="' + Nao.esc(o.nom) + '"><title>' + Nao.esc(o.nom) + '</title><use href="#' + o.symbole + '"/></svg>';
+      }).join('');
+      var noms = outils.map(function (o) { return o.nom; }).join(', ');
+      if (typeDe(f) === 'essai' && !essaiPose) { essaiPose = true; return carteEssai(f, i, t, jetons, outils); }
+      return '<div class="formule-c" style="animation-delay:' + (i * .08) + 's;--c1:' + t.c1 + ';--c2:' + t.c2 + '">' +
+        '<div class="apercu" aria-hidden="true"><svg viewBox="0 0 240 104">' + t.scene() + '</svg></div>' +
+        '<div class="fc-corps"><span class="fc-badge">' + t.badge + '</span><h4>' + Nao.esc(f.nom) + '</h4>' +
+        '<p class="fc-accroche">' + t.accroche + '</p>' +
+        '<div class="prix">' + prix + '</div>' +
+        '<div class="fc-nb">' + outils.length + ' outil' + (outils.length > 1 ? 's' : '') + ' inclus</div>' +
+        /* les outils pro (réglés dans l'administration) ne sont pas dans toutes les formules : on le dit */
+        (function () {
+          var pro = outils.filter(function (o) { return (tarif && tarif.outilsPro || []).indexOf(o.id) >= 0; });
+          if (!pro.length || typeDe(f) === 'complet') return '';
+          var sans = liste.filter(function (g) {
+            return g !== f && typeDe(g) !== 'essai' && !(g.outils || []).some(function (id) { return pro.some(function (o) { return o.id === id; }); });
+          }).map(function (g) { return g.nom; });
+          return '<div class="fc-pro">★ Avec les outils pro ' + Nao.esc(pro.map(function (o) { return o.nom; }).join(' et ')) +
+            (sans.length ? ' — absents des formules ' + Nao.esc(sans.join(' et ')) : '') + '</div>';
+        })() +
+        '<div class="jetons">' + jetons + '</div>' +
+        '<div class="liste">' + Nao.esc(noms) + '</div>' +
+        '<a class="cta plein" href="inscription.html?formule=' + encodeURIComponent(f.id) + '">' + (gratuit ? 'Commencer l\'essai' : 'Choisir cette formule') + ' →</a></div></div>';
+    }).join('') + carteSurMesure(tarif, liste.length);
+    grille.style.setProperty('--nb', Math.max(1, grille.querySelectorAll('.formule-c:not(.large):not(.essai)').length));
+    /* compte connecté : la section reste cachée (pas d'éclair avant que le profil soit connu) */
+    (Nao.configure ? Nao.profil().catch(function () { return null; }) : Promise.resolve(null)).then(function (p) {
+      if (p && p.statut === 'actif') return;
+      document.getElementById('formules').hidden = false;
+      /* arrivée par « Essayer » (#essai) : la carte n'existait pas encore au chargement */
+      if (location.hash === '#essai') { var e = document.getElementById('essai'); if (e) e.scrollIntoView(); }
+    });
+  }).catch(function () {});
+  /* revenir d'une visite : on quitte le mode visite */
+  try { sessionStorage.removeItem('ng:visite'); } catch (e) {}
+})();
+</script>
+<script>
+/* L'accueil qui bouge : apparition au défilement, cartes qui suivent le pointeur,
+   orbite des jetons, mot qui défile, filtres, et renvois vers une carte précise.
+   Tout est décoratif : sans ce script, la page reste complète et chaque lien marche. */
+(function () {
+  var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var souris = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var cartes = Array.prototype.slice.call(document.querySelectorAll('.outil[data-outil]'));
+  document.getElementById('nbOutils').textContent = cartes.length;
+
+  /* apparition progressive : les cartes d'une même vague arrivent l'une après l'autre */
+  var aReveler = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  if (!('IntersectionObserver' in window)) aReveler.forEach(function (el) { el.classList.add('vu'); });
+  else {
+    var io = new IntersectionObserver(function (entrees) {
+      var n = 0;
+      entrees.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.style.setProperty('--d', (calme ? 0 : Math.min(n++, 6) * .07) + 's');
+        e.target.classList.add('vu');
+        io.unobserve(e.target);
+        setTimeout(function () { e.target.style.removeProperty('--d'); }, 1200);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+    aReveler.forEach(function (el) { io.observe(el); });
+    /* les aperçus hors de l'écran se mettent en pause */
+    var veille = new IntersectionObserver(function (entrees) {
+      entrees.forEach(function (e) { e.target.classList.toggle('dort', !e.isIntersecting); });
+    });
+    document.querySelectorAll('.outil').forEach(function (c) { veille.observe(c); });
+  }
+
+  /* la carte s'incline un peu et la lueur suit le pointeur */
+  if (souris && !calme) cartes.forEach(function (c) {
+    c.addEventListener('pointermove', function (e) {
+      var r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      c.style.setProperty('--mx', (x * 100) + '%'); c.style.setProperty('--my', (y * 100) + '%');
+      if (c.classList.contains('verrouille')) return;
+      c.style.setProperty('--rx', ((.5 - y) * 7).toFixed(2) + 'deg'); c.style.setProperty('--ry', ((x - .5) * 7).toFixed(2) + 'deg');
+    });
+    c.addEventListener('pointerleave', function () { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
+  });
+
+  /* l'orbite autour du N : un jeton par outil, chacun renvoie à sa carte */
+  var orbite = document.getElementById('orbite');
+  cartes.forEach(function (c, i) {
+    var u = c.querySelector('svg.l use'), nom = c.querySelector('svg.l').getAttribute('aria-label');
+    var a = document.createElement('a');
+    a.href = '#' + c.id; a.setAttribute('data-cible', c.getAttribute('data-outil')); a.title = nom; a.setAttribute('aria-label', nom);
+    a.style.setProperty('--a', (360 / cartes.length * i) + 'deg'); a.style.setProperty('--t', (1 + i * .05) + 's');
+    a.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><use href="' + u.getAttribute('href') + '"/></svg>';
+    a.style.setProperty('--c', c.style.getPropertyValue('--c2'));
+    a.addEventListener('pointerenter', function () { montrer(c, u.getAttribute('href'), nom); });
+    a.addEventListener('focus', function () { montrer(c, u.getAttribute('href'), nom); });
+    a.addEventListener('pointerleave', cacher);
+    a.addEventListener('blur', cacher);
+    orbite.appendChild(a);
+  });
+
+  /* au survol d'un jeton de l'orbite, le grand N prend son visage et son nom s'affiche dessous ;
+     un court délai au départ évite que le centre clignote quand on glisse d'un jeton au voisin */
+  var centre = document.getElementById('jetonCentre'), etiquette = document.getElementById('orbiteNom');
+  var lueur = document.querySelector('.hero .jeton-lueur'), retour = null;
+  function changerCentre(href) {
+    if (centre.firstElementChild.getAttribute('href') === href) return;
+    centre.firstElementChild.setAttribute('href', href);
+    centre.classList.remove('change'); void centre.getBoundingClientRect(); centre.classList.add('change');
+  }
+  function montrer(carte, href, nom) {
+    clearTimeout(retour);
+    var c2 = carte.style.getPropertyValue('--c2');
+    changerCentre(href);
+    lueur.style.background = 'radial-gradient(circle,' + c2 + ' 0%,transparent 70%)';
+    etiquette.style.setProperty('--c', c2);
+    etiquette.querySelector('b').textContent = nom;
+    etiquette.querySelector('span').textContent = carte.querySelector('.role').textContent;
+    etiquette.classList.add('vu');
+  }
+  function cacher() {
+    clearTimeout(retour);
+    retour = setTimeout(function () {
+      changerCentre('#l-gr');
+      lueur.style.background = '';
+      etiquette.classList.remove('vu');
+    }, 140);
+  }
+
+  /* les filtres par thème */
+  var boutons = Array.prototype.slice.call(document.querySelectorAll('.filtres button'));
+  function filtrer(f) {
+    boutons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-filtre') === f ? 'true' : 'false'); });
+    document.querySelectorAll('.outils .outil').forEach(function (c) {
+      var garde = f === 'tous' || c.getAttribute('data-cat') === f;
+      c.classList.toggle('cache', !garde);
+      if (garde && !calme) { c.classList.remove('vu'); void c.offsetWidth; c.classList.add('vu'); }
+    });
+  }
+  boutons.forEach(function (b) {
+    var f = b.getAttribute('data-filtre');
+    if (f !== 'tous') b.insertAdjacentHTML('beforeend', '<small>' + document.querySelectorAll('.outil[data-cat="' + f + '"]').length + '</small>');
+    b.addEventListener('click', function () { filtrer(f); });
+  });
+
+  /* ---------- le passage entre l'accueil et un outil ----------
+     Ouverture : la carte se déploie jusqu'à remplir l'écran avec le fond de l'écran d'ouverture
+     de l'outil (chaque outil le note dans « ng:fond:<outil> », voir naogroup-cloud.js), son jeton
+     glisse au centre et s'y fond, puis l'outil prend le relais avec sa propre animation.
+     Retour : l'écran repart de ce même fond et se replie dans la carte de l'outil. */
+  var FOND_SOMBRE = { img: 'radial-gradient(1250px 900px at 50% 16%, #6A59BC 0%, #3E3183 42%, #171230 100%)', col: '#171230' };
+  var FOND_CLAIR = { img: 'radial-gradient(1400px 900px at 50% -8%, #F1EBFE 0%, #E7E0FB 44%, #F5F1FD 100%)', col: '#F5F1FD' };
+  /* le fond sombre de l'écran d'ouverture de chaque outil, tant que l'outil ne l'a pas encore noté lui-même */
+  var FONDS = {
+    naofi: { img: 'radial-gradient(1200px 820px at 50% 42%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1C1636' },
+    naobudget: { img: 'radial-gradient(1250px 900px at 50% 16%, #6A59BC 0%, #3E3183 42%, #171230 100%)', col: '#171230' },
+    naoplan: { img: 'radial-gradient(1250px 900px at 50% 16%, #6A59BC 0%, #3E3183 42%, #171230 100%)', col: '#171230' },
+    naofactu: { img: 'radial-gradient(1300px 900px at 50% 16%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naoagenda: { img: 'radial-gradient(1300px 900px at 50% 16%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naobaby: { img: 'radial-gradient(1300px 900px at 50% 16%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naoastro: { img: 'radial-gradient(1300px 900px at 50% 14%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naolang: { img: 'radial-gradient(1300px 900px at 50% 14%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naowedding: { img: 'radial-gradient(1300px 900px at 50% 16%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naotrip: { img: 'radial-gradient(1300px 900px at 50% 16%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naodoc: { img: 'radial-gradient(1200px 860px at 50% 28%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1C1636' },
+    naodaily: { img: 'radial-gradient(1200px 860px at 50% 28%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1C1636' },
+    naosante: { img: 'radial-gradient(1200px 860px at 50% 28%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naocv: { img: 'radial-gradient(1300px 900px at 50% 28%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naopet: { img: 'radial-gradient(1300px 900px at 50% 16%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naoinvest: { img: 'radial-gradient(1300px 900px at 50% 26%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naostudy: { img: 'radial-gradient(1300px 900px at 50% 30%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' },
+    naoroots: { img: 'radial-gradient(1300px 900px at 50% 24%, #7A5AE0 0%, #43309E 42%, #1A1240 100%)', col: '#1A1240' }
+  };
+  function fondDe(id) {
+    try {
+      var f = JSON.parse(localStorage.getItem('ng:fond:' + id) || 'null');
+      if (f && f.img) return f;
+      var t = localStorage.getItem(id + '.theme');
+      if (t === 'light') return FOND_CLAIR;
+      if (t === 'dark') return FOND_SOMBRE;
+    } catch (e) {}
+    /* ces quatre-là suivent le thème de l'ordinateur tant qu'on ne l'a pas choisi */
+    if (/^(naofi|naobudget|naoplan|naofactu)$/.test(id) && matchMedia('(prefers-color-scheme: light)').matches) return FOND_CLAIR;
+    return FONDS[id] || FOND_SOMBRE;
+  }
+  /* Le jeton de l'outil en image autonome (ses dégradés compris), pour que l'outil puisse
+     afficher exactement le même jeton au même endroit à son arrivée et à son départ. */
+  function jetonAutonome(symId) {
+    var sym = document.getElementById(symId);
+    if (!sym) return '';
+    var corps = sym.innerHTML, defs = '', vus = {};
+    corps.replace(/url\(#([^)]+)\)/g, function (m, id) {
+      var g = !vus[id] && document.getElementById(id);
+      if (g) { vus[id] = 1; defs += g.outerHTML; }
+    });
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><defs>' + defs + '</defs>' + corps + '</svg>';
+  }
+  /* la zone visible sans la barre de défilement : c'est elle que couvrent les voiles fixes */
+  function larg() { return document.documentElement.clientWidth; }
+  function haut() { return document.documentElement.clientHeight; }
+  var TAILLE = 88, ECHELLE = TAILLE / 46;      /* le jeton au centre : 88 px, partout (accueil et outils) */
+  function voilePour(c, avecHalo) {
+    var f = fondDe(c.getAttribute('data-outil')), lr = c.querySelector('svg.l').getBoundingClientRect();
+    var v = document.createElement('div');
+    v.className = 'passage';
+    v.style.backgroundColor = f.col || '#171230'; v.style.backgroundImage = f.img;
+    v.style.setProperty('--c2', c.style.getPropertyValue('--c2'));
+    v.innerHTML = (avecHalo ? '<div class="halo"></div>' : '') +
+      '<svg viewBox="0 0 40 40" aria-hidden="true"><use href="' + c.querySelector('svg.l use').getAttribute('href') + '"/></svg>';
+    var jt = v.querySelector('svg');
+    jt.style.left = lr.left + 'px'; jt.style.top = lr.top + 'px';
+    document.body.appendChild(v);
+    return { v: v, jt: jt, halo: v.querySelector('.halo'), r: c.getBoundingClientRect(),
+      centre: 'translate(' + (larg() / 2 - (lr.left + lr.width / 2)) + 'px,' + (haut() / 2 - (lr.top + lr.height / 2)) + 'px) scale(' + ECHELLE + ')' };
+  }
+  function insetDe(r) {
+    return 'inset(' + r.top + 'px ' + (larg() - r.right) + 'px ' + (haut() - r.bottom) + 'px ' + r.left + 'px round 22px)';
+  }
+  var DOUX = 'cubic-bezier(.65,0,.25,1)';
+  function ouvrir(c, href) {
+    var id = c.getAttribute('data-outil');
+    try {
+      localStorage.setItem('ng:visuel:' + id, JSON.stringify({ logo: jetonAutonome(c.querySelector('svg.l use').getAttribute('href').slice(1)), c2: c.style.getPropertyValue('--c2') }));
+      /* première ouverture : l'outil n'a pas encore noté son fond, il reprendra celui que l'accueil affiche */
+      if (!localStorage.getItem('ng:fond:' + id)) localStorage.setItem('ng:fond:' + id, JSON.stringify(fondDe(id)));
+      sessionStorage.setItem('ng:passage', id);       /* l'accueil saura d'où l'on revient */
+      sessionStorage.setItem('ng:arrivee', id);       /* l'outil saura qu'il doit reprendre l'image */
+    } catch (e) {}
+    var p = voilePour(c, true);
+    /* la dernière image (fond plein, jeton de 88 px au centre, halo) est celle que l'outil
+       affiche en premier : on part dès qu'elle est en place */
+    p.v.animate([{ clipPath: insetDe(p.r) }, { clipPath: 'inset(0px 0px 0px 0px round 0px)' }], { duration: 560, easing: DOUX, fill: 'forwards' });
+    p.jt.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: p.centre }], { duration: 600, easing: DOUX, fill: 'forwards' });
+    p.halo.animate([{ opacity: 0, transform: 'scale(.4)' }, { opacity: .5, transform: 'scale(1)' }], { duration: 600, easing: 'ease-out', fill: 'forwards' });
+    setTimeout(function () { location.href = href; }, 620);
+  }
+  function revenir(id) {
+    var racine = document.documentElement, c = document.getElementById('outil-' + id);
+    if (!c || calme) { racine.classList.remove('retour'); if (c) { c.classList.add('vu'); c.scrollIntoView({ block: 'center', behavior: 'instant' }); } return; }
+    c.style.transition = 'none'; c.classList.add('vu');
+    c.scrollIntoView({ block: 'center', behavior: 'instant' });
+    void c.offsetWidth; c.style.transition = '';
+    /* même image que celle qu'a laissée l'outil (et que le <head> a déjà peinte) : fond plein, jeton au centre */
+    var p = voilePour(c, false);
+    p.jt.style.transform = p.centre;
+    racine.classList.remove('retour');
+    p.v.animate([{ clipPath: 'inset(0px 0px 0px 0px round 0px)' }, { clipPath: insetDe(p.r) }], { duration: 640, delay: 60, easing: DOUX, fill: 'forwards' });
+    p.jt.animate([{ transform: p.centre }, { transform: 'translate(0,0) scale(1)' }], { duration: 680, delay: 60, easing: DOUX, fill: 'forwards' });
+    setTimeout(function () {
+      p.v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }).onfinish = function () { p.v.remove(); };
+      c.classList.remove('eclaire'); void c.offsetWidth; c.classList.add('eclaire');
+    }, 740);
+  }
+  cartes.forEach(function (c) {
+    c.addEventListener('click', function (e) {
+      if (calme || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var href = c.getAttribute('href');
+      /* outil fermé à ce profil, ou passage par la connexion : pas de déploiement */
+      if (c.classList.contains('verrouille') || !href || href === '#' || /connexion/.test(href)) return;
+      e.preventDefault();
+      ouvrir(c, href);
+    });
+  });
+  /* au retour d'un outil (lien « NaoGroup » de l'outil ou bouton Précédent) */
+  var depuis = null;
+  try { depuis = sessionStorage.getItem('ng:passage'); sessionStorage.removeItem('ng:passage'); sessionStorage.removeItem('ng:arrivee'); } catch (e) {}
+  if (depuis) {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    revenir(depuis);
+  } else document.documentElement.classList.remove('retour');
+  addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    var vieux = document.querySelector('.passage'); if (vieux) vieux.remove();
+    var id = null;
+    try { id = sessionStorage.getItem('ng:passage'); sessionStorage.removeItem('ng:passage'); sessionStorage.removeItem('ng:arrivee'); } catch (x) {}
+    if (id) revenir(id);
+  });
+
+  /* pastilles, orbite, mot qui défile : on glisse jusqu'à la carte et elle s'allume */
+  function eclairer(id) {
+    var c = document.getElementById('outil-' + id);
+    if (!c) return;
+    if (c.classList.contains('cache')) filtrer('tous');
+    c.scrollIntoView({ behavior: calme ? 'auto' : 'smooth', block: 'center' });
+    c.classList.remove('eclaire'); void c.offsetWidth; c.classList.add('eclaire');
+    setTimeout(function () { c.focus({ preventScroll: true }); }, calme ? 0 : 600);
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[data-cible]');
+    if (!a) return;
+    e.preventDefault(); eclairer(a.getAttribute('data-cible'));
+  });
+
+  /* « Aujourd'hui, je m'occupe de … » : on écrit chaque chose avec son article, la préposition suit toute seule */
+  var mots = [
+    ['mon budget du mois', 'naobudget', '#17C9C0', '#E99BFF'], ['mon dossier de crédit', 'naofi', '#17C9C0', '#E99BFF'],
+    ['notre futur logement', 'naoplan', '#17C9C0', '#E99BFF'], ['les anniversaires', 'naoagenda', '#17C9C0', '#E99BFF'],
+    ['mon espagnol', 'naolang', '#17C9C0', '#E99BFF'], ['notre mariage', 'naowedding', '#17C9C0', '#E99BFF'],
+    ['nos vacances', 'naotrip', '#17C9C0', '#E99BFF'], ['les papiers de la famille', 'naodoc', '#17C9C0', '#E99BFF'],
+    ['les menus de la semaine', 'naodaily', '#17C9C0', '#E99BFF'], ['mon CV', 'naocv', '#17C9C0', '#E99BFF'],
+    ['mon sommeil', 'naosante', '#17C9C0', '#E99BFF'], ['le chat', 'naopet', '#17C9C0', '#E99BFF'],
+    ['mes premiers placements', 'naoinvest', '#17C9C0', '#E99BFF'], ['les révisions du bac', 'naostudy', '#17C9C0', '#E99BFF'],
+    ["l'arbre de la famille", 'naoroots', '#17C9C0', '#E99BFF'], ['mes factures', 'naofactu', '#17C9C0', '#E99BFF'],
+    ['la future naissance', 'naobaby', '#17C9C0', '#E99BFF'], ['mon horoscope', 'naoastro', '#17C9C0', '#E99BFF']
+  ];
+  /* « je m'occupe » + de / du / des selon l'article : le chat → du chat, les papiers → des papiers,
+     mon budget, l'arbre, la naissance → de … */
+  function preposition(groupe) {
+    if (/^le /i.test(groupe)) return ['du', groupe.slice(3)];
+    if (/^les /i.test(groupe)) return ['des', groupe.slice(4)];
+    return ['de', groupe];
+  }
+  var bloc = document.getElementById('motBloc'), prep = document.getElementById('motPrep');
+  var mot = document.getElementById('motDefile'), k = 0;
+  if (!calme) setInterval(function () {
+    if (document.hidden) return;
+    bloc.classList.add('sort');
+    setTimeout(function () {
+      k = (k + 1) % mots.length;
+      var m = mots[k], p = preposition(m[0]);
+      prep.textContent = p[0]; mot.textContent = p[1];
+      mot.href = '#outil-' + m[1]; mot.setAttribute('data-cible', m[1]);
+      mot.style.setProperty('--c1', m[2]); mot.style.setProperty('--c2', m[3]);
+      bloc.classList.remove('sort'); bloc.classList.add('entre');
+      void bloc.offsetWidth; bloc.classList.remove('entre');
+    }, 350);
+  }, 2800);
+
+  /* barre de progression, et barre du haut posée sur le verre une fois qu'on descend */
+  var prog = document.getElementById('progression'), barre = document.querySelector('.bar'), attendu = false;
+  function auDefilement() {
+    attendu = false;
+    var h = document.documentElement.scrollHeight - innerHeight;
+    prog.style.setProperty('--p', h > 0 ? (scrollY / h).toFixed(4) : 0);
+    barre.classList.toggle('colle', scrollY > 30);
+  }
+  addEventListener('scroll', function () { if (!attendu) { attendu = true; requestAnimationFrame(auDefilement); } }, { passive: true });
+  auDefilement();
+})();
+</script>
+<script>
+  /* ---------- arrivée : l'image peinte dès le <head> se lève sur la page ---------- */
+  (function () {
+    var r = document.documentElement;
+    if (!r.classList.contains('depuis-contact')) return;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { r.classList.add('leve'); }); });
+    setTimeout(function () { r.classList.remove('depuis-contact', 'leve'); }, 1100);
+  })();
+  /* ---------- passage vers la page Contact : un cercle s'ouvre depuis le clic sur le fond de la page d'arrivée,
+     l'image du centre apparaît, et la page d'arrivée reprend exactement cette image ---------- */
+  (function () {
+    if (!window.matchMedia || matchMedia('(prefers-reduced-motion: reduce)').matches || !document.body.animate) return;
+    var FOND = 'radial-gradient(900px 600px at 18% 12%,rgba(185,168,240,.55),transparent 60%),radial-gradient(800px 600px at 88% 40%,rgba(25,240,216,.32),transparent 60%),radial-gradient(900px 700px at 50% 110%,rgba(196,107,255,.3),transparent 60%),radial-gradient(1300px 900px at 50% 30%,#7A5AE0 0%, #43309E 42%, #1A1240 100%)', IMAGE = '<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 80 80\'><defs><linearGradient id=\'e\' x1=\'0\' y1=\'0\' x2=\'1\' y2=\'1\'><stop offset=\'0\' stop-color=\'#19F0D8\'/><stop offset=\'.5\' stop-color=\'#A77BFF\'/><stop offset=\'1\' stop-color=\'#C9B7F5\'/></linearGradient></defs><rect x=\'6\' y=\'18\' width=\'68\' height=\'48\' rx=\'9\' fill=\'url(#e)\'/><path d=\'M8 22L40 46L72 22\' fill=\'none\' stroke=\'#fff\' stroke-width=\'4\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/><path d=\'M40 37C35 33 32 31 32 28A4 4 0 0 1 40 27A4 4 0 0 1 48 28C48 31 45 33 40 37Z\' fill=\'#fff\'/></svg>';
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a || (a.target && a.target !== '_self') || !(/contact\.html$/.test(a.href.split('#')[0].split('?')[0]))) return;
+      e.preventDefault();
+      try { sessionStorage.setItem('ng:contact', 'entree'); } catch (x) {}
+      var x = e.clientX || innerWidth / 2, y = e.clientY || innerHeight / 2;
+      var v = document.createElement('div');
+      v.style.cssText = 'position:fixed;inset:0;z-index:400;pointer-events:auto;background:' + FOND;
+      var i = document.createElement('img');
+      i.alt = ''; i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(IMAGE);
+      i.style.cssText = 'position:fixed;left:50%;top:50%;width:120px;height:120px;margin:-60px 0 0 -60px;filter:drop-shadow(0 18px 30px rgba(10,6,30,.6))';
+      v.appendChild(i); document.documentElement.appendChild(v);
+      var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      v.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)' }],
+        { duration: 560, easing: 'cubic-bezier(.65,0,.25,1)', fill: 'forwards' });
+      i.animate([{ transform: 'scale(.3) rotate(-14deg)', opacity: 0 }, { transform: 'scale(1.08) rotate(3deg)', opacity: 1, offset: .75 }, { transform: 'scale(1) rotate(0)', opacity: 1 }],
+        { duration: 520, delay: 160, easing: 'ease-out', fill: 'both' });
+      var dest = a.href;
+      setTimeout(function () { location.href = dest; }, 700);
+      addEventListener('pageshow', function (ev) { if (ev.persisted) v.remove(); }, { once: true });
+    });
+  })();
+</script>
+<!-- le mur des notifications : demandes et avis reçus, pour l'administratrice seulement -->
+<script src="naogroup-notifs.js?v=20261116b"></script>
+</body>
+</html>

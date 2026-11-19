@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoFi pour les courtiers</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2319F0D8'/%3E%3Cstop offset='.48' stop-color='%238A5CFF'/%3E%3Cstop offset='1' stop-color='%23E99BFF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='40' height='40' rx='13' fill='url(%23g)'/%3E%3Cpath d='M12 29V13.5L28 28V12' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M23.4 16.6L28 12l4.6 4.6' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round' opacity='.55'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,500;1,8..60,600&display=swap">
+<style>
+/* Page de présentation de NaoFi aux courtiers.
+   Identité : un dossier de crédit. L'encre de banque pour les bandeaux, le
+   papier lilas pour la lecture, le lilas NaoFi en accent, l'or de sceau
+   pour les chiffres et le tampon. Titres en serif italique, dans la
+   continuité du nom NaoFi ; chiffres en police à chasse fixe, comme sur un
+   relevé. Hors ligne, les polices retombent sur Georgia et la police
+   système. Les réponses du questionnaire restent sur ce poste. */
+:root{
+--encre:#15122B;--encre-2:#211C40;--encre-filet:rgba(255,255,255,.12);--sur-encre:#F1EFF8;--sur-encre-2:#B9B3D6;
+--papier:#F4F3F8;--carte:#FFFFFF;--carte-2:#ECEAF4;--texte:#1D1A2E;--texte-2:#575270;--texte-3:#8A85A0;--filet:#DCD8E8;
+--lilas:#7A6BC0;--lilas-clair:#B9ACEE;--lilas-fond:#E9E5F7;--or:#B8955A;--or-clair:#D9BD8A;
+--vert:#2F7D57;--vert-fond:#E2F1E8;--ambre:#A8741C;--ambre-fond:#F8EDD9;--rouge:#B04E63;--rouge-fond:#F8E5EA;
+--serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+--sans:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+--mono:"IBM Plex Mono",ui-monospace,Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+--papier:#110F20;--carte:#1A1730;--carte-2:#221E3B;--texte:#ECEAF5;--texte-2:#B3AEC9;--texte-3:#847F9C;--filet:#2E2A48;
+--lilas:#A898EA;--lilas-fond:#2A2448;--or:#D4B27A;
+--vert:#7CC79C;--vert-fond:#193426;--ambre:#E0B062;--ambre-fond:#3A2C14;--rouge:#E58C9E;--rouge-fond:#3B1D26;
+}}
+:root[data-theme="dark"]{
+--papier:#110F20;--carte:#1A1730;--carte-2:#221E3B;--texte:#ECEAF5;--texte-2:#B3AEC9;--texte-3:#847F9C;--filet:#2E2A48;
+--lilas:#A898EA;--lilas-fond:#2A2448;--or:#D4B27A;
+--vert:#7CC79C;--vert-fond:#193426;--ambre:#E0B062;--ambre-fond:#3A2C14;--rouge:#E58C9E;--rouge-fond:#3B1D26;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--papier);color:var(--texte);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--lilas)}
+:focus-visible{outline:2px solid var(--lilas);outline-offset:3px}
+.page{max-width:1160px;margin:0 auto;padding:0 28px}
+section{padding:96px 0}
+h1,h2,h3{text-wrap:balance}
+h2{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(32px,4vw,46px);line-height:1.08;letter-spacing:-.015em;margin:0 0 14px}
+h3{margin:0 0 6px;font-size:17px;font-weight:600;letter-spacing:-.005em}
+.surtitre{display:block;font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--lilas);margin-bottom:14px}
+.chapeau{color:var(--texte-2);font-size:18px;max-width:62ch;margin:0 0 44px}
+.chiffre{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- Boutons ---------- */
+.bouton{display:inline-flex;align-items:center;gap:10px;border-radius:10px;padding:14px 22px;font:600 15px/1 var(--sans);text-decoration:none;cursor:pointer;border:1px solid transparent;transition:transform .25s cubic-bezier(.2,1.2,.3,1),background .2s ease,box-shadow .25s ease}
+.bouton:hover{transform:translateY(-2px)}
+.bouton svg{width:16px;height:16px;fill:currentColor}
+.bouton.or{background:var(--or-clair);color:var(--encre);box-shadow:0 16px 34px -16px rgba(217,189,138,.7)}
+.bouton.or:hover{background:#E6CC9C}
+.bouton.fantome{background:transparent;color:var(--sur-encre);border-color:rgba(255,255,255,.28)}
+.bouton.fantome:hover{border-color:rgba(255,255,255,.6)}
+.bouton.lilas{background:var(--lilas);color:#fff}
+.bouton.clair{background:var(--carte);color:var(--texte);border-color:var(--filet)}
+.petit{padding:9px 14px;font-size:13px}
+.danger{color:var(--rouge)!important}
+
+/* ---------- Barre de lecture et navigation ---------- */
+.lecture{position:fixed;top:0;left:0;height:3px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--lilas-clair),var(--or-clair));z-index:60}
+.nav{position:sticky;top:0;z-index:50;background:rgba(21,18,43,.0);transition:background .3s ease,box-shadow .3s ease,backdrop-filter .3s ease}
+.nav.pleine{background:rgba(21,18,43,.86);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--encre-filet)}
+.nav .page{display:flex;align-items:center;justify-content:space-between;height:70px}
+.marque{display:flex;align-items:center;gap:11px;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:25px;font-weight:600;color:#fff;text-decoration:none}
+.marque svg{width:36px;height:36px;border-radius:11px}
+.marque em{color:#D4C8FA}
+.nav-liens{display:flex;align-items:center;gap:26px}
+.nav-liens a{color:var(--sur-encre-2);text-decoration:none;font-size:14px;font-weight:500}
+.nav-liens a:hover{color:#fff}
+.nav-liens .bouton{padding:10px 16px;font-size:14px;color:var(--encre)}
+.nav-liens .bouton.fantome{color:var(--sur-encre)}
+.nav-liens .bouton svg{width:16px;height:16px}
+
+/* ---------- Ouverture ---------- */
+.ouverture{background:var(--encre);color:var(--sur-encre);margin-top:-70px;padding:150px 0 0;position:relative;overflow:hidden}
+.ouverture::before{content:'';position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--encre-filet) 1px,transparent 1px),linear-gradient(90deg,var(--encre-filet) 1px,transparent 1px);background-size:64px 64px;
+ -webkit-mask-image:radial-gradient(ellipse 70% 60% at 70% 30%,#000,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 70% 30%,#000,transparent 75%);opacity:.55}
+.ouverture::after{content:'';position:absolute;width:720px;height:720px;right:-160px;top:-240px;border-radius:50%;background:radial-gradient(circle,rgba(122,107,192,.38),transparent 65%);pointer-events:none;transform:translateY(var(--parallaxe,0px))}
+.ouv-grille{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.ouverture h1{font-family:var(--serif);font-weight:500;font-size:clamp(40px,5.4vw,66px);line-height:1.02;letter-spacing:-.025em;margin:0 0 22px}
+.ouverture h1 em{font-style:italic;color:var(--or-clair)}
+.accroche{font-size:19px;line-height:1.55;color:var(--sur-encre-2);max-width:54ch;margin:0 0 34px}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.garantie{margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--sur-encre-2)}
+
+/* La fiche d'analyse : la jauge d'endettement face à la norme HCSF. */
+.fiche{position:relative;background:#FBFAFE;color:#1D1A2E;border-radius:6px;padding:26px 28px 22px;box-shadow:0 40px 80px -30px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06);transform:rotate(1.2deg)}
+.fiche::before{content:'';position:absolute;left:-10px;right:10px;top:10px;bottom:-10px;border-radius:6px;background:#D9D4EA;z-index:-1;transform:rotate(-2.4deg)}
+.fiche-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid #E3DFEE;padding-bottom:12px;margin-bottom:6px}
+.fiche-tete b{font-family:var(--serif);font-style:italic;font-weight:600;font-size:20px}
+.fiche-tete span{font-family:var(--mono);font-size:11px;color:#8A85A0;letter-spacing:.06em}
+.jauge{display:block;width:100%;height:auto}
+.jauge .fond{fill:none;stroke:#ECE9F4;stroke-width:18}
+.jauge .zone{fill:none;stroke:#F3D9DF;stroke-width:18}
+.jauge .valeur{fill:none;stroke:#2F7D57;stroke-width:18;stroke-dasharray:48.2 100;animation:monte 1.6s cubic-bezier(.3,0,.2,1) .4s backwards}
+@keyframes monte{from{stroke-dasharray:0 100}}
+.jauge .trait{stroke:#1D1A2E;stroke-width:2}
+.jauge text{font-family:var(--mono);font-size:10px;fill:#6E6886}
+.jauge .gros{font-family:var(--mono);font-size:38px;font-weight:600;fill:#1D1A2E}
+.jauge .legende{font-family:var(--sans);font-size:11px;fill:#6E6886;letter-spacing:.08em}
+.fiche-lignes{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #E3DFEE;margin-top:4px}
+.fiche-lignes div{padding:11px 0 2px}
+.fiche-lignes div+div{border-left:1px solid #E3DFEE;padding-left:14px}
+.fiche-lignes small{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#8A85A0}
+.fiche-lignes b{font-family:var(--mono);font-size:15px;font-weight:600}
+.tampon{position:absolute;right:-16px;bottom:70px;padding:8px 16px 6px;border:3px double #2F7D57;border-radius:8px;color:#2F7D57;text-align:center;text-transform:uppercase;transform:rotate(-14deg);background:rgba(251,250,254,.85);animation:tampon .55s cubic-bezier(.2,1.6,.3,1) 1.9s backwards}
+.tampon b{display:block;font-family:var(--sans);font-size:24px;letter-spacing:.14em;line-height:1.05}
+.tampon span{display:block;font-size:9px;letter-spacing:.2em}
+@keyframes tampon{from{opacity:0;transform:rotate(-14deg) scale(2.6)}}
+.autres{display:grid;gap:8px;margin-top:22px}
+.autre{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--encre-filet);font-size:13.5px}
+.autre i{flex:none;width:8px;height:8px;border-radius:50%}
+.autre .chiffre{margin-left:auto;color:#fff}
+.autre small{color:var(--sur-encre-2)}
+
+/* Bandeau des termes du métier. */
+.bandeau{position:relative;z-index:1;margin-top:84px;border-top:1px solid var(--encre-filet);overflow:hidden;white-space:nowrap;padding:18px 0}
+.bandeau-piste{display:inline-flex;gap:48px;animation:defile 60s linear infinite;padding-left:48px}
+.bandeau span{font-family:var(--mono);font-size:13px;color:var(--sur-encre-2);letter-spacing:.03em}
+.bandeau span b{color:var(--or-clair);font-weight:500}
+@keyframes defile{to{transform:translateX(-50%)}}
+
+/* ---------- Chiffres ---------- */
+.reperes{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--filet)}
+.reperes div{padding:38px 26px 34px}
+.reperes div+div{border-left:1px solid var(--filet)}
+.reperes b{display:block;font-family:var(--mono);font-weight:500;font-size:44px;line-height:1;color:var(--texte);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.reperes span{display:block;margin-top:10px;font-size:14px;color:var(--texte-2);max-width:24ch}
+
+/* ---------- Gains ---------- */
+.gains{display:grid;gap:18px}
+.gain{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding:40px 0;border-top:1px solid var(--filet)}
+.gain:first-child{border-top:none}
+.gain h3{font-family:var(--serif);font-style:italic;font-weight:500;font-size:30px;line-height:1.12;letter-spacing:-.01em;margin-bottom:12px}
+.gain p{margin:0;color:var(--texte-2);max-width:52ch}
+.gain ul{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.gain li{font-size:13px;padding:5px 11px;border-radius:99px;background:var(--lilas-fond);color:var(--lilas);font-weight:500}
+.piece{background:var(--carte);border:1px solid var(--filet);border-radius:10px;padding:22px 24px;box-shadow:0 24px 50px -34px rgba(40,30,90,.35)}
+.piece-titre{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--texte-3);margin-bottom:14px}
+/* Pile de documents. */
+.pile{display:grid;gap:7px}
+.pile div{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:var(--carte-2);font-size:14px}
+.pile svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--lilas);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pile small{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--texte-3)}
+/* Ratios. */
+.ratio{display:grid;grid-template-columns:130px 1fr 64px;align-items:center;gap:12px;font-size:14px;padding:8px 0}
+.ratio .rail{position:relative;height:10px;border-radius:5px;background:var(--carte-2)}
+.ratio .rail i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;width:var(--v)}
+.ratio .rail .seuil{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--texte);left:var(--s)}
+.ratio .chiffre{text-align:right;font-weight:600}
+.verdict-ligne{margin-top:14px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--texte-2)}
+.pastille{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.p-vert{background:var(--vert-fond);color:var(--vert)}.p-ambre{background:var(--ambre-fond);color:var(--ambre)}.p-rouge{background:var(--rouge-fond);color:var(--rouge)}.p-lilas{background:var(--lilas-fond);color:var(--lilas)}
+/* Conseil chiffré. */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compare div{padding:14px;border-radius:8px;background:var(--carte-2)}
+.compare small{display:block;font-size:12px;color:var(--texte-3)}
+.compare b{display:block;font-family:var(--mono);font-size:18px;font-weight:600;margin-top:4px}
+.compare .mieux{background:var(--vert-fond)}
+.compare .mieux b{color:var(--vert)}
+.piece-note{margin:12px 0 0;font-size:12.5px;color:var(--texte-3)}
+/* Délais. */
+.delais{display:grid;gap:0}
+.delai{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--filet);font-size:14px}
+.delai:first-child{border-top:none}
+.delai .chiffre{font-size:13px;color:var(--texte-2)}
+/* Portefeuille. */
+.barres{display:flex;align-items:flex-end;gap:10px;height:120px;padding-top:8px;border-bottom:1px solid var(--filet)}
+.barres div{flex:1;display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden}
+.barres i{display:block}
+.legende-barres{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12.5px;color:var(--texte-2)}
+.legende-barres span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:var(--c)}
+
+/* ---------- Registre Aujourd'hui / Avec NaoFi ---------- */
+.registre-cadre{overflow-x:auto;border:1px solid var(--filet);border-radius:10px;background:var(--carte)}
+.registre{width:100%;min-width:720px;border-collapse:collapse;font-size:15px}
+.registre th{text-align:left;padding:18px 22px;font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--texte-3);border-bottom:1px solid var(--filet)}
+.registre th.avec{color:var(--lilas)}
+.registre td{padding:17px 22px;border-bottom:1px solid var(--filet);vertical-align:top}
+.registre tr:last-child td{border-bottom:none}
+.registre td:first-child{font-weight:600;width:26%}
+.registre td.hier{color:var(--texte-3);width:34%}
+.registre td.avec{background:color-mix(in srgb,var(--lilas-fond) 45%,transparent)}
+.registre td.avec::before{content:'✓';color:var(--vert);font-weight:700;margin-right:9px}
+
+/* ---------- Parcours ---------- */
+.parcours{position:relative;display:grid;grid-template-columns:repeat(8,1fr);gap:14px;padding-top:34px}
+.parcours::before,.parcours::after{content:'';position:absolute;top:12px;left:10px;height:2px;border-radius:2px}
+.parcours::before{right:10px;background:var(--filet)}
+.parcours::after{width:calc((100% - 20px) * var(--avance,1));background:linear-gradient(90deg,var(--lilas),var(--or))}
+.etape{position:relative}
+.etape::before{content:'';position:absolute;top:-28px;left:0;width:12px;height:12px;border-radius:50%;background:var(--papier);border:2px solid var(--lilas)}
+.etape .chiffre{font-size:12px;color:var(--lilas);font-weight:600}
+.etape b{display:block;font-size:15px;margin:2px 0 4px}
+.etape span{display:block;font-size:13px;color:var(--texte-2);line-height:1.45}
+
+/* ---------- Fonctionnalités ---------- */
+.fonctions{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--filet)}
+.fonction{padding:28px 28px 30px 0;border-bottom:1px solid var(--filet)}
+.fonction:not(:nth-child(3n+1)){padding-left:28px;border-left:1px solid var(--filet)}
+.fonction svg{width:24px;height:24px;fill:none;stroke:var(--lilas);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-bottom:14px;transition:transform .35s cubic-bezier(.2,1.4,.3,1)}
+.fonction:hover svg{transform:translateY(-3px) scale(1.08)}
+.fonction p{margin:0;color:var(--texte-2);font-size:14.5px}
+
+/* ---------- Démonstration ---------- */
+.demo{background:var(--encre);color:var(--sur-encre);position:relative;overflow:hidden}
+.demo h2{color:#fff}
+.demo .surtitre{color:var(--or-clair)}
+.demo .chapeau{color:var(--sur-encre-2)}
+.demo-lancer{display:flex;flex-wrap:wrap;align-items:center;gap:20px;margin-bottom:44px}
+.demo-lancer p{margin:0;color:var(--sur-encre-2);font-size:14px;max-width:46ch}
+.dossiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.dossier{position:relative;display:flex;flex-direction:column;gap:9px;padding:22px 22px 20px 26px;border-radius:8px;background:var(--encre-2);border:1px solid var(--encre-filet);color:inherit;text-decoration:none;overflow:hidden;transition:transform .3s cubic-bezier(.2,1.2,.3,1),border-color .3s ease,background .3s ease}
+.dossier::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.dossier:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.3);background:#28224C}
+.dossier .etat{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+.dossier b{font-family:var(--serif);font-style:italic;font-weight:500;font-size:22px;color:#fff}
+.dossier p{margin:0;font-size:14px;color:var(--sur-encre-2)}
+.dossier .aller{margin-top:auto;padding-top:8px;font-size:13.5px;font-weight:600;color:#fff}
+.dossier .aller::after{content:' →';display:inline-block;transition:transform .25s ease}
+.dossier:hover .aller::after{transform:translateX(4px)}
+
+/* ---------- Confiance ---------- */
+.confiance{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.confiance div{border-top:2px solid var(--texte);padding-top:18px}
+.confiance p{margin:0;color:var(--texte-2);font-size:15px}
+
+/* ---------- Questionnaire ---------- */
+.avis{background:var(--carte-2)}
+.avis-grille{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:start}
+.avis-intro{position:sticky;top:100px}
+.avis-intro ul{margin:24px 0 0;padding:0;list-style:none;display:grid;gap:12px;color:var(--texte-2);font-size:15px}
+.avis-intro li{display:flex;gap:12px}
+.avis-intro li b{font-family:var(--mono);color:var(--or);font-weight:600}
+form{background:var(--carte);border:1px solid var(--filet);border-radius:10px;padding:34px 34px 28px}
+fieldset{border:none;margin:0 0 30px;padding:0 0 30px;border-bottom:1px solid var(--filet)}
+fieldset:last-of-type{border-bottom:none;padding-bottom:0}
+legend{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--lilas);margin-bottom:16px;padding:0}
+.ligne{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}
+.ligne.trois{grid-template-columns:repeat(3,1fr)}
+.ligne.quatre{grid-template-columns:repeat(2,1fr)}
+label.champ{display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--texte-2)}
+input[type=text],input[type=email],input[type=tel],input[type=number],select,textarea{font:inherit;font-size:15px;color:var(--texte);background:var(--papier);border:1px solid var(--filet);border-radius:7px;padding:10px 12px;width:100%;transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--lilas);box-shadow:0 0 0 3px color-mix(in srgb,var(--lilas) 22%,transparent)}
+textarea{min-height:80px;resize:vertical}
+.choix{display:flex;flex-wrap:wrap;gap:8px}
+.choix label{display:inline-flex;align-items:center;gap:7px;background:var(--papier);border:1px solid var(--filet);border-radius:99px;padding:7px 13px;font-size:13.5px;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.choix input{accent-color:var(--lilas)}
+.choix label:has(input:checked){background:var(--lilas-fond);border-color:var(--lilas);color:var(--lilas)}
+.note{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.note label{text-align:center;background:var(--papier);border:1px solid var(--filet);border-radius:7px;padding:12px 0;cursor:pointer;font-family:var(--mono);font-weight:600;transition:background .2s ease}
+.note input{position:absolute;opacity:0;pointer-events:none}
+.note label:has(input:checked){background:var(--lilas);border-color:var(--lilas);color:#fff}
+.note label:has(input:focus-visible){outline:2px solid var(--lilas);outline-offset:2px}
+.aide{font-size:13.5px;color:var(--texte-3);margin:-4px 0 14px}
+.prix input{font-family:var(--mono);font-size:17px;font-weight:600}
+.euro{position:relative;display:block}
+.euro::after{content:'€ TTC / mois';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;color:var(--texte-3);pointer-events:none}
+.euro input{padding-right:98px}
+.envoi{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+.merci{display:none;margin-top:16px;padding:13px 16px;border-radius:7px;background:var(--vert-fond);color:var(--vert);font-weight:600}
+.merci.visible{display:block}
+.rgpd{font-size:12.5px;color:var(--texte-3);margin:14px 0 0}
+
+/* ---------- Résultats ---------- */
+details.resultats{margin-top:20px;background:var(--carte);border:1px solid var(--filet);border-radius:10px;padding:16px 22px}
+details.resultats summary{cursor:pointer;font-weight:600;font-size:14.5px}
+.res-tuiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.res-tuiles div{background:var(--papier);border-radius:7px;padding:12px 14px}
+.res-tuiles small{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--texte-3)}
+.res-tuiles b{display:block;font-family:var(--mono);font-size:20px;margin-top:3px}
+.res-fourchette{padding:14px 16px;border-radius:7px;background:var(--lilas-fond);margin:0 0 14px}
+.res-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.res-table th,.res-table td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--filet);vertical-align:top}
+.res-table th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--texte-3)}
+.res-scroll{overflow-x:auto}
+.barre{display:flex;align-items:center;gap:10px;font-size:13px;margin:4px 0}
+.barre span:first-child{width:240px;flex:none;color:var(--texte-2)}
+.barre i{display:block;height:9px;border-radius:5px;background:var(--lilas)}
+.res-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+
+footer{background:var(--encre);color:var(--sur-encre-2);padding:44px 0;font-size:13.5px}
+footer .page{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center}
+footer .marque{font-size:21px}
+footer .marque svg{width:30px;height:30px}
+
+/* ---------- Tarifs ----------
+   Trois formules sur papier, la formule d'équipe mise en avant, une
+   bascule mensuel ou annuel, et l'offre de lancement comme un sceau d'or
+   sur un bandeau d'encre. */
+.tarifs-tete{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:20px;margin-bottom:26px}
+.tarifs-tete .chapeau{margin-bottom:0}
+.bascule{display:inline-flex;padding:4px;border-radius:99px;background:var(--carte-2);border:1px solid var(--filet)}
+.bascule button{border:none;background:none;padding:10px 18px;border-radius:99px;font:600 14px/1 var(--sans);color:var(--texte-2);cursor:pointer;transition:background .25s ease,color .25s ease,box-shadow .25s ease}
+.bascule button[aria-pressed="true"]{background:var(--carte);color:var(--texte);box-shadow:0 2px 10px rgba(40,30,90,.14)}
+.bascule small{margin-left:6px;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--vert)}
+.lancement{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px 26px;margin:0 0 34px;padding:22px 26px;border-radius:12px;background:var(--encre);color:var(--sur-encre);overflow:hidden}
+.lancement::after{content:'';position:absolute;right:-80px;top:-120px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(217,189,138,.25),transparent 65%);pointer-events:none}
+.sceau{display:flex;flex-direction:column;align-items:center;justify-content:center;width:96px;height:96px;border-radius:50%;border:3px double var(--or-clair);color:var(--or-clair);text-align:center;transform:rotate(-10deg)}
+.sceau b{font-family:var(--serif);font-style:italic;font-size:28px;line-height:1}
+.sceau span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase}
+.lancement h3{margin:0 0 4px;font-family:var(--serif);font-style:italic;font-weight:500;font-size:26px;color:#fff}
+.lancement p{margin:0;color:var(--sur-encre-2);font-size:15px}
+.lancement .fin{position:relative;z-index:1;font-family:var(--mono);font-size:12px;color:var(--or-clair);text-align:right}
+.formules{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.formule{position:relative;display:flex;flex-direction:column;padding:30px 26px 26px;border:1px solid var(--filet);border-radius:12px;background:var(--carte)}
+.formule.phare{border:2px solid var(--lilas);box-shadow:0 34px 60px -38px rgba(80,60,160,.55)}
+.formule .etiquette{position:absolute;top:-12px;left:24px;padding:4px 11px;border-radius:99px;background:var(--lilas);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.06em}
+.formule h3{margin:0;font-family:var(--serif);font-style:italic;font-weight:500;font-size:28px}
+.formule .pour{margin:4px 0 18px;color:var(--texte-2);font-size:14px}
+.prix-barre{min-height:22px;font-family:var(--mono);font-size:15px;color:var(--texte-3);text-decoration:line-through}
+.tarif-prix{display:flex;align-items:baseline;gap:8px;margin:2px 0 4px}
+.tarif-prix b{font-family:var(--mono);font-size:46px;font-weight:500;letter-spacing:-.03em;line-height:1;color:var(--texte)}
+.tarif-prix small{font-size:14px;color:var(--texte-2)}
+.prix-note{min-height:42px;margin:0;font-size:13px;line-height:1.5;color:var(--texte-2)}
+.prix-note b{color:var(--vert);font-weight:600}
+.formule ul{list-style:none;margin:18px 0 24px;padding:18px 0 0;border-top:1px solid var(--filet);display:grid;gap:9px;font-size:14px}
+.formule li{display:flex;gap:9px}
+.formule li::before{content:'✓';flex:none;color:var(--vert);font-weight:700}
+.formule .bouton{margin-top:auto;justify-content:center}
+.sur-mesure{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;margin-top:16px;padding:22px 26px;border:1px dashed var(--filet);border-radius:12px}
+.sur-mesure h3{margin:0 0 4px;font-family:var(--serif);font-style:italic;font-weight:500;font-size:22px}
+.sur-mesure p{margin:0;color:var(--texte-2);font-size:14px;max-width:62ch}
+.tarifs-mentions{margin:16px 0 0;font-size:12.5px;line-height:1.6;color:var(--texte-3)}
+.choix-fait{margin:0 0 16px;padding:12px 16px;border-radius:7px;background:var(--lilas-fond);color:var(--lilas);font-weight:600;font-size:14px}
+@media (max-width:980px){
+.formules{grid-template-columns:1fr}
+.lancement{grid-template-columns:auto 1fr}
+.lancement .fin{grid-column:1 / -1;text-align:left}
+}
+/* ---------- Pages ----------
+   Une page à la fois : l'accueil, les fonctionnalités, la démonstration,
+   les tarifs, le contact, l'avis. La barre de navigation reste pleine hors
+   de l'accueil, et le lien de la page ouverte est souligné d'or. */
+[data-vue][hidden]{display:none!important}
+.nav-liens a[data-lien]{position:relative}
+.nav-liens a[data-lien].actif{color:#fff}
+.nav-liens a[data-lien].actif::after{content:'';position:absolute;left:0;right:0;bottom:-8px;height:2px;border-radius:2px;background:var(--or-clair)}
+body.page-interne .nav{background:rgba(21,18,43,.94);box-shadow:0 1px 0 var(--encre-filet)}
+.vue-premiere{padding-top:88px!important}
+footer .pied-liens{display:flex;flex-wrap:wrap;gap:6px 18px}
+footer .pied-liens a{color:var(--sur-encre-2);text-decoration:none;font-size:13.5px}
+footer .pied-liens a:hover{color:#fff}
+/* ---------- Points forts ----------
+   Huit atouts en grille, chacun avec son pictogramme et sa promesse. */
+.atouts-grille{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.atout{position:relative;padding:24px 22px 22px;border-radius:12px;background:var(--carte);border:1px solid var(--filet);transition:transform .3s cubic-bezier(.2,1.2,.3,1),box-shadow .3s ease,border-color .3s ease}
+.atout:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--lilas) 45%,var(--filet));box-shadow:0 26px 50px -34px rgba(60,45,130,.5)}
+.atout .picto{display:flex;align-items:center;justify-content:center;width:46px;height:46px;margin-bottom:16px;border-radius:13px;background:var(--lilas-fond);color:var(--lilas)}
+.atout .picto svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.atout h3{margin:0 0 8px;font-family:var(--serif);font-style:italic;font-weight:500;font-size:23px;line-height:1.15}
+.atout p{margin:0;font-size:14.5px;line-height:1.55;color:var(--texte-2)}
+.atout.fort{grid-column:span 2;background:var(--encre);border-color:var(--encre);color:var(--sur-encre)}
+.atout.fort h3{color:#fff;font-size:30px}
+.atout.fort p{color:var(--sur-encre-2);font-size:15.5px;max-width:48ch}
+.atout.fort .picto{background:rgba(255,255,255,.1);color:var(--or-clair)}
+.atouts-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+/* ---------- Contact ---------- */
+.contact-grille{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:start}
+.contact-intro ul{margin:26px 0 0;padding:0;list-style:none;display:grid;gap:14px}
+.contact-intro li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;font-size:15px;color:var(--texte-2)}
+.contact-intro li b{display:block;color:var(--texte);font-size:15.5px}
+.contact-intro li i{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--lilas-fond);color:var(--lilas);font-style:normal;font-family:var(--mono);font-size:13px}
+.contact-adresse{margin-top:26px;padding:16px 18px;border-radius:10px;background:var(--carte-2);font-size:14px;color:var(--texte-2)}
+.contact-adresse a{font-family:var(--mono);font-size:15px}
+.contact-envoi{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.contact-etat{margin:14px 0 0;font-size:13.5px;color:var(--texte-2)}
+.contact-etat.ok{color:var(--vert);font-weight:600}
+.contact-etat.erreur{color:var(--rouge);font-weight:600}
+@media (max-width:980px){
+.atouts-grille{grid-template-columns:1fr 1fr}
+.atout.fort{grid-column:span 2}
+.contact-grille{grid-template-columns:1fr}
+}
+@media (max-width:620px){
+.atouts-grille{grid-template-columns:1fr}
+.atout.fort{grid-column:auto}
+}
+/* ---------- Mouvements au défilement ----------
+   Tout est lisible au repos : un bloc ne s'anime qu'en entrant dans
+   l'écran, depuis sa place, et jamais ce qui est visible au chargement. */
+.entre{animation:entre .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 90ms)}
+@keyframes entre{from{opacity:0;transform:translateY(34px)}}
+.entre-g{animation:entreG .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes entreG{from{opacity:0;transform:translateX(-40px)}}
+.entre-d{animation:entreD .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes entreD{from{opacity:0;transform:translateX(40px)}}
+.ratio .rail i{transition:width 1.2s cubic-bezier(.3,0,.2,1)}
+.barres i{transition:height 1s cubic-bezier(.3,0,.2,1)}
+
+@media (prefers-reduced-motion:reduce){
+html{scroll-behavior:auto}
+*,*::before,*::after{animation:none!important;transition:none!important}
+.bandeau-piste{transform:none}
+}
+@media (max-width:980px){
+.ouv-grille,.gain,.avis-grille{grid-template-columns:1fr}
+.fiche{transform:none;max-width:520px}
+.avis-intro{position:static}
+.reperes{grid-template-columns:repeat(2,1fr)}
+.reperes div:nth-child(3){border-left:none}
+.reperes div:nth-child(n+3){border-top:1px solid var(--filet)}
+.parcours{grid-template-columns:repeat(2,1fr);row-gap:40px}
+.parcours::before,.parcours::after{display:none}
+.fonctions,.dossiers,.confiance{grid-template-columns:1fr}
+.fonction,.fonction:not(:nth-child(3n+1)){padding:24px 0;border-left:none}
+.ligne,.ligne.trois,.ligne.quatre,.res-tuiles{grid-template-columns:1fr}
+.nav-liens a:not(.bouton){display:none}
+section{padding:72px 0}
+}
+@media print{.nav,.lecture,.bandeau,.bouton,.demo-lancer,details.resultats,form .envoi{display:none}.ouverture{margin-top:0;padding-top:40px}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<linearGradient id="nao-degrade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19F0D8"/><stop offset=".48" stop-color="#8A5CFF"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+<symbol id="nao-logo" viewBox="0 0 40 40">
+<rect x="0" y="0" width="40" height="40" rx="13" fill="url(#nao-degrade)"/>
+<path d="M12 29V13.5L28 28V12" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M23.4 16.6L28 12l4.6 4.6" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+</symbol>
+</defs>
+</svg>
+
+<div class="lecture" id="lecture" aria-hidden="true"></div>
+
+<nav class="nav" id="nav">
+<div class="page">
+<a class="marque" href="#accueil"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#nao-logo"/></svg><span>Nao<em>Fi</em></span></a>
+<div class="nav-liens">
+<a href="#accueil" data-lien="accueil">Accueil</a>
+<a href="#fonctionnalites" data-lien="fonctionnalites">Fonctionnalités</a>
+<a href="#demo" data-lien="demo">Démonstration</a>
+<a href="#tarifs" data-lien="tarifs">Tarifs</a>
+<a href="#contact" data-lien="contact">Contact</a>
+<a class="bouton fantome" href="analyse-dossier-credit.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>Espace client</a>
+<a class="bouton or" href="#avis">Donner mon avis</a>
+</div>
+</div>
+</nav>
+
+<header class="ouverture" data-vue="accueil">
+<div class="page">
+<div class="ouv-grille">
+<div>
+<h1>Des dossiers de crédit <em>prêts pour la banque</em>, dès le premier rendez-vous.</h1>
+<p class="accroche">NaoFi instruit le dossier avec vous, étape par étape : endettement, reste à vivre, PTZ, plan de financement. Il rend un verdict motivé et produit, de la même saisie, tout ce que la banque et votre client attendent.</p>
+<div class="actions">
+<a class="bouton or" href="analyse-dossier-credit.html#demo" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>Lancer la démonstration</a>
+<a class="bouton fantome" href="#tarifs">Voir les tarifs</a>
+</div>
+<p class="garantie">Hors ligne · aucune donnée client ne quitte votre poste</p>
+</div>
+
+<div>
+<div class="fiche" aria-label="Exemple de dossier de démonstration : endettement de 24,1 %, dossier validé">
+<div class="fiche-tete"><b>Durand &amp; Lefèvre</b><span>RÉSIDENCE PRINCIPALE · EXEMPLE</span></div>
+<svg class="jauge" viewBox="0 0 300 178" aria-hidden="true">
+<path class="fond" d="M30 150 A120 120 0 0 1 270 150" pathLength="100"/>
+<path class="zone" d="M220.5 52.9 A120 120 0 0 1 270 150" pathLength="100"/>
+<path class="valeur" d="M30 150 A120 120 0 0 1 270 150" pathLength="100"/>
+<line class="trait" x1="213.5" y1="62.6" x2="228.8" y2="41.6"/>
+<text x="232" y="30">35 % HCSF</text>
+<text x="18" y="172">0 %</text>
+<text x="256" y="172">50 %</text>
+<text class="gros" x="150" y="138" text-anchor="middle">24,1 %</text>
+<text class="legende" x="150" y="160" text-anchor="middle">TAUX D'ENDETTEMENT</text>
+</svg>
+<div class="fiche-lignes">
+<div><small>Norme</small><b>≤ 35 %</b></div>
+<div><small>Durée</small><b>≤ 25 ans</b></div>
+<div><small>Avis</small><b style="color:#2F7D57">Favorable</b></div>
+</div>
+<div class="tampon" aria-hidden="true"><b>Validé</b><span>Avis favorable</span></div>
+</div>
+<div class="autres" aria-hidden="true">
+<div class="autre"><i style="background:#E0B062"></i><span>Étude complémentaire <small>· dérogation possible</small></span><span class="chiffre">37,6 %</span></div>
+<div class="autre"><i style="background:#E58C9E"></i><span>Refusé <small>· inscription au FCC</small></span><span class="chiffre">—</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="bandeau" aria-hidden="true">
+<div class="bandeau-piste">
+<span><b>HCSF</b> 35 % · 25 ans</span><span><b>RAV</b> reste à vivre par UC</span><span><b>TAEG</b> toutes lignes</span><span><b>PTZ</b> zones A · B · C</span><span><b>TAEA</b> délégation d'assurance</span><span><b>Loi Lemoine</b> résiliation à tout moment</span><span><b>IRA</b> ≤ 6 mois d'intérêts · 3 % du CRD</span><span><b>Lissage</b> mensualité constante</span><span><b>FICP · FCC</b> fichage Banque de France</span><span><b>Offre</b> réflexion 10 jours</span><span><b>Condition suspensive</b> 4 mois</span><span><b>Rétractation</b> 14 jours</span>
+<span><b>HCSF</b> 35 % · 25 ans</span><span><b>RAV</b> reste à vivre par UC</span><span><b>TAEG</b> toutes lignes</span><span><b>PTZ</b> zones A · B · C</span><span><b>TAEA</b> délégation d'assurance</span><span><b>Loi Lemoine</b> résiliation à tout moment</span><span><b>IRA</b> ≤ 6 mois d'intérêts · 3 % du CRD</span><span><b>Lissage</b> mensualité constante</span><span><b>FICP · FCC</b> fichage Banque de France</span><span><b>Offre</b> réflexion 10 jours</span><span><b>Condition suspensive</b> 4 mois</span><span><b>Rétractation</b> 14 jours</span>
+</div>
+</div>
+</header>
+
+<main>
+<div class="page" data-vue="accueil">
+<div class="reperes">
+<div class="observe"><b data-compte="7">7</b><span>documents produits d'une seule saisie</span></div>
+<div class="observe" style="--i:1"><b data-compte="8">8</b><span>étapes, dans l'ordre d'un rendez-vous</span></div>
+<div class="observe" style="--i:2"><b data-compte="34875">34 875</b><span>communes et leur zone PTZ, sans recherche</span></div>
+<div class="observe" style="--i:3"><b data-compte="22">22</b><span>contrôles de calcul rejoués d'un clic</span></div>
+</div>
+</div>
+
+<section class="atouts" data-vue="accueil">
+<div class="page">
+<span class="surtitre">Pourquoi NaoFi</span>
+<h2>L'essentiel du métier, fait pour vous.</h2>
+<p class="chapeau">Ce qui vous prend des heures aujourd'hui, NaoFi le fait pendant que vous parlez avec votre client.</p>
+<div class="atouts-grille">
+<article class="atout fort observe" style="--i:0">
+<div class="picto"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+<h3>Des calculs instantanés.</h3>
+<p>Endettement, reste à vivre par unité de consommation, capacité d'emprunt, mensualités, TAEG : tout se recalcule à chaque saisie. Fini le tableur à reprendre à chaque changement de prix, de durée ou de taux.</p>
+</article>
+<article class="atout fort observe" style="--i:1">
+<div class="picto"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+<h3>Un verdict clair et précis.</h3>
+<p>Validé, en étude complémentaire ou refusé, avec son motif en une phrase : norme de 35 %, dérogation possible jusqu'à 40 %, reste à vivre, fichage Banque de France. Vous savez tout de suite où en est le dossier.</p>
+</article>
+<article class="atout observe" style="--i:0">
+<div class="picto"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4.5 7l7.5 6 7.5-6"/></svg></div>
+<h3>Tous les courriers adaptés.</h3>
+<p>Courrier au client, proposition, accord de principe, offres de prêt : rédigés selon le verdict, l'emprunteur, la caution ou le fichage, à votre nom.</p>
+</article>
+<article class="atout observe" style="--i:1">
+<div class="picto"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M6 16V9M10 16V5M14 16v-6M18 16v-9"/></svg></div>
+<h3>Le multi-crédit.</h3>
+<p>Prêt principal, PTZ, prêt employeur ou bonifié, lissage des mensualités et TAEG toutes lignes, réunis dans un seul plan de financement.</p>
+</article>
+<article class="atout observe" style="--i:2">
+<div class="picto"><svg viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/></svg></div>
+<h3>Tous les profils.</h3>
+<p>Immobilier, crédit auto, prêt personnel, crédit étudiant avec franchise, et quarante-sept fiches d'objet professionnel.</p>
+</article>
+<article class="atout observe" style="--i:3">
+<div class="picto"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+<h3>Du conseil chiffré.</h3>
+<p>Test de résistance, délégation d'assurance, rachat de crédits, investissement locatif : des arguments concrets pour votre client.</p>
+</article>
+<article class="atout observe" style="--i:0">
+<div class="picto"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div>
+<h3>Aucun délai oublié.</h3>
+<p>Délais légaux calculés, agenda de tout le cabinet, alertes à sept jours et historique de chaque dossier.</p>
+</article>
+<article class="atout observe" style="--i:1">
+<div class="picto"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/></svg></div>
+<h3>Confidentiel et contrôlé.</h3>
+<p>Les dossiers restent sur vos postes, hors ligne. Vingt-deux contrôles de calcul se rejouent d'un clic.</p>
+</article>
+</div>
+<div class="atouts-actions">
+<a class="bouton lilas" href="#tarifs">Voir les tarifs</a>
+<a class="bouton clair" href="#fonctionnalites">Toutes les fonctionnalités</a>
+</div>
+</div>
+</section>
+
+<section id="gains" data-vue="accueil">
+<div class="page">
+<span class="surtitre">Ce que vous y gagnez</span>
+<h2>Moins de ressaisie, plus de conseil.</h2>
+<p class="chapeau">NaoFi ne se contente pas de calculer : il transforme chaque dossier en arguments pour la banque et en valeur pour votre client.</p>
+
+<div class="gains">
+<article class="gain">
+<div class="observe" data-sens="g">
+<h3>Une saisie. Sept documents.</h3>
+<p>Vous renseignez le dossier une fois. Le commentaire pour la banque, le courrier au client, la proposition, l'étude de capacité, l'accord de principe, les offres de prêt et l'échéancier en découlent, à jour à chaque modification, signés de votre nom et de votre poste.</p>
+<ul><li>Aucune ressaisie</li><li>Aucune incohérence entre documents</li><li>Votre signature et votre cachet</li></ul>
+</div>
+<div class="piece observe" data-sens="d">
+<div class="piece-titre">Produits du dossier Durand &amp; Lefèvre</div>
+<div class="pile">
+<div><svg viewBox="0 0 24 24"><path d="M4.5 5h15v10.5H10l-4.5 3.5v-3.5h-1z"/></svg>Commentaire normé<small>copié en 1 clic</small></div>
+<div><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4.5 7l7.5 6 7.5-6"/></svg>Courrier au client<small>tampon du verdict</small></div>
+<div><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>Accord de principe<small>validité 90 jours</small></div>
+<div><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M9 13h6M9 17h4"/></svg>Offres de prêt<small>ligne par ligne</small></div>
+<div><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Échéancier<small>mois par mois</small></div>
+</div>
+</div>
+</article>
+
+<article class="gain">
+<div class="observe" data-sens="g">
+<h3>Des dossiers qui tiennent en comité.</h3>
+<p>Endettement, reste à vivre par unité de consommation, norme HCSF, fichage Banque de France, usure : les points de vigilance apparaissent avant que la banque ne les relève, et le verdict s'explique en une phrase.</p>
+<ul><li>Validé · étude · refusé</li><li>Dérogation entre 35 et 40 %</li><li>Test de résistance</li></ul>
+</div>
+<div class="piece observe" data-sens="d">
+<div class="piece-titre">Ratios face aux seuils · exemple</div>
+<div class="ratio"><span>Endettement</span><span class="rail"><i data-v="48%" style="--v:48%;background:var(--vert)"></i><span class="seuil" style="--s:70%"></span></span><span class="chiffre">24,1 %</span></div>
+<div class="ratio"><span>Taux + 1 point</span><span class="rail"><i data-v="53%" style="--v:53%;background:var(--vert)"></i><span class="seuil" style="--s:70%"></span></span><span class="chiffre">26,4 %</span></div>
+<div class="ratio"><span>Revenus − 20 %</span><span class="rail"><i data-v="60%" style="--v:60%;background:var(--ambre)"></i><span class="seuil" style="--s:70%"></span></span><span class="chiffre">30,1 %</span></div>
+<div class="verdict-ligne"><span class="pastille p-vert">Avis favorable</span>le trait marque la norme de 35 %</div>
+</div>
+</article>
+
+<article class="gain">
+<div class="observe" data-sens="g">
+<h3>Le calcul devient un argument client.</h3>
+<p>Délégation d'assurance, rachat de crédits, investissement locatif : NaoFi chiffre l'économie ou le surcoût, sur toute la durée. Vous montrez au client ce que votre conseil lui rapporte.</p>
+<ul><li>TAEA et coût total</li><li>IRA aux plafonds légaux</li><li>Rendement et cash-flow</li></ul>
+</div>
+<div class="piece observe" data-sens="d">
+<div class="piece-titre">Délégation d'assurance · exemple</div>
+<div class="compare">
+<div><small>Contrat groupe</small><b>0,34 %</b><small>du capital, par an</small></div>
+<div class="mieux"><small>Contrat individuel</small><b>0,12 %</b><small>du capital, par an</small></div>
+</div>
+<p class="piece-note">Coût sur la durée, TAEA et TAEG avant et après, calculés pour le dossier ouvert. Changement possible à tout moment avec la loi Lemoine.</p>
+</div>
+</article>
+
+<article class="gain">
+<div class="observe" data-sens="g">
+<h3>Chaque dossier suivi, aucun délai oublié.</h3>
+<p>De la date de l'offre, NaoFi déduit le délai de réflexion, le maintien de l'offre, la condition suspensive et la rétractation. L'agenda réunit ces échéances pour tous les dossiers du cabinet, au mois, et un clic ouvre le bon dossier. Chaque dossier garde son historique : courriers imprimés, verdicts, dates saisies, transferts, avec l'heure et le nom de qui l'a fait.</p>
+<ul><li>Agenda du cabinet</li><li>Alertes à sept jours</li><li>Historique horodaté</li></ul>
+</div>
+<div class="piece observe" data-sens="d">
+<div class="piece-titre">Agenda du cabinet · exemple</div>
+<div class="delais">
+<div class="delai"><span class="chiffre">12 sept.</span><span>ROUX · Fin de la condition suspensive</span><span class="pastille p-rouge">dépassée</span></div>
+<div class="delai"><span class="chiffre">20 sept.</span><span>LEMOINE · Fin de la condition suspensive</span><span class="pastille p-ambre">dans 6 j</span></div>
+<div class="delai"><span class="chiffre">22 sept.</span><span>LEMOINE · Acceptation de l'offre possible</span><span class="pastille p-lilas">à venir</span></div>
+</div>
+<div class="piece-titre" style="margin-top:20px">Historique du dossier Lemoine · exemple</div>
+<div class="delais">
+<div class="delai"><span class="chiffre">15:28</span><span>Courrier d'avis favorable imprimé ou enregistré en PDF</span><span class="pastille p-vert">Julie D.</span></div>
+<div class="delai"><span class="chiffre">15:12</span><span>Verdict : Validé (auparavant : Étude complémentaire)</span><span class="pastille p-vert">Julie D.</span></div>
+<div class="delai"><span class="chiffre">09:40</span><span>Dossier transféré de Paul MARTIN à Julie DURAND</span><span class="pastille p-lilas">Paul M.</span></div>
+</div>
+</div>
+</article>
+
+<article class="gain">
+<div class="observe" data-sens="g">
+<h3>Un cabinet piloté, pas seulement des dossiers.</h3>
+<p>Le portefeuille recalcule tous vos dossiers avec les règles du jour et suit la part hors norme HCSF, que la banque limite à 20 % de sa production. Chaque collaborateur a son accès ; le gérant voit l'activité de son équipe.</p>
+<ul><li>Portefeuille recalculé</li><li>Part hors norme HCSF</li><li>Accès gérant et employés</li></ul>
+</div>
+<div class="piece observe" data-sens="d">
+<div class="piece-titre">Portefeuille · dossiers par avis</div>
+<div class="barres" aria-hidden="true">
+<div><i data-h="62%" style="height:62%;background:var(--vert)"></i><i data-h="14%" style="height:14%;background:var(--ambre)"></i></div>
+<div><i data-h="48%" style="height:48%;background:var(--vert)"></i><i data-h="22%" style="height:22%;background:var(--ambre)"></i><i data-h="8%" style="height:8%;background:var(--rouge)"></i></div>
+<div><i data-h="70%" style="height:70%;background:var(--vert)"></i><i data-h="10%" style="height:10%;background:var(--ambre)"></i></div>
+<div><i data-h="55%" style="height:55%;background:var(--vert)"></i><i data-h="18%" style="height:18%;background:var(--ambre)"></i><i data-h="12%" style="height:12%;background:var(--rouge)"></i></div>
+<div><i data-h="80%" style="height:80%;background:var(--vert)"></i><i data-h="8%" style="height:8%;background:var(--ambre)"></i></div>
+</div>
+<div class="legende-barres"><span style="--c:var(--vert)">Validés</span><span style="--c:var(--ambre)">En étude</span><span style="--c:var(--rouge)">Refusés</span><span>· illustration</span></div>
+</div>
+</article>
+</div>
+</div>
+</section>
+
+<section style="padding-top:0" data-vue="accueil">
+<div class="page">
+<span class="surtitre">Aujourd'hui, et avec NaoFi</span>
+<h2>Le même dossier, un seul outil.</h2>
+<p class="chapeau">Ce que la plupart des professionnels font encore entre un tableur, un simulateur en ligne et un traitement de texte.</p>
+<div class="registre-cadre observe">
+<table class="registre">
+<thead><tr><th>Tâche</th><th>Aujourd'hui</th><th class="avec">Avec NaoFi</th></tr></thead>
+<tbody>
+<tr><td>Endettement, reste à vivre, capacité</td><td class="hier">Tableur maison, à recalculer à chaque changement</td><td class="avec">Recalculés à chaque saisie, face aux seuils</td></tr>
+<tr><td>PTZ et zonage</td><td class="hier">Simulateur en ligne, commune cherchée à la main</td><td class="avec">Zone officielle retrouvée, éligibilité complète</td></tr>
+<tr><td>Plan de financement</td><td class="hier">Un simulateur par prêt, TAEG approximatif</td><td class="avec">Prêts, PTZ et lissage réunis, TAEG toutes lignes</td></tr>
+<tr><td>Commentaire pour la banque</td><td class="hier">Rédigé à la main, dossier par dossier</td><td class="avec">Rédigé du dossier, copié en un clic</td></tr>
+<tr><td>Courrier, accord, offres</td><td class="hier">Modèles de traitement de texte, informations ressaisies</td><td class="avec">Produits du même dossier, à votre signature</td></tr>
+<tr><td>Délais légaux</td><td class="hier">Agenda à part, ou de mémoire</td><td class="avec">Calendrier calculé pour chaque dossier, agenda de tout le cabinet</td></tr>
+<tr><td>Traçabilité du dossier</td><td class="hier">De mémoire, ou dans les e-mails</td><td class="avec">Historique horodaté : documents, verdicts, dates, transferts</td></tr>
+<tr><td>Suivi de l'activité</td><td class="hier">Aucun, ou un tableau de suivi</td><td class="avec">Portefeuille recalculé, part hors norme HCSF, dossiers transférés d'un collaborateur à l'autre</td></tr>
+<tr><td>Assistance</td><td class="hier">Appel ou e-mail sans contexte</td><td class="avec">« Signaler un problème » : un e-mail prêt, avec le profil et le contexte du dossier</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section style="padding-top:0" data-vue="fonctionnalites">
+<div class="page">
+<span class="surtitre">Le parcours</span>
+<h2>Huit étapes, dans l'ordre d'un rendez-vous.</h2>
+<p class="chapeau">Tout se recalcule à chaque saisie. L'avancement se lit dans les données du dossier, sans case « valider » à cocher.</p>
+<div class="parcours" id="parcours">
+<div class="etape observe" style="--i:0"><span class="chiffre">01</span><b>Dossier</b><span>Clientèle, montage, situation familiale</span></div>
+<div class="etape observe" style="--i:1"><span class="chiffre">02</span><b>Emprunteurs</b><span>Identité, emploi, fichage BdF</span></div>
+<div class="etape observe" style="--i:2"><span class="chiffre">03</span><b>Ressources</b><span>Revenus, bilans, charges</span></div>
+<div class="etape observe" style="--i:3"><span class="chiffre">04</span><b>Projet</b><span>Bien, véhicule, objet pro</span></div>
+<div class="etape observe" style="--i:4"><span class="chiffre">05</span><b>Frais et garantie</b><span>Assurance, caution, hypothèque</span></div>
+<div class="etape observe" style="--i:5"><span class="chiffre">06</span><b>Financement</b><span>Apport, PTZ, lignes, lissage</span></div>
+<div class="etape observe" style="--i:6"><span class="chiffre">07</span><b>Synthèse</b><span>Budget, résistance, paramètres</span></div>
+<div class="etape observe" style="--i:7"><span class="chiffre">08</span><b>Commentaire</b><span>Verdict, courrier, offres</span></div>
+</div>
+</div>
+</section>
+
+<section id="fonctionnalites" style="padding-top:0" data-vue="fonctionnalites">
+<div class="page">
+<span class="surtitre">Les fonctionnalités</span>
+<h2>Particuliers et professionnels, immobilier et consommation.</h2>
+<p class="chapeau">Les règles du métier, calculées et expliquées, sans barème de taux figé : vos taux restent les vôtres.</p>
+<div class="fonctions">
+<div class="fonction observe" style="--i:0"><svg viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l3.5-4.5"/></svg><h3>Verdict motivé</h3><p>Trois couleurs et un motif en une phrase, dont la dérogation possible entre 35 et 40 %.</p></div>
+<div class="fonction observe" style="--i:1"><svg viewBox="0 0 24 24"><path d="M4.5 5h15v10.5H10l-4.5 3.5v-3.5h-1z"/><path d="M8 9.5h8M8 12.5h5"/></svg><h3>Commentaire normé</h3><p>Situation, revenus, projet, ratios, vigilance et avis, prêts à coller dans l'outil de la banque.</p></div>
+<div class="fonction observe" style="--i:2"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4.5 7l7.5 6 7.5-6"/></svg><h3>Documents clients</h3><p>Courrier de décision avec tampon et cachet, proposition, étude de capacité, accord de principe, offres.</p></div>
+<div class="fonction observe" style="--i:0"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><h3>PTZ et zonage</h3><p>Éligibilité complète et zone A, B ou C retrouvée parmi 34 875 communes.</p></div>
+<div class="fonction observe" style="--i:1"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M6 16V9M10 16V5M14 16v-6M18 16v-9"/></svg><h3>Plan à plusieurs prêts</h3><p>Prêt principal, PTZ, prêt employeur, lissage automatique ou imposé, TAEG toutes lignes.</p></div>
+<div class="fonction observe" style="--i:2"><svg viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/></svg><h3>Clientèle professionnelle</h3><p>Trois exercices, six méthodes de revenu et une fiche pour chacun des 47 objets financés.</p></div>
+<div class="fonction observe" style="--i:0"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><h3>Test de résistance</h3><p>Hausse de taux, baisse ou perte d'un revenu : l'avis de chaque scénario et la marge restante.</p></div>
+<div class="fonction observe" style="--i:1"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/></svg><h3>Délégation d'assurance</h3><p>Contrat groupe contre individuel : coût sur la durée, TAEA, économie pour le client.</p></div>
+<div class="fonction observe" style="--i:2"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><h3>Rachat de crédits</h3><p>Indemnités aux plafonds légaux, montant à financer, bilan avant et après.</p></div>
+<div class="fonction observe" style="--i:0"><svg viewBox="0 0 24 24"><path d="M4 20V9l8-5 8 5v11"/><path d="M9 20v-6h6v6"/></svg><h3>Investissement locatif</h3><p>Loyer pondéré ou différentiel locatif, rendement brut et net, cash-flow.</p></div>
+<div class="fonction observe" style="--i:1"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><h3>Agenda et délais légaux</h3><p>Réflexion, maintien de l'offre, condition suspensive, rétractation : calculés pour chaque dossier et réunis au mois pour tout le cabinet.</p></div>
+<div class="fonction observe" style="--i:2"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 5.5a3 3 0 0 1 0 5.8M17.5 14.2A5 5 0 0 1 20.5 19"/></svg><h3>Portefeuille et équipe</h3><p>Dossiers recalculés, part hors norme HCSF, accès par profil pour la direction, le gérant et ses employés.</p></div>
+<div class="fonction observe" style="--i:0"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8.5"/></svg><h3>Historique du dossier</h3><p>Documents générés et imprimés, verdicts, dates, options et transferts, horodatés et signés de qui les a faits.</p></div>
+<div class="fonction observe" style="--i:1"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5"/></svg><h3>Transfert de dossiers</h3><p>Un dossier passe d'un collaborateur à l'autre en un clic : congés, départ, répartition de la charge.</p></div>
+<div class="fonction observe" style="--i:2"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg><h3>Assistance intégrée</h3><p>« Signaler un problème » prépare un e-mail à la direction, avec le profil, la version et le contexte du dossier.</p></div>
+</div>
+</div>
+</section>
+
+<section class="demo" id="demo" data-vue="demo">
+<div class="page">
+<span class="surtitre">La démonstration</span>
+<h2>Six dossiers fictifs, une visite guidée.</h2>
+<p class="chapeau">L'outil s'ouvre avec six dossiers prêts à explorer et un panneau qui guide pas à pas. Quitter la démonstration efface les dossiers fictifs.</p>
+<div class="demo-lancer">
+<a class="bouton or" href="analyse-dossier-credit.html#demo" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>Lancer la visite complète</a>
+<p>Une dizaine de minutes. Chaque dossier ci-dessous ouvre directement la visite à son étape. Sur la page d'ouverture, cliquez le logo ; si l'outil demande une connexion, utilisez l'accès visiteur <b class="chiffre" style="color:#fff">demo_v</b> · <b class="chiffre" style="color:#fff">Visite.demo</b>.</p>
+</div>
+<div class="dossiers">
+<a class="dossier observe" style="--c:#7CC79C;--i:0" href="analyse-dossier-credit.html#demo=valide" target="_blank" rel="noopener"><span class="etat">Validé · 24,1 %</span><b>Durand et Lefèvre</b><p>Couple locataire, appartement ancien. Verdict, courrier au client, offres de prêt et calendrier.</p><span class="aller">Ouvrir le dossier</span></a>
+<a class="dossier observe" style="--c:#E0B062;--i:1" href="analyse-dossier-credit.html#demo=etude" target="_blank" rel="noopener"><span class="etat">Étude · 37,6 %</span><b>Sophie Martin</b><p>Achat dans le neuf au-dessus de 35 %. Dérogation, test de résistance, délégation d'assurance.</p><span class="aller">Ouvrir le dossier</span></a>
+<a class="dossier observe" style="--c:#E58C9E;--i:2" href="analyse-dossier-credit.html#demo=refuse" target="_blank" rel="noopener"><span class="etat">Refusé · FCC</span><b>Julien Bernard</b><p>Voiture d'occasion, inscription au FCC. Étapes verrouillées et courrier de refus.</p><span class="aller">Ouvrir le dossier</span></a>
+<a class="dossier observe" style="--c:#B9ACEE;--i:0" href="analyse-dossier-credit.html#demo=pro" target="_blank" rel="noopener"><span class="etat">Professionnel</span><b>Boulangerie du Port</b><p>Reprise de fonds de commerce : trois bilans, CAF moyenne, prix de cession rapporté à l'EBE.</p><span class="aller">Ouvrir le dossier</span></a>
+<a class="dossier observe" style="--c:#B9ACEE;--i:1" href="analyse-dossier-credit.html#demo=etudiant" target="_blank" rel="noopener"><span class="etat">Crédit étudiant</span><b>Léa Martin</b><p>Master avec caution, déblocages annuels et franchise partielle jusqu'à la fin des études.</p><span class="aller">Ouvrir le dossier</span></a>
+<a class="dossier observe" style="--c:#D9BD8A;--i:2" href="analyse-dossier-credit.html#demo=locatif" target="_blank" rel="noopener"><span class="etat">Locatif et rachat</span><b>Thomas Garnier</b><p>Studio meublé financé en rachetant un crédit : loyer pondéré, rendement, cash-flow, bilan.</p><span class="aller">Ouvrir le dossier</span></a>
+</div>
+</div>
+</section>
+
+<section data-vue="accueil">
+<div class="page">
+<span class="surtitre">Confiance</span>
+<h2>Vos dossiers restent chez vous.</h2>
+<div class="confiance" style="margin-top:36px">
+<div class="observe" style="--i:0"><h3>Hors ligne</h3><p>NaoFi fonctionne sans serveur ni télémétrie. Les dossiers s'enregistrent dans le navigateur du poste ou en fichier, et nulle part ailleurs.</p></div>
+<div class="observe" style="--i:1"><h3>Des calculs contrôlables</h3><p>Chaque formule est documentée, et vingt-deux contrôles chiffrés se rejouent d'un clic après chaque mise à jour.</p></div>
+<div class="observe" style="--i:2"><h3>Une aide, pas un substitut</h3><p>NaoFi éclaire la décision. Il ne remplace ni la politique de crédit de l'établissement, ni votre analyse, ni les documents réglementaires.</p></div>
+</div>
+</div>
+</section>
+
+<section class="avis" id="avis" data-vue="avis">
+<div class="page avis-grille">
+<div class="avis-intro">
+<span class="surtitre">Votre avis</span>
+<h2>Combien vaudrait NaoFi pour vous ?</h2>
+<p class="chapeau" style="margin-bottom:0">Trois minutes pour nous dire si l'outil vous servirait, ce qui compte le plus, et le prix que vous jugeriez juste.</p>
+<ul>
+<li><b>01</b>Votre activité et votre volume de dossiers</li>
+<li><b>02</b>Votre impression après la démonstration</li>
+<li><b>03</b>Quatre questions sur le prix</li>
+<li><b>04</b>Vos coordonnées, seulement si vous le souhaitez</li>
+</ul>
+</div>
+
+<div>
+<form id="questionnaire" novalidate>
+<fieldset>
+<legend>Vous</legend>
+<div class="ligne trois">
+<label class="champ">Votre activité
+<select name="activite" required>
+<option value="">Choisir…</option>
+<option>Courtier indépendant</option>
+<option>Courtier en réseau ou franchise</option>
+<option>Cabinet de courtage (plusieurs conseillers)</option>
+<option>Conseiller en gestion de patrimoine</option>
+<option>Conseiller bancaire</option>
+<option>Autre</option>
+</select></label>
+<label class="champ">Dossiers de crédit par mois
+<select name="volume">
+<option value="">Choisir…</option>
+<option>Moins de 5</option><option>5 à 15</option><option>16 à 30</option><option>Plus de 30</option>
+</select></label>
+<label class="champ">Utilisateurs potentiels
+<input type="number" name="utilisateurs" min="1" step="1" placeholder="1"></label>
+</div>
+<label class="champ">Ce que vous utilisez aujourd'hui pour analyser un dossier
+<input type="text" name="outils" placeholder="Tableur maison, logiciel de courtage, simulateurs en ligne…"></label>
+</fieldset>
+
+<fieldset>
+<legend>Votre impression</legend>
+<p class="aide">Après la démonstration, NaoFi vous serait-il utile au quotidien ? 1 : pas du tout, 5 : indispensable.</p>
+<div class="note" role="radiogroup" aria-label="Intérêt de 1 à 5">
+<label><input type="radio" name="interet" value="1">1</label><label><input type="radio" name="interet" value="2">2</label><label><input type="radio" name="interet" value="3">3</label><label><input type="radio" name="interet" value="4">4</label><label><input type="radio" name="interet" value="5">5</label>
+</div>
+<p class="aide" style="margin-top:20px">Les fonctionnalités qui compteraient le plus dans votre décision</p>
+<div class="choix" id="choix-fonctions">
+<label><input type="checkbox" name="fonctions" value="Verdict et commentaire normé">Verdict et commentaire normé</label>
+<label><input type="checkbox" name="fonctions" value="Documents clients">Documents clients</label>
+<label><input type="checkbox" name="fonctions" value="Accord de principe et offres">Accord de principe et offres</label>
+<label><input type="checkbox" name="fonctions" value="PTZ et zonage">PTZ et zonage</label>
+<label><input type="checkbox" name="fonctions" value="Plan à plusieurs prêts et lissage">Plan à plusieurs prêts et lissage</label>
+<label><input type="checkbox" name="fonctions" value="Clientèle professionnelle">Clientèle professionnelle</label>
+<label><input type="checkbox" name="fonctions" value="Test de résistance">Test de résistance</label>
+<label><input type="checkbox" name="fonctions" value="Délégation d'assurance">Délégation d'assurance</label>
+<label><input type="checkbox" name="fonctions" value="Rachat de crédits">Rachat de crédits</label>
+<label><input type="checkbox" name="fonctions" value="Investissement locatif">Investissement locatif</label>
+<label><input type="checkbox" name="fonctions" value="Calendrier et délais légaux">Calendrier et délais légaux</label>
+<label><input type="checkbox" name="fonctions" value="Agenda du cabinet">Agenda du cabinet</label>
+<label><input type="checkbox" name="fonctions" value="Historique et transfert des dossiers">Historique et transfert des dossiers</label>
+<label><input type="checkbox" name="fonctions" value="Portefeuille et HCSF">Portefeuille et HCSF</label>
+<label><input type="checkbox" name="fonctions" value="Accès gérant et employés">Accès gérant et employés</label>
+</div>
+</fieldset>
+
+<fieldset class="prix">
+<legend>Le prix</legend>
+<p class="aide">Pour un utilisateur, toutes taxes comprises, par mois. Répondez spontanément, sans chercher la cohérence entre les quatre questions.</p>
+<div class="ligne quatre">
+<label class="champ">À partir de quel prix le trouveriez-vous <b>si bon marché</b> que vous douteriez de sa qualité ?<span class="euro"><input type="number" name="prixTropBas" min="0" step="1" inputmode="numeric"></span></label>
+<label class="champ">À quel prix serait-ce <b>une bonne affaire</b> ?<span class="euro"><input type="number" name="prixBonneAffaire" min="0" step="1" inputmode="numeric"></span></label>
+<label class="champ">À quel prix le trouveriez-vous <b>cher, mais envisageable</b> ?<span class="euro"><input type="number" name="prixCher" min="0" step="1" inputmode="numeric"></span></label>
+<label class="champ">À partir de quel prix serait-il <b>trop cher</b> pour l'envisager ?<span class="euro"><input type="number" name="prixTropCher" min="0" step="1" inputmode="numeric"></span></label>
+</div>
+<div class="ligne">
+<label class="champ">La formule que vous préféreriez
+<select name="formule">
+<option value="">Choisir…</option>
+<option>Abonnement mensuel sans engagement</option>
+<option>Abonnement annuel, moins cher</option>
+<option>Paiement au dossier</option>
+<option>Licence pour tout le cabinet</option>
+</select></label>
+<label class="champ">Un essai gratuit d'un mois vous intéresserait-il ?
+<select name="essai">
+<option value="">Choisir…</option>
+<option>Oui</option><option>Peut-être</option><option>Non</option>
+</select></label>
+</div>
+<label class="champ">Ce qui vous manque, ou ce qui vous ferait hésiter
+<textarea name="manque" placeholder="Une fonctionnalité, un format, une inquiétude…"></textarea></label>
+</fieldset>
+
+<fieldset>
+<legend>Pour être recontacté · facultatif</legend>
+<div class="ligne trois">
+<label class="champ">Nom<input type="text" name="nom" autocomplete="name"></label>
+<label class="champ">Cabinet<input type="text" name="cabinet" autocomplete="organization"></label>
+<label class="champ">E-mail<input type="email" name="email" autocomplete="email"></label>
+</div>
+<div class="choix"><label><input type="checkbox" name="recontact" value="oui">J'accepte d'être recontacté au sujet de NaoFi</label></div>
+</fieldset>
+
+<div class="envoi">
+<button class="bouton lilas" type="submit">Envoyer mon avis</button>
+<span class="aide" style="margin:0" id="compteur-reponses"></span>
+</div>
+<p class="merci" id="merci">Merci, votre avis est enregistré. Le formulaire est prêt pour la personne suivante.</p>
+<p class="rgpd">Vos réponses sont enregistrées sur cet ordinateur, et nulle part ailleurs. Vos coordonnées ne servent qu'à vous recontacter si vous l'acceptez ; vous pouvez demander leur suppression à tout moment.</p>
+</form>
+
+<details class="resultats" id="resultats">
+<summary>Résultats de l'enquête · réservé à l'organisatrice</summary>
+<div id="resultats-contenu"></div>
+</details>
+</div>
+</div>
+</section>
+
+<section class="tarifs" id="tarifs" data-vue="tarifs">
+<div class="page">
+<div class="tarifs-tete">
+<div>
+<span class="surtitre">Tarifs</span>
+<h2>Un prix clair, sans frais d'installation.</h2>
+<p class="chapeau">Tout NaoFi dans chaque formule : seul le nombre d'utilisateurs change. Prix toutes taxes comprises, par cabinet.</p>
+</div>
+<div class="bascule" role="group" aria-label="Période de facturation">
+<button type="button" data-periode="mois" aria-pressed="true">Mensuel</button>
+<button type="button" data-periode="an" aria-pressed="false">Annuel<small>2 mois offerts</small></button>
+</div>
+</div>
+
+<div class="lancement observe">
+<div class="sceau" aria-hidden="true"><b>−33 %</b><span>Lancement</span></div>
+<div>
+<h3>Offre de lancement : le premier mois offert, puis un tiers de moins.</h3>
+<p>Essayez NaoFi gratuitement pendant 30 jours, sans carte bancaire. Si vous continuez, le prix de lancement s'applique toute la première année.</p>
+</div>
+<div class="fin">Pour tout abonnement<br>souscrit avant le<br>31 décembre 2026</div>
+</div>
+
+<div class="formules">
+<article class="formule observe" data-f="solo" style="--i:0">
+<h3>Solo</h3>
+<p class="pour">Le courtier indépendant · 1 utilisateur</p>
+<div class="prix-barre"></div>
+<div class="tarif-prix"><b></b><small></small></div>
+<p class="prix-note"></p>
+<ul>
+<li>Toutes les analyses : verdict, commentaire normé, PTZ, locatif, rachat</li>
+<li>Courrier, proposition, accord de principe, offres de prêt</li>
+<li>Portefeuille, agenda des délais, historique</li>
+<li>Mises à jour des barèmes chaque année</li>
+</ul>
+<a class="bouton clair" href="#avis" data-essai="Solo">Démarrer mon mois gratuit</a>
+</article>
+<article class="formule phare observe" data-f="equipe" style="--i:1">
+<span class="etiquette">Pour les cabinets</span>
+<h3>Équipe</h3>
+<p class="pour">Le gérant et son équipe · jusqu'à 5 utilisateurs</p>
+<div class="prix-barre"></div>
+<div class="tarif-prix"><b></b><small></small></div>
+<p class="prix-note"></p>
+<ul>
+<li>Tout Solo, pour chaque collaborateur</li>
+<li>Accès gérant et employés, portefeuille de l'équipe</li>
+<li>Transfert de dossiers et notifications</li>
+<li>Assistance prioritaire</li>
+</ul>
+<a class="bouton lilas" href="#avis" data-essai="Équipe">Démarrer mon mois gratuit</a>
+</article>
+<article class="formule observe" data-f="cabinet" style="--i:2">
+<h3>Cabinet</h3>
+<p class="pour">Les structures plus grandes · jusqu'à 15 utilisateurs</p>
+<div class="prix-barre"></div>
+<div class="tarif-prix"><b></b><small></small></div>
+<p class="prix-note"></p>
+<ul>
+<li>Tout Équipe, jusqu'à 15 collaborateurs</li>
+<li>Réglages de la politique de crédit du cabinet</li>
+<li>Prise en main accompagnée</li>
+<li>Assistance prioritaire</li>
+</ul>
+<a class="bouton clair" href="#avis" data-essai="Cabinet">Démarrer mon mois gratuit</a>
+</article>
+</div>
+
+<div class="sur-mesure observe">
+<div>
+<h3>Réseaux, écoles, établissements</h3>
+<p>Au-delà de 15 utilisateurs, une marque blanche pour un réseau, une licence de formation ou un usage en établissement : un tarif sur mesure.</p>
+</div>
+<a class="bouton clair" href="#avis" data-essai="Sur mesure">Parlons-en</a>
+</div>
+
+<p class="tarifs-mentions">Prix TTC — TVA non applicable, article 293 B du CGI. Formule mensuelle sans engagement, résiliable à tout moment avec un mois de préavis ; formule annuelle payée d'avance, deux mois offerts. Offre de lancement : 30 jours d'essai gratuit, puis le prix de lancement pendant douze mois, pour tout abonnement souscrit avant le 31 décembre 2026 ; au-delà, le prix normal s'applique.</p>
+</div>
+</section>
+<section class="contact" id="contact" data-vue="contact">
+<div class="page contact-grille">
+<div class="contact-intro">
+<span class="surtitre">Contact</span>
+<h2>Parlons de votre cabinet.</h2>
+<p class="chapeau" style="margin-bottom:0">Un devis sur mesure, une démonstration à distance, une question sur les formules : écrivez-nous.</p>
+<ul>
+<li><i>01</i><span><b>Devis sur mesure</b>Réseaux, écoles, établissements, plus de quinze utilisateurs.</span></li>
+<li><i>02</i><span><b>Démonstration personnalisée</b>Sur vos propres cas, en visioconférence.</span></li>
+<li><i>03</i><span><b>Essai gratuit</b>Un mois offert pour découvrir NaoFi dans votre cabinet.</span></li>
+</ul>
+<div class="contact-adresse" id="contact-adresse"></div>
+</div>
+<div>
+<form id="contact-form" novalidate>
+<fieldset>
+<legend>Votre demande</legend>
+<div class="ligne">
+<label class="champ">Objet
+<select name="objet">
+<option>Devis sur mesure</option>
+<option>Essai gratuit</option>
+<option>Démonstration personnalisée</option>
+<option>Question sur les formules</option>
+<option>Autre</option>
+</select></label>
+<label class="champ">Nombre d'utilisateurs
+<input type="number" name="utilisateurs" min="1" step="1" placeholder="1"></label>
+</div>
+<label class="champ">Votre message
+<textarea name="message" rows="5" placeholder="Votre activité, votre besoin, vos questions…"></textarea></label>
+</fieldset>
+<fieldset>
+<legend>Vos coordonnées</legend>
+<div class="ligne">
+<label class="champ">Nom et prénom<input type="text" name="nom" autocomplete="name"></label>
+<label class="champ">Cabinet ou entreprise<input type="text" name="cabinet" autocomplete="organization"></label>
+</div>
+<div class="ligne">
+<label class="champ">E-mail<input type="email" name="email" autocomplete="email"></label>
+<label class="champ">Téléphone<input type="tel" name="telephone" autocomplete="tel"></label>
+</div>
+<div class="choix"><label><input type="checkbox" name="accord" value="oui">J'accepte que NaoFi utilise ces informations pour me répondre</label></div>
+</fieldset>
+<div class="contact-envoi">
+<button class="bouton lilas" type="button" data-envoi="messagerie">Envoyer par ma messagerie</button>
+<button class="bouton clair" type="button" data-envoi="gmail">Envoyer avec Gmail</button>
+</div>
+<p class="contact-etat" id="contact-etat" role="status"></p>
+</form>
+</div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="page">
+<a class="marque" href="#accueil"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#nao-logo"/></svg><span>Nao<em>Fi</em></span></a>
+<nav class="pied-liens" aria-label="Pages"><a href="#fonctionnalites">Fonctionnalités</a><a href="#demo">Démonstration</a><a href="#tarifs">Tarifs</a><a href="#contact">Contact</a><a href="#avis">Donner mon avis</a></nav>
+<span>Une création de Naomie LECHNER · outil d'aide à la décision, il ne remplace ni la politique de crédit de l'établissement, ni l'analyse du professionnel.</span>
+</div>
+</footer>
+
+<script>
+/* ---------- Mouvements au défilement ----------
+   Au chargement, tout est à sa place et lisible. Seuls les blocs encore
+   hors de l'écran s'animent en y entrant ; les jauges et les compteurs
+   repartent de zéro à ce moment-là, pas avant. */
+(function(){
+const reduit = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lecture = document.getElementById('lecture');
+const nav = document.getElementById('nav');
+const parcours = document.getElementById('parcours');
+const ouverture = document.querySelector('.ouverture');
+function auDefilement(){
+const h = document.documentElement;
+const max = h.scrollHeight - h.clientHeight;
+lecture.style.transform = 'scaleX('+(max>0 ? h.scrollTop/max : 0)+')';
+nav.classList.toggle('pleine', h.scrollTop > 30 || document.body.classList.contains('page-interne'));
+if(!reduit){
+ouverture.style.setProperty('--parallaxe', (h.scrollTop*0.25)+'px');
+const r = parcours.getBoundingClientRect();
+const avance = Math.min(1, Math.max(0, (innerHeight*0.85 - r.top) / (r.height + innerHeight*0.35)));
+parcours.style.setProperty('--avance', avance.toFixed(3));
+}
+}
+addEventListener('scroll', auDefilement, {passive:true});
+addEventListener('resize', auDefilement);
+auDefilement();
+if(reduit || !('IntersectionObserver' in window)) return;
+
+const format = n => Math.round(n).toLocaleString('fr-FR');
+function compter(el){
+const cible = Number(el.dataset.compte), t0 = performance.now(), duree = 1400;
+const pas = t=>{ const k = Math.min(1,(t-t0)/duree); el.textContent = format(cible*(1-Math.pow(1-k,3))); if(k<1) requestAnimationFrame(pas); };
+requestAnimationFrame(pas);
+}
+function jouer(bloc){
+const sens = bloc.dataset.sens;
+bloc.classList.add(sens==='g' ? 'entre-g' : sens==='d' ? 'entre-d' : 'entre');
+bloc.querySelectorAll('[data-compte]').forEach(compter);
+bloc.querySelectorAll('.rail i[data-v]').forEach(i=>{ i.style.width = '0'; requestAnimationFrame(()=>requestAnimationFrame(()=>{ i.style.width = i.dataset.v; })); });
+bloc.querySelectorAll('.barres i[data-h]').forEach(i=>{ i.style.height = '0'; requestAnimationFrame(()=>requestAnimationFrame(()=>{ i.style.height = i.dataset.h; })); });
+}
+const obs = new IntersectionObserver(entrees=>entrees.forEach(e=>{
+if(e.isIntersecting){ obs.unobserve(e.target); jouer(e.target); }
+}), {threshold:.18, rootMargin:'0px 0px -6% 0px'});
+document.querySelectorAll('.observe').forEach(bloc=>{
+const r = bloc.getBoundingClientRect();
+if(r.top < innerHeight && r.bottom > 0) return; // déjà visible : il reste tel quel
+obs.observe(bloc);
+});
+})();
+
+/* ---------- Tarifs ----------
+   Prix normaux et prix de lancement, en euros TTC par mois ; l'année
+   vaut dix mois. Les boutons d'essai préremplissent le questionnaire. */
+const TARIFS = {solo:{normal:29, lancement:19}, equipe:{normal:119, lancement:79}, cabinet:{normal:299, lancement:199}};
+const euros = n => (Math.round(n*100)/100).toLocaleString('fr-FR', {minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits:2});
+let periodeTarifs = 'mois';
+function afficherTarifs(){
+const annuel = periodeTarifs==='an';
+document.querySelectorAll('.formule[data-f]').forEach(el=>{
+const t = TARIFS[el.dataset.f];
+const normal = annuel ? t.normal*10 : t.normal;
+const lancement = annuel ? t.lancement*10 : t.lancement;
+el.querySelector('.prix-barre').textContent = euros(normal)+' € '+(annuel ? '/ an' : '/ mois');
+el.querySelector('.tarif-prix b').textContent = euros(lancement)+' €';
+el.querySelector('.tarif-prix small').textContent = annuel ? 'TTC / an' : 'TTC / mois';
+el.querySelector('.prix-note').innerHTML = annuel
+? 'soit <b>'+euros(lancement/12)+' € par mois</b>, deux mois offerts ; '+euros(normal)+' € la deuxième année'
+: '<b>1er mois offert</b>, sans engagement ; '+euros(normal)+' € par mois après la première année';
+});
+document.querySelectorAll('.bascule button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.periode===periodeTarifs)));
+}
+document.querySelector('.bascule').addEventListener('click', e=>{
+const b = e.target.closest('button[data-periode]');
+if(!b) return;
+periodeTarifs = b.dataset.periode;
+afficherTarifs();
+});
+/* Les boutons d'abonnement : le lien de paiement de la formule s'il est
+   renseigné, sinon la page contact, objet et nombre d'utilisateurs remplis. */
+document.querySelector('.tarifs').addEventListener('click', e=>{
+const b = e.target.closest('[data-essai]');
+if(!b) return;
+e.preventDefault();
+const cle = {Solo:'solo', 'Équipe':'equipe', Cabinet:'cabinet'}[b.dataset.essai];
+const lien = cle && LIENS_ABONNEMENT[cle] ? LIENS_ABONNEMENT[cle][periodeTarifs] : '';
+if(lien){ window.open(lien, '_blank', 'noopener'); return; }
+const form = document.getElementById('contact-form');
+form.objet.value = b.dataset.essai==='Sur mesure' ? 'Devis sur mesure' : 'Essai gratuit';
+form.utilisateurs.value = {solo:1, equipe:5, cabinet:15}[cle] || '';
+if(b.dataset.essai!=='Sur mesure' && !form.message.value) form.message.value = 'Je souhaite démarrer l\'essai gratuit de la formule '+b.dataset.essai+' ('+(periodeTarifs==='an' ? 'annuelle' : 'mensuelle')+').';
+location.hash = '#contact';
+});
+afficherTarifs();
+
+/* ---------- Réglages de la page ----------
+   CONTACT_EMAIL : l'adresse qui reçoit les demandes de la page contact.
+   LIENS_ABONNEMENT : les liens de paiement sécurisés de chaque formule —
+   Stripe, GoCardless… —, mensuel et annuel ; vides, les boutons mènent au
+   contact. Aucun numéro de carte ne transite par cette page. */
+const CONTACT_EMAIL = 'support@naofi.com';
+const LIENS_ABONNEMENT = {solo:{mois:'', an:''}, equipe:{mois:'', an:''}, cabinet:{mois:'', an:''}};
+
+/* ---------- Pages ----------
+   Une page à la fois, choisie par l'adresse : #accueil, #fonctionnalites,
+   #demo, #tarifs, #contact, #avis. Une ancre d'une section ouvre sa page et
+   y descend. */
+function afficherPage(){
+const cible = decodeURIComponent((location.hash||'').slice(1)) || 'accueil';
+let page = cible, section = null;
+if(!document.querySelector('[data-vue="'+page+'"]')){
+section = document.getElementById(cible);
+const porteur = section && section.closest('[data-vue]');
+page = porteur ? porteur.dataset.vue : 'accueil';
+}
+let premiere = null;
+document.querySelectorAll('[data-vue]').forEach(el=>{
+const visible = el.dataset.vue===page;
+el.hidden = !visible;
+el.classList.remove('vue-premiere');
+if(visible && !premiere) premiere = el;
+});
+if(premiere && page!=='accueil') premiere.classList.add('vue-premiere');
+document.body.classList.toggle('page-interne', page!=='accueil');
+document.querySelectorAll('.nav-liens a[data-lien]').forEach(a=>a.classList.toggle('actif', a.dataset.lien===page));
+document.title = {accueil:'NaoFi pour les courtiers', fonctionnalites:'Fonctionnalités — NaoFi', demo:'Démonstration — NaoFi', tarifs:'Tarifs — NaoFi', contact:'Contact — NaoFi', avis:'Votre avis — NaoFi'}[page] || 'NaoFi pour les courtiers';
+if(section && page!==cible) section.scrollIntoView({block:'start'});
+else window.scrollTo(0, 0);
+window.dispatchEvent(new Event('scroll'));
+}
+window.addEventListener('hashchange', afficherPage);
+afficherPage();
+
+/* ---------- Contact ----------
+   Sans serveur, la demande part par la messagerie de la personne : un
+   e-mail prêt, ou la rédaction Gmail dans un onglet. */
+(function(){
+const hote = document.getElementById('contact-adresse');
+hote.innerHTML = CONTACT_EMAIL
+? 'Ou écrivez directement à <a href="mailto:'+CONTACT_EMAIL+'">'+CONTACT_EMAIL+'</a>'
+: '<b>Adresse de contact à renseigner</b> : CONTACT_EMAIL, en tête du script de la page.';
+const form = document.getElementById('contact-form');
+const etat = document.getElementById('contact-etat');
+const dire = (t, classe)=>{ etat.textContent = t; etat.className = 'contact-etat'+(classe ? ' '+classe : ''); };
+form.addEventListener('click', e=>{
+const b = e.target.closest('[data-envoi]');
+if(!b) return;
+const v = n=>(form[n].value||'').trim();
+if(!CONTACT_EMAIL){ dire('L\'adresse de contact n\'est pas encore renseignée.', 'erreur'); return; }
+if(!v('nom') || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))){ dire('Indiquez votre nom et une adresse e-mail valide.', 'erreur'); return; }
+if(!form.accord.checked){ dire('Cochez l\'accord pour que nous puissions vous répondre.', 'erreur'); return; }
+const sujet = '[NaoFi] '+v('objet')+' — '+(v('cabinet') || v('nom'));
+const corps = [v('objet'), '', v('message') || '(pas de message)', '', 'Nom : '+v('nom'), 'Cabinet : '+(v('cabinet')||'—'), 'E-mail : '+v('email'), 'Téléphone : '+(v('telephone')||'—'), 'Utilisateurs : '+(v('utilisateurs')||'—')].join('\r\n');
+if(b.dataset.envoi==='gmail') window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(CONTACT_EMAIL)+'&su='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps), '_blank', 'noopener');
+else{ const a = document.createElement('a'); a.href = 'mailto:'+CONTACT_EMAIL+'?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps); document.body.appendChild(a); a.click(); a.remove(); }
+dire('Votre messagerie s\'ouvre avec la demande prête : il reste à cliquer sur Envoyer.', 'ok');
+});
+})();
+
+/* ---------- Questionnaire ----------
+   Les réponses restent sur ce poste (localStorage), pour enchaîner les
+   rendez-vous sur le même ordinateur. Quand le navigateur refuse le
+   stockage, elles sont gardées le temps de la session : il faut alors les
+   exporter avant de fermer la page. */
+const CLE = 'naofi-avis-courtiers';
+let memoire = [];
+let stockageOk = true;
+function lireReponses(){
+try{ return JSON.parse(localStorage.getItem(CLE)||'[]'); }catch(e){ stockageOk = false; return memoire; }
+}
+function ecrireReponses(liste){
+memoire = liste;
+try{ localStorage.setItem(CLE, JSON.stringify(liste)); stockageOk = true; }catch(e){ stockageOk = false; }
+}
+const form = document.getElementById('questionnaire');
+function nombre(v){ const x = Number(String(v).replace(',','.')); return (v!=='' && isFinite(x)) ? x : null; }
+form.addEventListener('submit', e=>{
+e.preventDefault();
+const f = new FormData(form);
+const rep = {
+date: new Date().toISOString(),
+activite: f.get('activite')||'', volume: f.get('volume')||'', utilisateurs: nombre(f.get('utilisateurs')||''), outils: f.get('outils')||'',
+interet: nombre(f.get('interet')||''), fonctions: f.getAll('fonctions'),
+prixTropBas: nombre(f.get('prixTropBas')||''), prixBonneAffaire: nombre(f.get('prixBonneAffaire')||''), prixCher: nombre(f.get('prixCher')||''), prixTropCher: nombre(f.get('prixTropCher')||''),
+formule: f.get('formule')||'', essai: f.get('essai')||'', manque: f.get('manque')||'',
+nom: f.get('nom')||'', cabinet: f.get('cabinet')||'', email: f.get('email')||'', recontact: f.get('recontact')==='oui'
+};
+const vide = !rep.activite && rep.interet===null && rep.prixBonneAffaire===null && rep.prixCher===null && !rep.fonctions.length;
+if(vide){ alert('Le questionnaire est vide : indiquez au moins votre activité, votre impression ou un prix.'); return; }
+const liste = lireReponses(); liste.push(rep); ecrireReponses(liste);
+form.reset();
+const merci = document.getElementById('merci');
+merci.textContent = stockageOk ? 'Merci, votre avis est enregistré. Le formulaire est prêt pour la personne suivante.' : 'Merci, votre avis est noté pour cette session. Ce navigateur refuse le stockage : pensez à exporter les résultats avant de fermer la page.';
+merci.classList.add('visible');
+setTimeout(()=>merci.classList.remove('visible'), 6000);
+majCompteur(); afficherResultats();
+document.getElementById('avis').scrollIntoView({behavior:'smooth'});
+});
+function majCompteur(){
+const n = lireReponses().length;
+document.getElementById('compteur-reponses').textContent = n ? n+' réponse'+(n>1?'s':'')+' recueillie'+(n>1?'s':'')+' sur ce poste' : '';
+}
+
+/* ---------- Résultats ----------
+   Les quatre questions de prix suivent la méthode de Van Westendorp. Sur
+   une dizaine de réponses, on retient une lecture simple : la médiane de
+   « bonne affaire » et celle de « cher mais envisageable » bornent la zone
+   de prix acceptable ; « trop bon marché » et « trop cher » en marquent
+   les limites. Indicatif, à confirmer sur un échantillon plus large. */
+const eur = v => v===null || v===undefined || !isFinite(v) ? '—' : Math.round(v).toLocaleString('fr-FR')+' €';
+function mediane(vals){
+const t = vals.filter(v=>v!==null && isFinite(v)).sort((a,b)=>a-b);
+if(!t.length) return null;
+const m = Math.floor(t.length/2);
+return t.length%2 ? t[m] : (t[m-1]+t[m])/2;
+}
+function echapper(s){ return String(s===null||s===undefined?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function afficherResultats(){
+const hote = document.getElementById('resultats-contenu');
+const L = lireReponses();
+if(!L.length){ hote.innerHTML = '<p class="aide" style="margin-top:12px">Aucune réponse pour l\'instant.</p>'; return; }
+const moyInteret = (()=>{ const v = L.map(x=>x.interet).filter(x=>x!==null); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; })();
+const mTropBas = mediane(L.map(x=>x.prixTropBas)), mBonne = mediane(L.map(x=>x.prixBonneAffaire)), mCher = mediane(L.map(x=>x.prixCher)), mTropCher = mediane(L.map(x=>x.prixTropCher));
+const essaiOui = L.filter(x=>x.essai==='Oui').length;
+let h = '<div class="res-tuiles">'+
+'<div><small>Réponses</small><b>'+L.length+'</b></div>'+
+'<div><small>Intérêt moyen</small><b>'+(moyInteret!==null ? moyInteret.toLocaleString('fr-FR',{maximumFractionDigits:1})+' / 5' : '—')+'</b></div>'+
+'<div><small>Partants pour un essai</small><b>'+essaiOui+' / '+L.length+'</b></div>'+
+'<div><small>Recontact accepté</small><b>'+L.filter(x=>x.recontact).length+'</b></div>'+
+'</div>';
+h += '<div class="res-fourchette">'+(mBonne!==null && mCher!==null
+? '<b>Zone de prix acceptable : de '+eur(mBonne)+' à '+eur(mCher)+' par utilisateur et par mois.</b><br>'
+: '<b>Zone de prix : pas encore assez de réponses sur les prix.</b><br>')+
+'<span class="aide" style="margin:0">Médianes — trop bon marché : '+eur(mTropBas)+' · bonne affaire : '+eur(mBonne)+' · cher mais envisageable : '+eur(mCher)+' · trop cher : '+eur(mTropCher)+'. Lecture indicative de la méthode de Van Westendorp, à confirmer sur un échantillon plus large.</span></div>';
+const compterCles = cles => { const c = {}; cles.forEach(k=>{ if(k) c[k] = (c[k]||0)+1; }); return Object.entries(c).sort((a,b)=>b[1]-a[1]); };
+const barres = (titre, entrees) => entrees.length ? '<h3 style="margin-top:14px">'+titre+'</h3>'+entrees.map(([k,v])=>'<div class="barre"><span>'+echapper(k)+'</span><i style="width:'+Math.max(6, v/L.length*260)+'px"></i><b>'+v+'</b></div>').join('') : '';
+h += barres('Fonctionnalités décisives', compterCles(L.flatMap(x=>x.fonctions||[])));
+h += barres('Formule préférée', compterCles(L.map(x=>x.formule)));
+h += barres('Activité', compterCles(L.map(x=>x.activite)));
+h += '<h3 style="margin-top:16px">Réponses</h3><div class="res-scroll"><table class="res-table"><thead><tr><th>Date</th><th>Activité</th><th>Volume</th><th>Intérêt</th><th>Prix (bas · bon · cher · trop)</th><th>Formule</th><th>Essai</th><th>Remarque</th><th>Contact</th><th></th></tr></thead><tbody>'+
+L.map((x,i)=>'<tr><td>'+new Date(x.date).toLocaleDateString('fr-FR')+'</td><td>'+echapper(x.activite)+'</td><td>'+echapper(x.volume)+'</td><td>'+(x.interet!==null?x.interet+' / 5':'—')+'</td>'+
+'<td>'+[x.prixTropBas,x.prixBonneAffaire,x.prixCher,x.prixTropCher].map(eur).join(' · ')+'</td><td>'+echapper(x.formule)+'</td><td>'+echapper(x.essai)+'</td><td>'+echapper(x.manque)+'</td>'+
+'<td>'+(x.recontact ? echapper([x.nom,x.cabinet,x.email].filter(Boolean).join(' · ')) : '—')+'</td><td><button class="bouton clair petit danger" type="button" data-suppr="'+i+'">✕</button></td></tr>').join('')+
+'</tbody></table></div>';
+h += '<div class="res-actions"><button class="bouton lilas petit" type="button" id="exporter">Exporter en CSV</button><button class="bouton clair petit danger" type="button" id="effacer">Effacer toutes les réponses</button></div>';
+hote.innerHTML = h;
+}
+document.getElementById('resultats-contenu').addEventListener('click', e=>{
+const s = e.target.closest('[data-suppr]');
+if(s){ if(!confirm('Supprimer cette réponse ?')) return; const L = lireReponses(); L.splice(Number(s.dataset.suppr),1); ecrireReponses(L); afficherResultats(); majCompteur(); return; }
+if(e.target.closest('#effacer')){ if(!confirm('Effacer toutes les réponses enregistrées sur ce poste ?')) return; ecrireReponses([]); afficherResultats(); majCompteur(); return; }
+if(e.target.closest('#exporter')) exporterCsv();
+});
+function exporterCsv(){
+const L = lireReponses();
+const cols = [['date','Date'],['activite','Activité'],['volume','Dossiers par mois'],['utilisateurs','Utilisateurs'],['outils','Outils actuels'],['interet','Intérêt (1-5)'],['fonctions','Fonctionnalités décisives'],
+['prixTropBas','Prix trop bon marché'],['prixBonneAffaire','Prix bonne affaire'],['prixCher','Prix cher mais envisageable'],['prixTropCher','Prix trop cher'],['formule','Formule'],['essai','Essai gratuit'],['manque','Remarque'],
+['nom','Nom'],['cabinet','Cabinet'],['email','E-mail'],['recontact','Recontact accepté']];
+const cellule = v => { const t = Array.isArray(v) ? v.join(' | ') : (v===null||v===undefined ? '' : (typeof v==='boolean' ? (v?'oui':'non') : String(v))); return '"'+t.replace(/"/g,'""')+'"'; };
+const csv = '﻿'+cols.map(c=>cellule(c[1])).join(';')+'\r\n'+L.map(x=>cols.map(c=>cellule(x[c[0]])).join(';')).join('\r\n');
+const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'naofi-avis-courtiers-'+new Date().toISOString().slice(0,10)+'.csv';
+document.body.appendChild(a); a.click(); a.remove();
+setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+majCompteur();
+afficherResultats();
+</script>
+</body>
+</html>
