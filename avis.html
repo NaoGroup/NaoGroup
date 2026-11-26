@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — votre avis</title>
+<meta name="description" content="Donnez votre avis sur les outils NaoGroup que vous avez essayés : notes, fluidité, prix, ce qui manque.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+<meta name="theme-color" content="#43309E">
+<meta name="referrer" content="no-referrer">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NaoGroup">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Votre avis sur NaoGroup">
+<meta property="og:description" content="Quelques minutes pour nous dire ce qui vous plaît, et ce qui manque.">
+<meta property="og:url" content="https://naogroup.github.io/NaoGroup/avis.html">
+<meta property="og:image" content="https://naogroup.github.io/NaoGroup/icones/naogroup-apercu.png">
+<script src="naogroup-cloud.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2319F0D8'/><stop offset='.48' stop-color='%238A5CFF'/><stop offset='1' stop-color='%23E99BFF'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.76); --ink-3:rgba(243,239,251,.52);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16);
+  /* les couleurs NaoGroup : une par rubrique */
+  --turquoise:#19F0D8; --violet:#8A5CFF; --rose:#E99BFF; --lilas:#C9B7F5;
+  --degrade:linear-gradient(90deg,#19F0D8,#8A5CFF 48%,#E99BFF);
+  --ombre:0 30px 70px -34px rgba(0,0,0,.9);
+  --acc:#19F0D8; --acc-rgb:25,240,216;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 12%, #7A5AE0 0%, #43309E 42%, #1A1240 100%);
+  background-color:#1A1240;background-attachment:fixed;padding:22px 16px 70px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 30%, #000 0 30%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 30%, #000 0 30%, transparent 72%)}
+@keyframes monte{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes glisse{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.wrap{position:relative;z-index:1;max-width:760px;margin:10px auto 0}
+.haut{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+a.back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--ui);font-style:normal;
+  font-size:13px;font-weight:600;color:var(--ink-2);background:var(--verre);border:1px solid var(--bord);
+  padding:9px 16px;border-radius:999px;transition:.25s}
+a.back:hover{background:var(--verre-2);color:#fff}
+.marque{display:flex;align-items:center;gap:10px;font-family:var(--ui);font-style:normal;font-weight:700;font-size:14px;color:#fff}
+.marque svg{width:34px;height:34px;border-radius:11px}
+
+/* progression */
+.progres{position:sticky;top:10px;z-index:20;background:rgba(26,18,64,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--bord);border-radius:18px;padding:12px 16px 14px;margin-bottom:16px;animation:monte .5s ease both}
+.progres .ligne{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-2);margin-bottom:9px}
+.progres .ligne b{color:#fff;font-size:13.5px}
+.barre{height:8px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+.barre i{display:block;height:100%;width:0;border-radius:999px;background:var(--degrade);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.pastilles{display:flex;gap:6px;margin-top:10px}
+.pastilles span{flex:1;height:4px;border-radius:999px;background:rgba(255,255,255,.12);transition:.3s}
+.pastilles span.fait{background:var(--c)}
+
+/* les rubriques : chacune sa couleur NaoGroup */
+.etape{animation:glisse .45s cubic-bezier(.2,.8,.2,1) both}
+.r-turquoise{--acc:#19F0D8;--acc-rgb:25,240,216}
+.r-violet{--acc:#A98BFF;--acc-rgb:138,92,255}
+.r-rose{--acc:#E99BFF;--acc-rgb:233,155,255}
+.r-lilas{--acc:#C9B7F5;--acc-rgb:201,183,245}
+.card{position:relative;background:rgba(28,22,54,.88);border:1px solid rgba(var(--acc-rgb),.3);border-radius:24px;padding:26px 24px 24px;margin-bottom:16px;
+  box-shadow:var(--ombre), 0 0 0 1px rgba(255,255,255,.02) inset;overflow:hidden}
+.card::before{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--acc),rgba(var(--acc-rgb),.15))}
+.card::after{content:'';position:absolute;right:-90px;top:-90px;width:240px;height:240px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle, rgba(var(--acc-rgb),.22), transparent 70%)}
+.rubrique{display:flex;align-items:center;gap:14px;margin:0 0 20px;position:relative;z-index:1}
+.rubrique .num{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;font-family:var(--ui);font-style:normal;font-weight:800;font-size:17px;
+  color:#1A1240;background:var(--acc);box-shadow:0 10px 26px -10px rgba(var(--acc-rgb),.9)}
+.rubrique h2{margin:0;font-size:22px;color:#fff;font-weight:400;line-height:1.2}
+.rubrique p{margin:2px 0 0;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-3)}
+.q{margin:0 0 22px;position:relative;z-index:1}
+.q:last-child{margin-bottom:0}
+.q > .lab{display:block;font-family:var(--ui);font-style:normal;font-size:14.5px;font-weight:700;color:#fff;margin:0 0 10px}
+.req{color:var(--acc)}
+.choix{display:flex;flex-wrap:wrap;gap:8px}
+.choix label{display:inline-flex;align-items:center;gap:8px;font-family:var(--ui);font-style:normal;font-size:14px;color:var(--ink);
+  background:rgba(243,239,251,.05);border:1.5px solid rgba(255,255,255,.14);border-radius:14px;padding:10px 15px;cursor:pointer;transition:.18s}
+.choix label:hover{border-color:rgba(var(--acc-rgb),.7);transform:translateY(-1px)}
+.choix label:has(input:checked){border-color:var(--acc);background:rgba(var(--acc-rgb),.14);color:#fff;box-shadow:0 8px 22px -14px rgba(var(--acc-rgb),.9)}
+.choix input{position:absolute;opacity:0;pointer-events:none}
+.choix label::before{content:'';width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);flex:none;transition:.18s}
+.choix label:has(input:checked)::before{border-color:var(--acc);background:radial-gradient(circle,var(--acc) 0 45%,transparent 50%)}
+.choix label:has(input:focus-visible){outline:2px solid var(--acc);outline-offset:2px}
+.precision{margin-top:10px;animation:monte .3s ease both}
+textarea,input[type=text],input[type=email]{width:100%;font-family:var(--ui);font-style:normal;font-size:14.5px;color:#fff;
+  background:rgba(243,239,251,.06);border:1.5px solid rgba(255,255,255,.16);border-radius:14px;padding:12px 15px;outline:none;transition:.2s}
+textarea{min-height:88px;resize:vertical}
+textarea:focus,input:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(var(--acc-rgb),.18)}
+::placeholder{color:rgba(243,239,251,.42)}
+.aide{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-3);margin:7px 0 0}
+
+/* les outils, chacun avec son logo */
+.outils{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:9px}
+.outils label{display:flex;align-items:center;gap:11px;font-family:var(--ui);font-style:normal;font-size:14px;font-weight:700;color:#fff;position:relative;
+  background:rgba(243,239,251,.04);border:1.5px solid rgba(255,255,255,.12);border-radius:16px;padding:10px 12px;cursor:pointer;transition:.18s}
+.outils label:hover{border-color:rgba(var(--acc-rgb),.7);transform:translateY(-1px)}
+.outils label:has(input:checked){border-color:var(--acc);background:rgba(var(--acc-rgb),.12)}
+.outils label:has(input:checked)::after{content:'✓';position:absolute;right:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:var(--acc);color:#1A1240;font-size:13px;font-weight:900;animation:pop .25s ease both}
+.outils label:has(input:focus-visible){outline:2px solid var(--acc);outline-offset:2px}
+.outils input{position:absolute;opacity:0;pointer-events:none}
+.outils svg,.outils .plus{width:36px;height:36px;border-radius:12px;flex:none}
+.outils .plus{display:grid;place-items:center;background:rgba(243,239,251,.1);font-size:18px}
+.compteur{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--acc);margin:10px 0 0;min-height:18px}
+
+/* un bloc par outil coché */
+.bloc-outil{border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:0 0 18px;margin:0 0 16px;overflow:hidden;animation:monte .4s ease both;position:relative;z-index:1;
+  background:rgba(255,255,255,.025)}
+.bloc-outil .entete{display:flex;align-items:center;gap:14px;padding:14px 18px;margin-bottom:16px;
+  background:linear-gradient(90deg,rgba(25,240,216,.14),rgba(138,92,255,.16) 50%,rgba(233,155,255,.12))}
+.bloc-outil .entete svg{width:52px;height:52px;border-radius:16px;flex:none;box-shadow:0 10px 24px -12px rgba(0,0,0,.8)}
+.bloc-outil .entete b{display:block;font-size:20px;color:#fff;font-weight:400}
+.bloc-outil .entete span{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--lilas)}
+.bloc-outil .q{padding:0 18px;margin-bottom:18px}
+.bloc-outil .q:last-child{margin-bottom:0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:600px){.duo{grid-template-columns:1fr}}
+.vide-outils{font-family:var(--ui);font-style:normal;font-size:14px;color:var(--ink-3);margin:0;position:relative;z-index:1}
+
+/* étoiles et échelles */
+.etoiles{display:inline-flex;flex-direction:row-reverse;gap:6px;align-items:center}
+.etoiles input{position:absolute;opacity:0;pointer-events:none}
+.etoiles label{font-size:34px;line-height:1;color:rgba(243,239,251,.2);cursor:pointer;transition:.15s;font-style:normal}
+.etoiles label:hover,.etoiles label:hover ~ label,.etoiles input:checked ~ label{color:var(--rose);text-shadow:0 0 16px rgba(233,155,255,.55)}
+.etoiles label:hover{transform:scale(1.12)}
+.etoiles input:focus-visible + label{outline:2px solid var(--acc);border-radius:6px}
+.mot-note{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--rose);margin-left:10px;min-width:80px}
+.segments{display:flex;gap:6px;flex-wrap:wrap}
+.segments input{position:absolute;opacity:0;pointer-events:none}
+.segments label{flex:1;min-width:44px;height:40px;border-radius:12px;display:grid;place-items:center;font-family:var(--ui);font-style:normal;font-weight:700;font-size:14px;
+  color:#fff;background:rgba(243,239,251,.05);border:1.5px solid rgba(255,255,255,.14);cursor:pointer;transition:.15s}
+.segments label:hover{border-color:rgba(var(--acc-rgb),.7)}
+.segments input:checked + label{background:var(--acc);color:#1A1240;border-color:transparent;box-shadow:0 8px 20px -10px rgba(var(--acc-rgb),.9)}
+.segments input:focus-visible + label{outline:2px solid var(--acc);outline-offset:2px}
+.bouts{display:flex;justify-content:space-between;font-family:var(--ui);font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:6px}
+.nps label{min-width:0}
+.nps input:checked + label.n-bas{background:#E58BA0}
+.nps input:checked + label.n-moyen{background:var(--lilas)}
+.nps input:checked + label.n-haut{background:var(--turquoise)}
+@media (max-width:520px){.nps{gap:4px}.nps label{height:36px;font-size:12.5px;border-radius:10px}}
+
+.case{display:flex;gap:10px;align-items:flex-start;font-family:var(--ui);font-style:normal;font-size:13.5px;color:var(--ink-2);cursor:pointer}
+.case input{margin-top:3px;accent-color:#8A5CFF;width:18px;height:18px;flex:none}
+.case a{color:var(--lilas)}
+.piege{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* navigation entre les rubriques */
+.nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}
+.btn{font-family:var(--ui);font-style:normal;font-size:15px;font-weight:700;border-radius:999px;cursor:pointer;transition:.22s;padding:13px 26px}
+.btn.retour{color:var(--ink-2);background:var(--verre);border:1px solid var(--bord)}
+.btn.retour:hover{background:var(--verre-2);color:#fff}
+.btn.suite{margin-left:auto;color:#1A1240;border:none;background:var(--degrade);padding:14px 36px;box-shadow:0 10px 30px rgba(138,92,255,.45)}
+.btn.suite:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.btn:disabled{opacity:.6;cursor:wait;transform:none}
+.msg{margin-top:14px;font-family:var(--ui);font-style:normal;font-size:13.5px;color:#fff;text-align:center;
+  background:rgba(194,75,99,.25);border:1px solid rgba(194,75,99,.6);border-radius:14px;padding:11px 14px;display:none}
+.msg.visible{display:block;animation:monte .3s ease both}
+.erreur-q > .lab{color:#FFB3C0}
+.erreur-q .choix label,.erreur-q .outils label,.erreur-q .segments label,.erreur-q input[type=text]{border-color:rgba(255,140,160,.55)}
+
+/* accueil et merci */
+.accueil{text-align:center;padding:38px 26px 30px}
+.accueil > svg{width:86px;height:86px;border-radius:27px;box-shadow:0 18px 40px -16px rgba(0,0,0,.8);position:relative;z-index:1}
+.accueil h1{font-size:32px;margin:16px 0 8px;letter-spacing:-.02em;background:var(--degrade);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;position:relative;z-index:1}
+.accueil .sub{font-size:16px;color:var(--ink-2);margin:0 auto 18px;max-width:520px;position:relative;z-index:1}
+.puces{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:0 0 24px;position:relative;z-index:1}
+.puces span{font-family:var(--ui);font-style:normal;font-size:12.5px;color:#fff;background:rgba(255,255,255,.07);border:1px solid var(--bord);border-radius:999px;padding:6px 13px}
+.perso{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-3);margin:16px auto 0;max-width:480px;position:relative;z-index:1}
+.perso b{color:var(--turquoise);font-weight:600}
+.accueil .btn.suite{margin:0 auto;display:inline-block;position:relative;z-index:1}
+.merci{text-align:center;padding:40px 22px 34px}
+.merci .gros{font-size:60px;line-height:1;animation:pop .6s ease both;position:relative;z-index:1}
+.merci h2{font-size:28px;color:#fff;margin:14px 0 8px;font-weight:400;position:relative;z-index:1}
+.merci p{color:var(--ink-2);font-size:15.5px;margin:0 0 20px;position:relative;z-index:1}
+.merci a.back{position:relative;z-index:1}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<script src="naogroup-logos.js"></script>
+<div class="wrap">
+  <div class="haut">
+    <a class="back" href="NaoGroup.html">← NaoGroup</a>
+    <span class="marque"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-gr"/></svg>Votre avis</span>
+  </div>
+
+  <!-- accueil -->
+  <div class="card accueil r-violet" id="accueil">
+    <svg viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+    <h1 id="titreAccueil">Votre avis sur NaoGroup</h1>
+    <p class="sub">Dites-nous ce qui vous plaît et ce qui manque dans les outils que vous avez essayés. Chaque réponse est lue.</p>
+    <div class="puces"><span>⏱ 3 minutes</span><span>5 rubriques</span><span>💜 Aucune bonne ou mauvaise réponse</span></div>
+    <button type="button" class="btn suite" id="btnCommencer">Commencer →</button>
+    <p class="perso" id="mentionPerso" hidden>Ce lien vous est <b>personnel</b> : votre réponse nous parvient avec votre nom, pour que nous puissions vous répondre et améliorer vos outils.</p>
+  </div>
+
+  <form id="fAvis" novalidate hidden>
+    <div class="progres" aria-live="polite">
+      <div class="ligne"><b id="nomEtape">Vous</b><span id="numEtape">Étape 1 sur 5</span></div>
+      <div class="barre"><i id="barre"></i></div>
+      <div class="pastilles" id="pastilles"></div>
+    </div>
+
+    <!-- 1. vous -->
+    <section class="etape r-turquoise" data-titre="Vous">
+      <div class="card">
+        <div class="rubrique"><span class="num">1</span><div><h2>Vous</h2><p>Pour mieux comprendre qui utilise NaoGroup.</p></div></div>
+        <div class="q" data-requis="profil"><span class="lab">Votre profil <span class="req">*</span></span>
+          <div class="choix" data-radio="profil" data-options="Particulier|Indépendant / auto-entrepreneur|Petite entreprise|Autre"></div></div>
+        <div class="q" data-requis="connu"><span class="lab">Comment avez-vous connu NaoGroup ? <span class="req">*</span></span>
+          <div class="choix" data-radio="connu" data-options="Bouche-à-oreille|Réseaux sociaux|Recherche Google|Autre"></div></div>
+        <div class="q" data-requis="mode"><span class="lab">Comment avez-vous utilisé les outils ? <span class="req">*</span></span>
+          <div class="choix" data-radio="mode" data-options="Sans compte (mode visite)|Avec un compte"></div></div>
+      </div>
+    </section>
+
+    <!-- 2. les outils essayés -->
+    <section class="etape r-violet" data-titre="Vos outils" hidden>
+      <div class="card">
+        <div class="rubrique"><span class="num">2</span><div><h2>Vos outils</h2><p>Cochez tous ceux que vous avez essayés, même un peu.</p></div></div>
+        <div class="q" data-requis="outils"><span class="lab">Quels outils avez-vous essayés ? <span class="req">*</span></span>
+          <div class="outils" id="listeOutils"></div>
+          <p class="compteur" id="compteur"></p>
+          <div class="precision" id="zoneAutre" hidden><input type="text" id="autreOutil" maxlength="120" placeholder="Précisez lequel (obligatoire)"></div></div>
+      </div>
+    </section>
+
+    <!-- 3. outil par outil -->
+    <section class="etape r-rose" data-titre="Outil par outil" hidden>
+      <div class="card">
+        <div class="rubrique"><span class="num">3</span><div><h2>Outil par outil</h2><p>Une note pour chacun ; le reste est facultatif.</p></div></div>
+        <p class="vide-outils" id="videOutils">Revenez à l'étape précédente pour cocher les outils que vous avez essayés.</p>
+        <div id="blocsOutils"></div>
+      </div>
+    </section>
+
+    <!-- 4. prix -->
+    <section class="etape r-lilas" data-titre="Le prix" hidden>
+      <div class="card">
+        <div class="rubrique"><span class="num">4</span><div><h2>Le prix</h2><p>Pour construire des formules justes.</p></div></div>
+        <div class="q"><span class="lab">Le prix vous paraît…</span>
+          <div class="choix" data-radio="prix_percu" data-options="Trop cher|Correct|Bon marché|Je ne sais pas"></div></div>
+        <div class="q"><span class="lab">Combien seriez-vous prêt·e à payer par mois ?</span>
+          <div class="choix" data-radio="montant" data-options="Rien|Moins de 5 €|5 à 10 €|10 à 20 €|Plus de 20 €"></div></div>
+        <div class="q"><span class="lab">Quelle formule préférez-vous ?</span>
+          <div class="choix" data-radio="formule_preferee" data-options="Par outil|Pack de plusieurs outils|Abonnement global à tous les outils"></div></div>
+      </div>
+    </section>
+
+    <!-- 5. pour finir -->
+    <section class="etape r-turquoise" data-titre="Pour finir" hidden>
+      <div class="card">
+        <div class="rubrique"><span class="num">5</span><div><h2>Pour finir</h2><p>Votre recommandation, vos idées.</p></div></div>
+        <div class="q" data-requis="recommandation"><span class="lab">Recommanderiez-vous NaoGroup à un proche ? <span class="req">*</span></span>
+          <div class="segments nps" id="nps"></div>
+          <div class="bouts"><span>0 — Pas du tout</span><span>10 — Sans hésiter</span></div></div>
+        <div class="q"><span class="lab">Quel outil aimeriez-vous voir exister ?</span><input type="text" id="outilSouhaite" maxlength="300" placeholder="Une idée, un besoin…"></div>
+        <div class="q"><span class="lab">Autres commentaires</span><textarea id="commentaires" maxlength="4000" placeholder="Tout ce que vous voulez nous dire"></textarea></div>
+        <div class="q" id="zoneEmail"><span class="lab">E-mail (si vous souhaitez recevoir une réponse)</span><input type="email" id="email" maxlength="200" placeholder="vous@exemple.fr" autocomplete="email"></div>
+        <div class="q" data-requis="temoignage"><span class="lab">Acceptez-vous que votre avis soit publié sur le site NaoGroup ?</span>
+          <div class="choix" data-radio="temoignage" data-options="Oui, avec mon prénom et l'initiale de mon nom|Non, il reste privé"></div>
+          <div class="precision" id="zoneTemoignage" hidden>
+            <span class="lab" style="display:block;font-family:var(--ui);font-style:normal;font-size:13px;font-weight:700;color:#fff;margin:0 0 7px">Votre témoignage, en une ou deux phrases</span>
+            <textarea id="temoignageTexte" maxlength="400"></textarea>
+            <span class="lab" style="display:block;font-family:var(--ui);font-style:normal;font-size:13px;font-weight:700;color:#fff;margin:12px 0 7px">Prénom et initiale du nom (ex. : Marie L.)</span>
+            <input type="text" id="temoignageNom" maxlength="60">
+          </div></div>
+        <div class="q" data-requis="consentement"><label class="case"><input type="checkbox" id="consentement">
+          <span>J'accepte que mes réponses soient utilisées pour améliorer NaoGroup (voir <a href="vos-donnees.html" target="_blank" rel="noopener">Vos données</a>). <span class="req">*</span></span></label></div>
+        <div class="piege" aria-hidden="true"><label>Ne pas remplir <input type="text" id="siteweb" tabindex="-1" autocomplete="off"></label></div>
+      </div>
+    </section>
+
+    <div class="nav">
+      <button type="button" class="btn retour" id="btnRetour">← Précédent</button>
+      <button type="submit" class="btn suite" id="btnSuite">Suivant →</button>
+    </div>
+    <div class="msg" id="msg" role="alert"></div>
+  </form>
+
+  <div class="card merci r-rose" id="merci" hidden>
+    <div class="gros">💜</div>
+    <h2 id="titreMerci">Merci pour votre avis !</h2>
+    <p>Il arrive directement chez NaoGroup, et il sera lu avec attention.</p>
+    <a class="back" href="NaoGroup.html">Retour à NaoGroup →</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = Nao.esc, n = 0;
+  var uid = function () { return 'c' + (++n); };
+
+  /* le lien personnel envoyé depuis l'administration : avis.html?j=… (une clé au hasard, rien de personnel dans l'adresse) */
+  var JETON = '';
+  try { JETON = (new URLSearchParams(location.search).get('j') || '').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 64); } catch (e) {}
+  if (JETON) {
+    $('mentionPerso').hidden = false;
+    $('zoneEmail').hidden = true;   /* nous savons déjà qui répond */
+  }
+
+  /* les questions à choix unique, écrites une seule fois dans le HTML (data-options) ;
+     « Autre » ouvre un champ à préciser, obligatoire */
+  document.querySelectorAll('[data-radio]').forEach(function (z) {
+    var nom = z.getAttribute('data-radio'), opts = z.getAttribute('data-options').split('|');
+    z.innerHTML = opts.map(function (o) {
+      return '<label><input type="radio" name="' + nom + '" value="' + esc(o) + '">' + esc(o) + '</label>';
+    }).join('');
+    if (opts.indexOf('Autre') >= 0) {
+      var p = document.createElement('div'); p.className = 'precision'; p.hidden = true; p.setAttribute('data-precision', nom);
+      p.innerHTML = '<input type="text" maxlength="50" placeholder="Précisez (obligatoire)">';
+      z.parentNode.insertBefore(p, z.nextSibling);
+    }
+  });
+  function valeur(nom) { var i = document.querySelector('input[name="' + nom + '"]:checked'); return i ? i.value : ''; }
+  function precision(nom) { var p = document.querySelector('[data-precision="' + nom + '"] input'); return p ? p.value.trim() : ''; }
+  /* « Autre » avec sa précision : « Autre : … » (60 caractères au plus en base) */
+  function avecPrecision(nom) { var v = valeur(nom); return v === 'Autre' ? ('Autre : ' + precision(nom)).slice(0, 60) : v; }
+
+  function points(nom, de, a, classe) {
+    var pts = '';
+    for (var v = de; v <= a; v++) {
+      var id = uid(), c = classe ? classe(v) : '';
+      pts += '<input type="radio" id="' + id + '" name="' + nom + '" value="' + v + '"><label for="' + id + '"' + (c ? ' class="' + c + '"' : '') + '>' + v + '</label>';
+    }
+    return pts;
+  }
+  function echelle(nom, gauche, droite) {
+    return '<div class="segments">' + points(nom, 1, 5) + '</div><div class="bouts"><span>' + gauche + '</span><span>' + droite + '</span></div>';
+  }
+  var MOTS = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
+  function etoiles(nom) {
+    var h = '';
+    for (var v = 5; v >= 1; v--) { var id = uid(); h += '<input type="radio" id="' + id + '" name="' + nom + '" value="' + v + '"><label for="' + id + '" title="' + v + ' / 5 — ' + MOTS[v] + '">★</label>'; }
+    return '<div style="display:flex;align-items:center;flex-wrap:wrap"><div class="etoiles" role="radiogroup" aria-label="Note sur 5">' + h + '</div><span class="mot-note" data-mot="' + nom + '"></span></div>';
+  }
+
+  /* les outils, avec leur vrai logo */
+  $('listeOutils').innerHTML = Nao.outils.map(function (o) {
+    return '<label><input type="checkbox" name="outils" value="' + o.id + '"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#' + o.symbole + '"/></svg>' + esc(o.nom) + '</label>';
+  }).join('') + '<label><input type="checkbox" name="outils" value="autre" id="caseAutre"><span class="plus">＋</span>Autre</label>';
+  $('nps').innerHTML = points('recommandation', 0, 10, function (v) { return v <= 6 ? 'n-bas' : v <= 8 ? 'n-moyen' : 'n-haut'; });
+
+  function blocOutil(o) {
+    return '<div class="bloc-outil" data-outil="' + o.id + '"><div class="entete"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#' + o.symbole + '"/></svg>' +
+      '<div><b>' + esc(o.nom) + '</b><span>' + esc(o.role) + '</span></div></div>' +
+      '<div class="q" data-requis="note_' + o.id + '"><span class="lab">Votre note <span class="req">*</span></span>' + etoiles('note_' + o.id) + '</div>' +
+      '<div class="q duo"><div><span class="lab" style="display:block;font-family:var(--ui);font-style:normal;font-size:14px;font-weight:700;color:#fff;margin:0 0 10px">Fluidité et rapidité</span>' + echelle('fluidite_' + o.id, 'Lent', 'Très fluide') + '</div>' +
+      '<div><span class="lab" style="display:block;font-family:var(--ui);font-style:normal;font-size:14px;font-weight:700;color:#fff;margin:0 0 10px">Prise en main</span>' + echelle('facilite_' + o.id, 'Difficile', 'Très facile') + '</div></div>' +
+      '<div class="q duo"><div><span class="lab" style="display:block;font-family:var(--ui);font-style:normal;font-size:14px;font-weight:700;color:#fff;margin:0 0 10px">👍 Ce qui vous a plu</span><textarea data-c="plu" maxlength="1500"></textarea></div>' +
+      '<div><span class="lab" style="display:block;font-family:var(--ui);font-style:normal;font-size:14px;font-weight:700;color:#fff;margin:0 0 10px">✋ Ce qui manque ou vous a gêné</span><textarea data-c="manque" maxlength="1500"></textarea></div></div></div>';
+  }
+  function cochés() { return Array.prototype.map.call(document.querySelectorAll('input[name=outils]:checked'), function (i) { return i.value; }); }
+  /* un bloc par outil coché, dans l'ordre de la liste ; ce qui est déjà rempli reste en place */
+  $('listeOutils').addEventListener('change', function () {
+    var coches = cochés();
+    $('zoneAutre').hidden = coches.indexOf('autre') < 0;
+    if (!$('zoneAutre').hidden) $('autreOutil').focus();
+    var nb = coches.filter(function (x) { return x !== 'autre'; }).length;
+    $('compteur').textContent = coches.length ? (nb + ' outil' + (nb > 1 ? 's' : '') + ' coché' + (nb > 1 ? 's' : '') + (coches.indexOf('autre') >= 0 ? ' + un autre' : '')) : '';
+    var zone = $('blocsOutils'), existants = {};
+    zone.querySelectorAll('.bloc-outil').forEach(function (b) { existants[b.getAttribute('data-outil')] = b; });
+    Nao.outils.forEach(function (o) {
+      var b = existants[o.id], oui = coches.indexOf(o.id) >= 0;
+      if (oui && !b) { var t = document.createElement('div'); t.innerHTML = blocOutil(o); b = t.firstChild; }
+      if (oui) zone.appendChild(b); else if (b) b.remove();
+    });
+    $('videOutils').hidden = zone.children.length > 0;
+    if (!zone.children.length && coches.length) $('videOutils').textContent = 'Merci ! Rien à noter ici pour « Autre » : passez à la suite.';
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.name === 'temoignage') $('zoneTemoignage').hidden = t.value.indexOf('Oui') !== 0;
+    if (t.type === 'radio') {
+      var p = document.querySelector('[data-precision="' + t.name + '"]');
+      if (p) { p.hidden = t.value !== 'Autre'; if (!p.hidden) p.querySelector('input').focus(); }
+      var mot = document.querySelector('[data-mot="' + t.name + '"]'); if (mot) mot.textContent = MOTS[Number(t.value)] || '';
+    }
+    var q = t.closest && t.closest('.erreur-q');
+    if (q) { q.classList.remove('erreur-q'); if (!document.querySelector('.erreur-q')) $('msg').classList.remove('visible'); }
+  });
+
+  /* déjà connecté·e : on salue par le prénom, et on sait qu'il s'agit d'un compte */
+  var COMPTE = null;
+  if (Nao.configure) Nao.profil().then(function (p) {
+    if (!p) return;
+    COMPTE = p;
+    if (p.prenom) { $('titreAccueil').textContent = 'Bonjour ' + p.prenom + ', votre avis compte'; $('titreMerci').textContent = 'Merci ' + p.prenom + ' !'; }
+    var r = document.querySelector('input[name=mode][value="Avec un compte"]'); if (r && !valeur('mode')) r.checked = true;
+  }).catch(function () {});
+  if (JETON) { var r0 = document.querySelector('input[name=mode][value="Avec un compte"]'); if (r0) r0.checked = true; }
+
+  /* ---- les rubriques, une à la fois ---- */
+  var ETAPES = Array.prototype.slice.call(document.querySelectorAll('.etape')), ici = 0;
+  var COULEURS = ['#19F0D8', '#A98BFF', '#E99BFF', '#C9B7F5', '#19F0D8'];
+  $('pastilles').innerHTML = ETAPES.map(function (_, i) { return '<span style="--c:' + COULEURS[i] + '"></span>'; }).join('');
+  function montrer(i) {
+    ici = i;
+    ETAPES.forEach(function (s, k) { s.hidden = k !== i; });
+    $('nomEtape').textContent = ETAPES[i].getAttribute('data-titre');
+    $('numEtape').textContent = 'Étape ' + (i + 1) + ' sur ' + ETAPES.length;
+    $('barre').style.width = Math.round((i + 1) / ETAPES.length * 100) + '%';
+    document.querySelectorAll('#pastilles span').forEach(function (s, k) { s.classList.toggle('fait', k <= i); });
+    $('btnRetour').style.visibility = i ? 'visible' : 'hidden';
+    $('btnSuite').textContent = i === ETAPES.length - 1 ? 'Envoyer mon avis ✓' : 'Suivant →';
+    $('msg').classList.remove('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('btnCommencer').addEventListener('click', function () { $('accueil').hidden = true; $('fAvis').hidden = false; montrer(0); });
+  $('btnRetour').addEventListener('click', function () { if (ici) montrer(ici - 1); });
+
+  /* ce qui manque dans une rubrique */
+  function manquants(i) {
+    var m = [];
+    if (i === 0) {
+      ['profil', 'connu', 'mode'].forEach(function (k) {
+        if (!valeur(k)) m.push([k, 'Il manque une réponse aux questions marquées d\'une étoile.']);
+        else if (valeur(k) === 'Autre' && !precision(k)) m.push([k, 'Précisez votre réponse « Autre ».']);
+      });
+    }
+    if (i === 1) {
+      var c = cochés();
+      if (!c.length) m.push(['outils', 'Cochez au moins un outil.']);
+      else if (c.indexOf('autre') >= 0 && !$('autreOutil').value.trim()) m.push(['outils', 'Précisez quel est l\'autre outil.']);
+    }
+    if (i === 2) document.querySelectorAll('.bloc-outil').forEach(function (b) {
+      var id = b.getAttribute('data-outil'); if (!valeur('note_' + id)) m.push(['note_' + id, 'Donnez une note (en étoiles) à chaque outil.']);
+    });
+    if (i === 4) {
+      if (valeur('recommandation') === '') m.push(['recommandation', 'Il manque une réponse aux questions marquées d\'une étoile.']);
+      if (valeur('temoignage').indexOf('Oui') === 0 && !$('temoignageTexte').value.trim()) m.push(['temoignage', 'Écrivez votre témoignage, ou choisissez « Non, il reste privé ».']);
+      if (!$('consentement').checked) m.push(['consentement', 'Cochez la case d\'accord pour pouvoir envoyer.']);
+      var email = $('email').value.trim();
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) m.push(['', 'Cette adresse e-mail ne semble pas valide.']);
+    }
+    return m;
+  }
+
+  var debut = Date.now();
+  $('fAvis').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var msgEl = $('msg'); msgEl.classList.remove('visible');
+    document.querySelectorAll('.erreur-q').forEach(function (q) { q.classList.remove('erreur-q'); });
+    var manque = manquants(ici);
+    if (manque.length) {
+      manque.forEach(function (x) { var q = x[0] && document.querySelector('[data-requis="' + x[0] + '"]'); if (q) q.classList.add('erreur-q'); });
+      var q0 = document.querySelector('.etape:not([hidden]) .erreur-q'); if (q0) q0.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      msgEl.textContent = manque[0][1]; msgEl.classList.add('visible'); return;
+    }
+    if (ici < ETAPES.length - 1) return montrer(ici + 1);
+    envoyer();
+  });
+
+  function envoyer() {
+    var msgEl = $('msg');
+    var fini = function () { $('fAvis').hidden = true; $('merci').hidden = false; window.scrollTo(0, 0); };
+    if ($('siteweb').value || Date.now() - debut < 4000) return fini();   /* robot */
+    try { var dernier = Number(localStorage.getItem('ng:avis-envoye') || 0); if (Date.now() - dernier < 60000) { msgEl.textContent = 'Votre avis vient d\'être envoyé : merci !'; msgEl.classList.add('visible'); return; } } catch (x) {}
+
+    var outils = cochés();
+    var notes = {};
+    document.querySelectorAll('.bloc-outil').forEach(function (b) {
+      var id = b.getAttribute('data-outil');
+      notes[id] = { note: Number(valeur('note_' + id)) || null, fluidite: Number(valeur('fluidite_' + id)) || null, facilite: Number(valeur('facilite_' + id)) || null,
+        plu: b.querySelector('[data-c=plu]').value.trim(), manque: b.querySelector('[data-c=manque]').value.trim() };
+    });
+    /* qui répond : la clé du lien personnel (l'administration retrouve le profil), sinon le compte connecté */
+    if (JETON) notes._invitation = JETON;
+    if (COMPTE && COMPTE.user_id) notes._compte = COMPTE.user_id;
+    var accord = valeur('temoignage').indexOf('Oui') === 0;
+    var d = { profil: avecPrecision('profil'), connu: avecPrecision('connu'), mode: valeur('mode'), outils: outils,
+      autre_outil: outils.indexOf('autre') >= 0 ? $('autreOutil').value.trim() : '',
+      notes: notes, prix_percu: valeur('prix_percu'), montant: valeur('montant'), formule_preferee: valeur('formule_preferee'),
+      recommandation: Number(valeur('recommandation')), outil_souhaite: $('outilSouhaite').value.trim(), commentaires: $('commentaires').value.trim(),
+      email: JETON ? '' : $('email').value.trim(), temoignage_accord: accord, temoignage_texte: accord ? $('temoignageTexte').value.trim() : '', temoignage_nom: accord ? $('temoignageNom').value.trim() : '',
+      consentement: true };
+    var b = $('btnSuite'); b.disabled = true; b.textContent = 'Envoi…';
+    Nao.envoyerAvis(d).then(function (r) {
+      b.disabled = false; b.textContent = 'Envoyer mon avis ✓';
+      if (r.ok) {
+        try { localStorage.setItem('ng:avis-envoye', String(Date.now())); } catch (x) {}
+        return fini();
+      }
+      msgEl.textContent = r.code === 'non_configure' ? 'NaoGroup n\'est pas encore branché au serveur : écrivez-nous depuis la page Contact.'
+        : 'L\'envoi n\'a pas abouti. Réessayez dans un instant, ou écrivez-nous depuis la page Contact.';
+      msgEl.classList.add('visible');
+    });
+  }
+})();
+</script>
+</body>
+</html>

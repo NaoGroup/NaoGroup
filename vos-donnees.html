@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<script src="naogroup-protection.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — vos données</title>
+<meta name="description" content="Ce que NaoGroup enregistre, où, pour combien de temps, qui peut le voir, et vos droits.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NaoGroup">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="NaoGroup — vos données">
+<meta property="og:description" content="Ce que NaoGroup enregistre, où, pour combien de temps, qui peut le voir, et vos droits.">
+<meta property="og:url" content="https://naogroup.github.io/NaoGroup/vos-donnees.html">
+<meta property="og:image" content="https://naogroup.github.io/NaoGroup/icones/naogroup-apercu.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NaoGroup — des outils pour la vie de tous les jours">
+<meta name="twitter:card" content="summary_large_image">
+<script>if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });</script>
+<meta name="theme-color" content="#43309E">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2319F0D8'/><stop offset='.48' stop-color='%238A5CFF'/><stop offset='1' stop-color='%23E99BFF'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<link rel="stylesheet" href="naogroup-legal.css">
+</head>
+<body>
+<div class="aurore" aria-hidden="true"><i></i><i></i><i></i></div>
+<script src="naogroup-logos.js"></script>
+<div class="page">
+  <nav class="haut" aria-label="Pages de confiance">
+    <a href="NaoGroup.html"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#l-gr"/></svg>← NaoGroup</a>
+    <span class="esp"></span>
+    <a href="mentions-legales.html">Mentions légales</a>
+    <a href="conditions.html">Conditions générales</a>
+    <a href="vos-donnees.html" aria-current="page">Vos données</a>
+  </nav>
+
+  <span class="etiquette">Confidentialité</span>
+  <h1>Vos <span>données</span></h1>
+  <p class="chapo">Votre budget, vos papiers, votre santé : ce sont des choses intimes. Voici exactement ce que NaoGroup en fait — et ce qu'il n'en fait jamais.</p>
+  <p class="maj">Dernière mise à jour : 8 novembre 2026 · Responsable du traitement : l'éditeur de NaoGroup (voir les <a href="mentions-legales.html">mentions légales</a>)</p>
+
+  <section class="bloc" id="bref">
+    <h2>En bref</h2>
+    <ul>
+      <li><b>Rien n'est revendu, ni partagé</b> à des fins commerciales. Pas de publicité, pas de pisteur, pas de cookie publicitaire.</li>
+      <li>Ce que vous saisissez dans les outils n'est lisible <b>que par vous</b> : même l'équipe NaoGroup ne peut pas l'ouvrir depuis le site.</li>
+      <li>Vos données sont hébergées <b>dans l'Union européenne</b> (Irlande).</li>
+      <li>Vous pouvez à tout moment les <b>consulter, les récupérer ou les faire effacer</b>.</li>
+      <li>Le <b>mode visite</b> n'envoie rien : les données fictives restent dans votre navigateur et sont remises à zéro à chaque visite.</li>
+    </ul>
+  </section>
+
+  <section class="bloc" id="quoi">
+    <h2>Ce qui est enregistré, et pourquoi</h2>
+    <div class="tableau"><table>
+      <thead><tr><th>Données</th><th>Pourquoi</th><th>Combien de temps</th></tr></thead>
+      <tbody>
+        <tr><td><b>Votre profil</b> : adresse e-mail (ou identifiant), prénom, nom, entreprise éventuelle, formule, outils ouverts, statut,
+          date d'acceptation des conditions générales, date de dernière connexion</td>
+          <td>Vous reconnaître et ouvrir les bons outils (exécution de votre abonnement)</td>
+          <td>Pendant l'abonnement, puis 12 mois après sa fin, puis effacé</td></tr>
+        <tr><td><b>Votre mot de passe</b></td>
+          <td>Vous connecter</td>
+          <td>Jamais stocké en clair : seule une empreinte chiffrée est gardée par Supabase. NaoGroup ne le voit jamais.</td></tr>
+        <tr><td><b>Ce que vous saisissez dans les outils</b> (budget, rendez-vous, documents, plans…)</td>
+          <td>Vous le sauvegarder et le retrouver sur tous vos appareils</td>
+          <td>Comme votre profil ; effacé immédiatement si vous le demandez</td></tr>
+        <tr><td><b>Vos demandes</b> envoyées depuis la page Contact : nom, e-mail, téléphone et entreprise facultatifs, message</td>
+          <td>Vous répondre, préparer votre souscription (votre consentement)</td>
+          <td>3 ans après notre dernier échange</td></tr>
+        <tr><td><b>La mesure d'usage</b> : quand un outil est ouvert, et combien de temps — <b>jamais ce que vous y faites</b></td>
+          <td>Savoir quels outils servent vraiment, pour les améliorer (intérêt légitime)</td>
+          <td>13 mois</td></tr>
+        <tr><td><b>Le nombre de vues de la page « Notre histoire »</b> : la date et l'heure, si l'on vient du lien de l'accueil, si l'on est connecté —
+          <b>aucun identifiant, rien qui permette de vous reconnaître</b></td>
+          <td>Savoir si notre histoire est lue (intérêt légitime)</td>
+          <td>13 mois</td></tr>
+        <tr><td><b>Les factures</b></td>
+          <td>Obligation comptable</td>
+          <td>10 ans, comme l'exige la loi</td></tr>
+        <tr><td><b>L'empreinte de votre adresse e-mail</b> si vous avez pris l'essai gratuit : une suite de caractères calculée à partir de
+          l'adresse, qui ne permet pas de la retrouver</td>
+          <td>Réserver l'essai gratuit à une seule fois par adresse e-mail (intérêt légitime : éviter les abus)</td>
+          <td>3 ans après l'essai, même si le compte est supprimé entre-temps</td></tr>
+        <tr><td><b>Vos réponses au questionnaire « Votre avis sur NaoGroup »</b> : profil, outils essayés, notes, avis sur les prix, commentaires,
+          e-mail facultatif. Elles restent chez NaoGroup (aucun service extérieur).</td>
+          <td>Améliorer les outils et les prix ; vous répondre si vous avez laissé votre e-mail (votre consentement)</td>
+          <td>3 ans, ou effacées sur simple demande</td></tr>
+        <tr><td><b>Votre témoignage</b>, seulement si vous avez accepté sa publication dans le questionnaire : texte, prénom et initiale du nom, outil</td>
+          <td>Le publier sur l'accueil (votre consentement)</td>
+          <td>Tant qu'il est publié ; retiré sur simple demande</td></tr>
+        <tr><td><b>Notes de suivi</b> de l'équipe NaoGroup sur un profil (ex. : « relance envoyée »)</td>
+          <td>Gérer les abonnements</td>
+          <td>Comme votre profil</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="bloc" id="navigateur">
+    <h2>Dans votre navigateur</h2>
+    <p>Les outils travaillent d'abord <b>dans votre navigateur</b> (stockage local), puis se synchronisent avec votre compte. Chaque profil a son
+      propre espace : deux personnes sur le même ordinateur ne voient jamais les données l'une de l'autre.</p>
+    <p>NaoGroup n'utilise <b>aucun cookie de mesure d'audience ni de publicité</b>. Le stockage local sert uniquement à faire fonctionner les
+      outils et à garder votre session ouverte : il est indispensable au service, c'est pourquoi aucune bannière de consentement n'est affichée.</p>
+    <p>Sur un ordinateur partagé, pensez à vous <b>déconnecter</b> (pastille en bas à droite des outils).</p>
+  </section>
+
+  <section class="bloc" id="qui">
+    <h2>Qui peut voir quoi</h2>
+    <ul>
+      <li><b>Vous</b> : tout ce qui concerne votre profil et vos outils.</li>
+      <li><b>L'équipe NaoGroup</b> (administration du site) : votre profil, vos demandes, vos factures et les durées d'utilisation des outils —
+        <b>pas</b> le contenu de vos outils, que les règles de la base de données réservent à vous seul·e.</li>
+      <li><b>Les prestataires techniques</b>, uniquement pour faire fonctionner le service :
+        <ul>
+          <li><b>Supabase</b> (comptes et sauvegardes, serveurs en Irlande) ;</li>
+          <li><b>Resend</b> (envoi d'un e-mail à l'équipe NaoGroup quand vous écrivez depuis la page Contact ou répondez au questionnaire d'avis :
+            le contenu de votre message passe par ce service, uniquement pour arriver dans notre boîte support) ;</li>
+          <li><b>GitHub Pages</b> (affichage des pages du site) et <b>jsDelivr</b> (diffusion de la bibliothèque de connexion), qui voient
+            l'adresse IP de votre appareil comme tout hébergeur web. Ces sociétés étant américaines, ces transferts sont encadrés par le cadre
+            de protection des données UE–États-Unis et les clauses contractuelles types de la Commission européenne.</li>
+        </ul></li>
+    </ul>
+  </section>
+
+  <section class="bloc" id="securite">
+    <h2>Comment elles sont protégées</h2>
+    <ul>
+      <li>Connexion chiffrée (HTTPS) sur tout le site.</li>
+      <li>Mots de passe jamais stockés en clair ; mot de passe provisoire à changer dès la première connexion ; pause automatique après plusieurs essais ratés.</li>
+      <li>Règles d'accès au niveau de la base de données : chaque profil ne lit que ses propres sauvegardes, et seulement pour les outils de sa formule.</li>
+    </ul>
+  </section>
+
+  <section class="bloc" id="droits">
+    <h2>Vos droits</h2>
+    <p>Vous pouvez à tout moment demander à <b>accéder</b> à vos données, à les <b>corriger</b>, à les <b>effacer</b>, à les <b>récupérer</b> dans un
+      format lisible (portabilité), à <b>limiter</b> leur utilisation ou à vous <b>opposer</b> à la mesure d'usage. Vous pouvez aussi retirer votre
+      consentement pour une demande de contact.</p>
+    <p>Il suffit d'écrire à <a href="mailto:support.naogroup@gmail.com">support.naogroup@gmail.com</a> ou via la <a href="contact.html">page Contact</a> :
+      réponse sous un mois au plus.</p>
+    <p>Dans chaque outil, le bouton <b>« Réinitialiser »</b> efface aussi tout de suite ce qui est sur votre appareil.</p>
+    <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la <b>CNIL</b> (<a href="https://www.cnil.fr/fr/plaintes" rel="noopener">cnil.fr/fr/plaintes</a>).</p>
+  </section>
+
+  <p class="pied"><a href="NaoGroup.html">Accueil</a> · <a href="histoire.html">Notre histoire</a> · <a href="mentions-legales.html">Mentions légales</a> · <a href="conditions.html">Conditions générales</a> · <a href="contact.html">Contact</a></p>
+</div>
+</body>
+</html>

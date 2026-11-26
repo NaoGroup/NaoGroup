@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaoGroup — créer mon compte</title>
+<meta name="description" content="Créez votre compte NaoGroup en quelques minutes : choisissez votre formule, essai gratuit de 14 jours compris.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+<meta name="theme-color" content="#43309E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NaoGroup">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="NaoGroup — créer mon compte">
+<meta property="og:description" content="Choisissez votre formule NaoGroup et créez votre compte vous-même.">
+<meta property="og:url" content="https://naogroup.github.io/NaoGroup/inscription.html">
+<meta property="og:image" content="https://naogroup.github.io/NaoGroup/icones/naogroup-apercu.png">
+<script src="naogroup-cloud.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2319F0D8'/><stop offset='.48' stop-color='%238A5CFF'/><stop offset='1' stop-color='%23E99BFF'/></linearGradient></defs><rect width='40' height='40' rx='13' fill='url(%23g)'/><path d='M12 27V11L28 25V9.5' fill='none' stroke='%23fff' stroke-width='4.2' stroke-linecap='round' stroke-linejoin='round'/><g fill='%23fff' opacity='.6'><circle cx='10.5' cy='31.5' r='1.9'/><circle cx='16.3' cy='33.2' r='1.9'/><circle cx='22.4' cy='33.2' r='1.9'/><circle cx='28.2' cy='31.5' r='1.9'/></g></svg>">
+<style>
+:root{
+  --sans:Georgia,"Times New Roman",serif;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --ink:#F3EFFB; --ink-2:rgba(243,239,251,.74); --ink-3:rgba(243,239,251,.5);
+  --verre:rgba(255,255,255,.07); --verre-2:rgba(255,255,255,.12);
+  --bord:rgba(255,255,255,.16); --bord-2:rgba(255,255,255,.3);
+  --lilas:#C9B7F5; --turquoise:#19F0D8; --rose:#E58BA0;
+  --ombre:0 26px 60px -30px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);font-style:italic;line-height:1.6;
+  background:radial-gradient(1200px 820px at 50% 34%, #7A5AE0 0%, #43309E 42%, #1A1240 100%);
+  background-color:#1A1240;background-attachment:fixed;padding:26px 16px 70px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.7px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(circle at 50% 30%, #000 0 30%, transparent 72%);
+  mask-image:radial-gradient(circle at 50% 30%, #000 0 30%, transparent 72%)}
+@keyframes monte{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.wrap{position:relative;z-index:1;max-width:860px;margin:30px auto 0}
+a.back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--ui);font-style:normal;
+  font-size:13px;font-weight:600;color:var(--ink-2);background:var(--verre);border:1px solid var(--bord);
+  padding:9px 16px;border-radius:999px;margin-bottom:22px;transition:.25s}
+a.back:hover{background:var(--verre-2);color:#fff}
+.tete{text-align:center;margin-bottom:26px;animation:monte .7s ease both}
+.tete svg{width:64px;height:64px;border-radius:20px;box-shadow:0 18px 40px -16px rgba(0,0,0,.8)}
+.badge{display:inline-block;font-family:var(--ui);font-style:normal;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--lilas);border:1px solid var(--bord);border-radius:999px;padding:4px 12px;margin:14px 0 10px}
+h1{font-size:28px;margin:0 0 6px;letter-spacing:-.02em;color:#fff}
+.sub{font-size:15px;color:var(--ink-2);margin:0 auto;max-width:560px}
+.card{background:var(--verre);border:1px solid var(--bord);border-radius:24px;padding:24px;margin-bottom:18px;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--ombre);animation:monte .7s .1s ease both}
+.card h2{margin:0 0 4px;font-size:20px;color:#fff;display:flex;align-items:center;gap:10px}
+.card h2 .n{font-family:var(--ui);font-style:normal;font-size:12px;font-weight:800;width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;color:#1C1636;background:linear-gradient(135deg,#6FFFEF,#A77BFF)}
+.card p.aide{margin:0 0 16px;font-size:13.5px;color:var(--ink-2);font-family:var(--ui);font-style:normal}
+
+/* les formules */
+.formules{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.f{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;font:inherit;color:inherit;
+  background:rgba(0,0,0,.18);border:1px solid var(--bord);border-radius:18px;padding:16px;transition:.2s}
+.f:hover{border-color:var(--bord-2);transform:translateY(-2px)}
+.f[aria-pressed=true]{border-color:var(--turquoise);background:rgba(25,240,216,.08);box-shadow:0 0 0 3px rgba(25,240,216,.18)}
+.f .t{font-size:18px;color:#fff}
+.f .p{font-family:var(--ui);font-style:normal;font-weight:800;font-size:20px;color:#fff}
+.f .p small{font-weight:600;font-size:12px;color:var(--ink-3)}
+.f .d{font-family:var(--ui);font-style:normal;font-size:12.5px;color:var(--ink-2)}
+.f .jetons{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.f .jetons svg{width:22px;height:22px;border-radius:7px}
+.f .etiq{position:absolute;top:12px;right:12px;font-family:var(--ui);font-style:normal;font-size:10px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;color:#1C1636;background:linear-gradient(135deg,#6FFFEF,#A77BFF);border-radius:999px;padding:3px 9px}
+.f.essai{border-color:rgba(25,240,216,.45)}
+.periode{display:flex;gap:8px;margin:16px 0 0;flex-wrap:wrap;font-family:var(--ui);font-style:normal;font-size:13px}
+.periode label{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.18);border:1px solid var(--bord);border-radius:999px;padding:7px 14px;cursor:pointer}
+.periode input{accent-color:#8A5CFF}
+.mesure{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-top:14px}
+.mesure label{display:flex;align-items:center;gap:8px;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink);
+  background:rgba(0,0,0,.18);border:1px solid var(--bord);border-radius:14px;padding:8px 10px;cursor:pointer}
+.mesure label:has(input:checked){border-color:var(--turquoise);background:rgba(25,240,216,.08)}
+.mesure svg{width:24px;height:24px;border-radius:8px;flex:none}
+.mesure input{accent-color:#8A5CFF}
+.recap{margin-top:16px;font-family:var(--ui);font-style:normal;font-size:13.5px;color:var(--ink-2);
+  background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:14px;padding:12px 14px}
+.recap b{color:#fff}
+
+/* le compte */
+.grille{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:620px){.grille{grid-template-columns:1fr}}
+.champ{margin-bottom:14px}
+.champ label,.lab{display:block;font-family:var(--ui);font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 7px}
+input[type=text],input[type=email],input[type=password],select{width:100%;font-family:var(--ui);font-style:normal;font-size:14.5px;color:#fff;
+  background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:14px;padding:12px 15px;outline:none;transition:.2s}
+select option{color:#1C1636}
+input:focus,select:focus{border-color:var(--turquoise)}
+.case{display:flex;gap:10px;align-items:flex-start;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-2);margin:6px 0 16px}
+.case input{margin-top:3px;accent-color:#8A5CFF;width:16px;height:16px;flex:none}
+.case a{color:var(--lilas)}
+button.principal{width:100%;font-family:var(--ui);font-style:normal;font-size:15px;font-weight:700;color:#1C1636;
+  border:none;background:linear-gradient(135deg,#6FFFEF,#A77BFF 55%,#C9B7F5);padding:15px 0;border-radius:999px;cursor:pointer;transition:.25s;
+  box-shadow:0 10px 30px -8px rgba(25,240,216,.6)}
+button.principal:hover{filter:brightness(1.07);transform:translateY(-2px)}
+button.principal:disabled{opacity:.6;cursor:wait;transform:none}
+.msg{margin-top:14px;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--lilas);
+  background:rgba(0,0,0,.22);border:1px solid var(--bord);border-radius:12px;padding:11px 14px;display:none}
+.msg.visible{display:block}
+.msg.erreur{color:var(--rose);border-color:rgba(194,75,99,.4)}
+.fini{text-align:center;padding:10px 4px}
+.fini .gros{font-size:44px;line-height:1}
+.fini h2{justify-content:center;margin:10px 0 8px}
+.fini p{color:var(--ink-2);font-size:15px;margin:0 0 8px}
+.pied{text-align:center;margin-top:18px;font-family:var(--ui);font-style:normal;font-size:13px;color:var(--ink-3)}
+.pied a{color:var(--lilas);text-decoration:none;font-weight:600}
+.actuelle{font-family:var(--ui);font-style:normal;font-size:13.5px;color:var(--ink-2);margin:0 0 14px}
+.actuelle b{color:#fff}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<script src="naogroup-logos.js"></script>
+<div class="wrap">
+  <a class="back" href="NaoGroup.html">← NaoGroup</a>
+
+  <div class="tete">
+    <svg viewBox="0 0 40 40" role="img" aria-label="NaoGroup"><use href="#l-gr"/></svg>
+    <div class="badge" id="badge">Créer mon compte</div>
+    <h1 id="titre">Choisissez votre formule</h1>
+    <p class="sub" id="sousTitre">Votre compte est prêt en deux minutes. Vos données restent à vous, et vous changez de formule quand vous voulez sans rien perdre.</p>
+  </div>
+
+  <div id="zoneChoix">
+    <div class="card">
+      <h2><span class="n">1</span>Votre formule</h2>
+      <p class="actuelle" id="actuelle" hidden></p>
+      <p class="aide">Envie de regarder d'abord ? Le <a href="NaoGroup.html#essai" style="color:var(--lilas)">mode visite</a> ouvre plusieurs outils tout de suite, sans compte — mais rien n'y est gardé.</p>
+      <div class="formules" id="formules"><p class="aide">Chargement des formules…</p></div>
+      <div id="zoneMesure" hidden>
+        <div class="mesure" id="mesure"></div>
+      </div>
+      <div class="periode" id="periode">
+        <label><input type="radio" name="periode" value="mensuel" checked> Paiement mensuel</label>
+        <label><input type="radio" name="periode" value="annuel"> Paiement annuel <span id="moisOfferts"></span></label>
+      </div>
+      <div class="recap" id="recap" hidden></div>
+    </div>
+
+    <form class="card" id="fCompte" autocomplete="on" novalidate>
+      <h2><span class="n">2</span>Votre compte</h2>
+      <p class="aide">Vous vous connecterez ensuite avec votre adresse e-mail et ce mot de passe.</p>
+      <div class="grille">
+        <div class="champ"><label for="prenom">Prénom</label><input type="text" id="prenom" autocomplete="given-name" maxlength="80" required></div>
+        <div class="champ"><label for="nom">Nom</label><input type="text" id="nom" autocomplete="family-name" maxlength="80" required></div>
+        <div class="champ"><label for="espace">Pour</label>
+          <select id="espace"><option value="particulier">Moi et ma famille</option><option value="professionnel">Mon activité professionnelle</option><option value="les_deux">Les deux</option></select></div>
+        <div class="champ" id="champEntreprise" hidden><label for="entreprise">Entreprise</label><input type="text" id="entreprise" autocomplete="organization" maxlength="160"></div>
+        <div class="champ"><label for="email">Adresse e-mail</label><input type="email" id="email" autocomplete="email" maxlength="200" required></div>
+        <div class="champ"><label for="mdp">Mot de passe — 8 caractères au moins</label><input type="password" id="mdp" autocomplete="new-password" minlength="8" required></div>
+        <div class="champ"><label for="mdp2">Confirmation du mot de passe</label><input type="password" id="mdp2" autocomplete="new-password" required></div>
+      </div>
+      <label class="case"><input type="checkbox" id="cgu"> <span>J'ai lu et j'accepte les <a href="conditions.html" target="_blank" rel="noopener">conditions générales</a> et la page <a href="vos-donnees.html" target="_blank" rel="noopener">Vos données</a>. Pour une formule payante, je m'engage à régler la facture reçue dans les 14 jours.</span></label>
+      <button type="submit" class="principal" id="btnCreer">Créer mon compte</button>
+      <div class="msg" id="msgCompte" role="alert"></div>
+    </form>
+
+    <div class="card" id="zoneChanger" hidden>
+      <button type="button" class="principal" id="btnChanger">Valider cette formule</button>
+      <div class="msg" id="msgChanger" role="alert"></div>
+    </div>
+  </div>
+
+  <div class="card fini" id="zoneEnvoye" hidden>
+    <div class="gros">✉️</div>
+    <h2>Plus qu'un clic dans votre boîte e-mail</h2>
+    <p>Nous venons d'envoyer un lien à <b id="emailEnvoye"></b>. Cliquez dessus pour confirmer votre adresse : votre compte s'ouvre aussitôt, avec la formule choisie.</p>
+    <p style="font-size:13px;color:var(--ink-3)">Rien reçu après quelques minutes ? Regardez dans les courriers indésirables. Si cette adresse a déjà un compte, connectez-vous simplement.</p>
+    <a class="back" style="margin:12px 0 0" href="connexion.html">Aller à la connexion →</a>
+  </div>
+
+  <div class="card fini" id="zoneChange" hidden>
+    <div class="gros">✨</div>
+    <h2 id="changeTitre">C'est fait</h2>
+    <p id="changeTexte"></p>
+    <a class="back" style="margin:12px 0 0" href="NaoGroup.html">Retour à mes outils →</a>
+  </div>
+
+  <p class="pied" id="pied">Déjà un compte ? <a href="connexion.html">Se connecter →</a></p>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var Q = new URLSearchParams(location.search);
+  var CAT = null, TARIF = null, choix = null, PROFIL = null;
+  var euro = function (n) { return Number(n).toFixed(2).replace('.', ',').replace(',00', '') + ' €'; };
+  function message(el, t, err) { el.textContent = t; el.classList.toggle('erreur', !!err); el.classList.add('visible'); }
+  function periode() { return (document.querySelector('input[name=periode]:checked') || {}).value === 'annuel' ? 'annuel' : 'mensuel'; }
+  function estEssai(f) { return f && f.id !== 'sur-mesure' && !Number(f.prix); }
+
+  if (!Nao.configure) { $('formules').innerHTML = '<p class="aide">NaoGroup n\'est pas encore branché au serveur.</p>'; $('btnCreer').disabled = true; return; }
+
+  function jetons(ids) {
+    return ids.map(function (id) { var o = Nao.outilParId(id); return o ? '<svg viewBox="0 0 40 40" role="img" aria-label="' + Nao.esc(o.nom) + '"><title>' + Nao.esc(o.nom) + '</title><use href="#' + o.symbole + '"/></svg>' : ''; }).join('');
+  }
+  function carte(f) {
+    var essai = estEssai(f), mesure = f.id === 'sur-mesure';
+    var prix = essai ? 'Gratuit <small>· ' + Nao.dureeEssai + ' jours</small>' : mesure ? '<small>dès</small> ' + euro(TARIF.base) + ' <small>/ outil / mois</small>' : euro(f.prix) + ' <small>/ mois</small>';
+    var desc = essai ? 'Un vrai compte pendant ' + Nao.dureeEssai + ' jours, vos données gardées. Une seule fois par adresse e-mail.'
+      : mesure ? 'Choisissez vos outils un par un.' : (f.outils || []).length + ' outils inclus';
+    return '<button type="button" class="f' + (essai ? ' essai' : '') + '" data-f="' + Nao.esc(f.id) + '" aria-pressed="false">' +
+      (essai ? '<span class="etiq">Essai</span>' : '') + '<span class="t">' + Nao.esc(mesure ? 'Sur mesure' : f.nom) + '</span>' +
+      '<span class="p">' + prix + '</span><span class="d">' + desc + '</span>' +
+      (mesure ? '' : '<span class="jetons">' + jetons(f.outils || []) + '</span>') + '</button>';
+  }
+  function outilsMesure() { return Array.prototype.map.call(document.querySelectorAll('#mesure input:checked'), function (i) { return i.value; }); }
+  function recalcul() {
+    document.querySelectorAll('.f').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-f') === (choix && choix.id))); });
+    $('zoneMesure').hidden = !(choix && choix.id === 'sur-mesure');
+    $('periode').hidden = !choix || estEssai(choix);
+    var r = $('recap');
+    if (!choix) { r.hidden = true; return; }
+    var per = periode(), mois = Number(TARIF.moisOfferts) || 0, mensuel, outils;
+    if (estEssai(choix)) {
+      r.innerHTML = '<b>' + Nao.esc(choix.nom) + '</b> : gratuit pendant ' + Nao.dureeEssai + ' jours, puis vos outils se mettent en pause jusqu\'à ce que vous choisissiez une formule — <b>vos données restent gardées</b>. Une seule fois par adresse e-mail.';
+      r.hidden = false; return;
+    }
+    if (choix.id === 'sur-mesure') {
+      outils = outilsMesure();
+      if (!outils.length) { r.innerHTML = 'Cochez les outils qui vous intéressent.'; r.hidden = false; return; }
+      mensuel = Nao.prixSurMesure(outils, TARIF, CAT).mensuel;
+    } else { outils = choix.outils || []; mensuel = Number(choix.prix); }
+    var montant = per === 'annuel' ? Math.round(mensuel * (12 - mois) * 100) / 100 : mensuel;
+    r.innerHTML = '<b>' + Nao.esc(choix.id === 'sur-mesure' ? 'Sur mesure' : choix.nom) + '</b> — ' + outils.length + ' outil' + (outils.length > 1 ? 's' : '') +
+      ' : <b>' + euro(mensuel) + ' par mois</b>' + (per === 'annuel' ? ', soit <b>' + euro(montant) + ' par an</b>' + (mois ? ' (' + mois + ' mois offerts)' : '') : '') +
+      '.<br>Vos outils s\'ouvrent tout de suite ; la facture vous est adressée, à régler sous 14 jours.';
+    r.hidden = false;
+  }
+  function choisir(id) {
+    choix = CAT.filter(function (f) { return f.id === id; })[0] || null;
+    recalcul();
+  }
+
+  Promise.all([Nao.catalogue(), Nao.profil().catch(function () { return null; })]).then(function (res) {
+    TARIF = res[0].tarif; PROFIL = res[1];
+    CAT = res[0].formules.concat([{ id: 'sur-mesure', nom: 'Sur mesure' }]);
+    $('formules').innerHTML = CAT.map(carte).join('');
+    $('mesure').innerHTML = Nao.outils.map(function (o) {
+      return '<label><input type="checkbox" value="' + o.id + '"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#' + o.symbole + '"/></svg>' + Nao.esc(o.nom) + '</label>';
+    }).join('');
+    $('moisOfferts').textContent = TARIF.moisOfferts ? '— ' + TARIF.moisOfferts + ' mois offerts' : '';
+    $('formules').addEventListener('click', function (e) { var b = e.target.closest('.f'); if (b) choisir(b.getAttribute('data-f')); });
+    $('mesure').addEventListener('change', recalcul);
+    document.querySelectorAll('input[name=periode]').forEach(function (i) { i.addEventListener('change', recalcul); });
+
+    /* client déjà connecté : il change de formule (ses données restent) */
+    if (PROFIL && PROFIL.statut === 'actif') {
+      if (PROFIL.role === 'admin') { $('formules').innerHTML = '<p class="aide">Vous êtes l\'administratrice : vos accès se gèrent dans l\'administration.</p>'; $('fCompte').hidden = true; $('periode').hidden = true; return; }
+      var ab = PROFIL.abonnement || {}, act = CAT.filter(function (f) { return f.id === ab.formule; })[0];
+      $('badge').textContent = 'Mon compte'; $('titre').textContent = 'Ma formule';
+      $('sousTitre').textContent = 'Changez de formule quand vous voulez : vos données restent, les nouveaux outils s\'ajoutent.';
+      $('fCompte').hidden = true; $('zoneChanger').hidden = false; $('pied').hidden = true;
+      var a = $('actuelle'); a.hidden = false;
+      a.innerHTML = ab.a_choisir ? (ab.motif === 'essai_deja_utilise' ? '<b>L\'essai gratuit a déjà été utilisé avec cette adresse e-mail.</b> Choisissez une formule pour ouvrir vos outils.' : '<b>Choisissez une formule</b> pour ouvrir vos outils.')
+        : 'Formule actuelle : <b>' + Nao.esc(act ? act.nom : (ab.formule === 'sur-mesure' ? 'Sur mesure' : (ab.formule || 'aucune'))) + '</b>' +
+          (ab.fin ? (Nao.abonnementExpire(PROFIL) ? ' — <b>terminée le ' + ab.fin.split('-').reverse().join('/') + '</b>' : ' — jusqu\'au ' + ab.fin.split('-').reverse().join('/')) : '') + '.';
+    }
+    var demande = Q.get('mode') === 'mesure' ? 'sur-mesure' : Q.get('formule');
+    if (demande) choisir(demande);
+    if (Q.get('raison') === 'essai') $('actuelle').hidden = false;
+    /* formule déjà choisie sur l'accueil, sur téléphone : la liste des formules fait plus de deux écrans,
+       on descend jusqu'au récapitulatif, juste au-dessus du formulaire (la liste reste au-dessus pour changer) */
+    if (demande && choix && demande !== 'sur-mesure' && !PROFIL && matchMedia('(max-width:760px)').matches) {
+      setTimeout(function () {
+        var reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        /* position sans les décalages de l'animation d'arrivée (offsetTop ignore les transformations) */
+        var y = 0; for (var el = $('periode'); el; el = el.offsetParent) y += el.offsetTop;
+        scrollTo({ top: y - 20, behavior: reduit ? 'auto' : 'smooth' });
+      }, 700);
+    }
+  });
+
+  $('espace').addEventListener('change', function () { $('champEntreprise').hidden = this.value === 'particulier'; });
+
+  function verifierChoix(m) {
+    if (!choix) { message(m, 'Choisissez d\'abord une formule.', true); return false; }
+    if (choix.id === 'sur-mesure' && !outilsMesure().length) { message(m, 'Cochez au moins un outil pour votre formule sur mesure.', true); return false; }
+    return true;
+  }
+
+  $('fCompte').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var m = $('msgCompte'); m.classList.remove('visible');
+    if (!verifierChoix(m)) return;
+    var email = $('email').value.trim(), mdp = $('mdp').value;
+    if (!$('prenom').value.trim() || !$('nom').value.trim()) return message(m, 'Indiquez votre prénom et votre nom.', true);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return message(m, 'Cette adresse e-mail ne semble pas valide.', true);
+    if (mdp.length < 8) return message(m, 'Le mot de passe doit contenir 8 caractères au moins.', true);
+    if (mdp !== $('mdp2').value) return message(m, 'Les deux mots de passe ne sont pas identiques.', true);
+    if (!$('cgu').checked) return message(m, 'Merci d\'accepter les conditions générales pour continuer.', true);
+    var b = $('btnCreer'); b.disabled = true; b.textContent = 'Création…';
+    Nao.inscription({ email: email, mdp: mdp, prenom: $('prenom').value.trim(), nom: $('nom').value.trim(), espace: $('espace').value,
+      entreprise: $('entreprise').value.trim(), formule: choix.id, outils: choix.id === 'sur-mesure' ? outilsMesure() : [], periode: periode() })
+      .then(function (r) {
+        b.disabled = false; b.textContent = 'Créer mon compte';
+        if (r.ok) { $('emailEnvoye').textContent = email; $('zoneChoix').hidden = true; $('zoneEnvoye').hidden = false; $('pied').hidden = true; scrollTo(0, 0); return; }
+        if (r.code === 'mdp') return message(m, 'Ce mot de passe est trop simple : allongez-le ou mélangez lettres, chiffres et signes.', true);
+        if (r.code === 'attente') return message(m, 'Trop de demandes d\'affilée. Patientez une minute avant de réessayer.', true);
+        if (r.code === 'ferme') return message(m, 'Les inscriptions sont momentanément fermées. Écrivez-nous depuis la page Contact.', true);
+        if (r.code === 'email') return message(m, 'Utilisez votre propre adresse e-mail.', true);
+        message(m, 'La création du compte n\'a pas abouti. Réessayez dans un instant, ou écrivez-nous.', true);
+      });
+  });
+
+  $('btnChanger').addEventListener('click', function () {
+    var m = $('msgChanger'); m.classList.remove('visible');
+    if (!verifierChoix(m)) return;
+    var b = this; b.disabled = true;
+    Nao.choisirFormule(choix.id, choix.id === 'sur-mesure' ? outilsMesure() : [], periode()).then(function (r) {
+      b.disabled = false;
+      if (r && r.ok) {
+        $('zoneChoix').hidden = true; $('zoneChange').hidden = false;
+        $('changeTitre').textContent = r.essai ? 'Votre essai commence' : 'Votre formule est en place';
+        $('changeTexte').textContent = r.essai ? 'Vos outils sont ouverts pour ' + Nao.dureeEssai + ' jours, jusqu\'au ' + String(r.fin).split('-').reverse().join('/') + '.'
+          : 'Vos outils sont ouverts dès maintenant. Votre facture de ' + euro(r.montant) + ' est à régler sous 14 jours.';
+        return;
+      }
+      var code = r && r.code;
+      message(m, code === 'essai_deja_utilise' ? 'L\'essai gratuit a déjà été utilisé avec cette adresse e-mail : choisissez une formule payante.'
+        : code === 'essai_sans_email' ? 'L\'essai gratuit est réservé aux comptes créés avec une adresse e-mail.'
+        : code === 'trop_vite' ? 'Vous venez de changer de formule : patientez une minute.'
+        : code === 'statut' ? 'Votre accès est suspendu : contactez NaoGroup.'
+        : 'Le changement n\'a pas abouti. Réessayez dans un instant, ou écrivez-nous.', true);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>NaoGroup — atelier des images</title>
+<!-- Dessine une image de la marque à la taille exacte, selon ?f=… ; generer-images-naogroup.ps1
+     la fait photographier par le navigateur pour produire les PNG (aperçu de partage, icônes, logos). -->
+<script src="naogroup-logos.js"></script>
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:transparent}
+body{font-family:Georgia,"Times New Roman",serif}
+.scene{position:relative;overflow:hidden}
+.fond{background:radial-gradient(120% 140% at 30% 20%,#7A5AE0 0%,#43309E 46%,#1A1240 100%)}
+.halo{position:absolute;border-radius:50%;filter:blur(70px);mix-blend-mode:screen}
+.titre{font-style:italic;color:#fff;letter-spacing:-.02em;line-height:1}
+.titre span{background:linear-gradient(100deg,#19F0D8,#A77BFF 45%,#E99BFF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sous{font-style:italic;color:rgba(243,239,251,.86)}
+.jetons{display:grid;gap:var(--g)}
+.jetons svg{width:var(--t);height:var(--t);border-radius:30%;box-shadow:0 12px 26px -12px rgba(0,0,0,.7)}
+.jeton{display:block;filter:drop-shadow(0 30px 50px rgba(10,6,30,.55))}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19F0D8"/><stop offset=".48" stop-color="#8A5CFF"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <linearGradient id="dg-trait" gradientUnits="userSpaceOnUse" x1="8" y1="8" x2="32" y2="35"><stop offset="0" stop-color="#19F0D8"/><stop offset=".48" stop-color="#8A5CFF"/><stop offset="1" stop-color="#E99BFF"/></linearGradient>
+  <g id="lettre"><path d="M12 27V11L28 25V9.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#fff" opacity=".6"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g></g>
+</defs></svg>
+<div id="ici"></div>
+<script>
+(function () {
+  var f = new URLSearchParams(location.search).get('f') || 'og';
+  var ici = document.getElementById('ici');
+  var outils = (window.NaoLogos && NaoLogos.outils) || [];
+  function jetons(n, t, g, colonnes) {
+    return '<div class="jetons" style="--t:' + t + 'px;--g:' + g + 'px;grid-template-columns:repeat(' + colonnes + ',' + t + 'px)">' +
+      outils.slice(0, n).map(function (o) { return '<svg viewBox="0 0 40 40"><use href="#' + o.id + '"/></svg>'; }).join('') + '</div>';
+  }
+  function halos(w, h, lilas) {
+    return '<i class="halo" style="width:' + w * .5 + 'px;height:' + w * .5 + 'px;left:' + (-w * .08) + 'px;top:' + (-h * .3) + 'px;background:#B9A8F0;opacity:' + (lilas || .45) + '"></i>' +
+           '<i class="halo" style="width:' + w * .42 + 'px;height:' + w * .42 + 'px;right:' + (-w * .06) + 'px;bottom:' + (-h * .4) + 'px;background:#19F0D8;opacity:.42"></i>' +
+           '<i class="halo" style="width:' + w * .36 + 'px;height:' + w * .36 + 'px;left:' + w * .38 + 'px;bottom:' + (-h * .5) + 'px;background:#8A3FFF;opacity:.55"></i>';
+  }
+  var jeton = function (t) { return '<svg class="jeton" width="' + t + '" height="' + t + '" viewBox="0 0 40 40"><use href="#l-gr"/></svg>'; };
+  var html = '', W, H;
+  if (f === 'og') {
+    W = 1200; H = 630;
+    html = '<div class="scene fond" style="width:1200px;height:630px">' + halos(W, H) +
+      '<div style="position:absolute;left:90px;top:110px;display:flex;align-items:center;gap:44px">' + jeton(210) +
+      '<div><div class="titre" style="font-size:118px">Nao<span>Group</span></div>' +
+      '<div class="sous" style="font-size:38px;margin-top:22px;max-width:760px">Des outils pour la vie de tous les jours</div></div></div>' +
+      '<div style="position:absolute;left:90px;bottom:70px">' + jetons(16, 52, 12, 16) + '</div></div>';
+  } else if (f === 'linkedin') {
+    W = 1584; H = 396;
+    html = '<div class="scene fond" style="width:1584px;height:396px">' + halos(W, H, .16) +
+      '<div style="position:absolute;left:64px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:26px">' + jeton(124) +
+      '<div><div class="titre" style="font-size:58px">Nao<span>Group</span></div>' +
+      '<div class="sous" style="font-size:21px;margin-top:10px">Des outils pour la vie de tous les jours</div></div></div>' +
+      '<div style="position:absolute;right:64px;top:50%;transform:translateY(-50%)">' + jetons(18, 70, 18, 9) + '</div></div>';
+  } else if (f === 'instagram' || f === 'carre' || f === 'icone') {
+    W = H = f === 'instagram' ? 1080 : 512;
+    html = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 40 40" style="display:block"><use href="#l-gr"/></svg>';
+  } else if (f === 'maskable' || f === 'apple') {
+    /* plein cadre : le téléphone découpe lui-même la forme ; le N reste dans la zone sûre (80 %) */
+    W = H = f === 'apple' ? 180 : 512;
+    html = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 40 40" style="display:block"><rect width="40" height="40" fill="url(#dg)"/>' +
+      '<g transform="translate(4.4 3.6) scale(.78)"><use href="#lettre"/></g></svg>';
+  } else if (f === 'transparent') {
+    W = H = 512;
+    html = '<svg width="512" height="512" viewBox="0 0 40 40" style="display:block"><g transform="translate(2.6 1.4) scale(.87)">' +
+      '<path d="M12 27V11L28 25V9.5" fill="none" stroke="url(#dg-trait)" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<g fill="url(#dg-trait)" opacity=".75"><circle cx="10.5" cy="31.5" r="1.9"/><circle cx="16.3" cy="33.2" r="1.9"/><circle cx="22.4" cy="33.2" r="1.9"/><circle cx="28.2" cy="31.5" r="1.9"/></g></g></svg>';
+  }
+  ici.innerHTML = html;
+  document.title = 'NaoGroup — ' + f + ' ' + W + '×' + H;
+})();
+</script>
+</body>
+</html>
